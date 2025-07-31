@@ -11,7 +11,7 @@ Eyes bleed from looking through an obsence amount of XML.  I go back to words to
 
 Enter SPECTRE.  This is my try to at an application for creating and editing SCAP content.  This is to help bring the standard to fruition for IT folks and save time by not having to script things anymore.
 
-The application is a completly python coded software, utilizing tkinter, lxml and the SCAP standards.  I took the SCAP standards and created models.  We then use these models and create SCAP content based upon the standards as inputed by the user.
+The application is a completly python coded software using the SCAP standards.  I took the SCAP standards and created models.  We then use these models and create SCAP content based upon the standards as inputed by the user.
 
 Now anyone can create SCAP!!!!
 
