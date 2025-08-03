@@ -1,0 +1,14899 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Generated Fri Jul 18 13:18:24 2025 by generateDS.py version 2.44.3.
+# Python 3.13.5 (tags/v3.13.5:6cb20a2, Jun 11 2025, 16:15:46) [MSC v.1943 64 bit (AMD64)]
+#
+# Command line options:
+#   ('-o', '.\\xccdf_models.py')
+#
+# Command line arguments:
+#   .\schemas\xccdf_1.2.xsd
+#
+# Command line:
+#   C:\Program Files\Python313\Scripts\generateDS -o ".\xccdf_models.py" .\schemas\xccdf_1.2.xsd
+#
+# Current working directory (os.getcwd()):
+#   tkinter_XCCDF
+#
+
+import sys
+try:
+    ModulenotfoundExp_ = ModuleNotFoundError
+except NameError:
+    ModulenotfoundExp_ = ImportError
+from six.moves import zip_longest
+import os
+import re as re_
+import base64
+import datetime as datetime_
+import decimal as decimal_
+from lxml import etree as etree_
+
+
+Validate_simpletypes_ = True
+SaveElementTreeNode = True
+TagNamePrefix = ""
+if sys.version_info.major == 2:
+    BaseStrType_ = basestring
+else:
+    BaseStrType_ = str
+
+
+def parsexml_(infile, parser=None, **kwargs):
+    if parser is None:
+        # Use the lxml ElementTree compatible parser so that, e.g.,
+        #   we ignore comments.
+        try:
+            parser = etree_.ETCompatXMLParser()
+        except AttributeError:
+            # fallback to xml.etree
+            parser = etree_.XMLParser()
+    try:
+        if isinstance(infile, os.PathLike):
+            infile = os.path.join(infile)
+    except AttributeError:
+        pass
+    doc = etree_.parse(infile, parser=parser, **kwargs)
+    return doc
+
+def parsexmlstring_(instring, parser=None, **kwargs):
+    if parser is None:
+        # Use the lxml ElementTree compatible parser so that, e.g.,
+        #   we ignore comments.
+        try:
+            parser = etree_.ETCompatXMLParser()
+        except AttributeError:
+            # fallback to xml.etree
+            parser = etree_.XMLParser()
+    element = etree_.fromstring(instring, parser=parser, **kwargs)
+    return element
+
+#
+# Namespace prefix definition table (and other attributes, too)
+#
+# The module generatedsnamespaces, if it is importable, must contain
+# a dictionary named GeneratedsNamespaceDefs.  This Python dictionary
+# should map element type names (strings) to XML schema namespace prefix
+# definitions.  The export method for any class for which there is
+# a namespace prefix definition, will export that definition in the
+# XML representation of that element.  See the export method of
+# any generated element type class for an example of the use of this
+# table.
+# A sample table is:
+#
+#     # File: generatedsnamespaces.py
+#
+#     GenerateDSNamespaceDefs = {
+#         "ElementtypeA": "http://www.xxx.com/namespaceA",
+#         "ElementtypeB": "http://www.xxx.com/namespaceB",
+#     }
+#
+# Additionally, the generatedsnamespaces module can contain a python
+# dictionary named GenerateDSNamespaceTypePrefixes that associates element
+# types with the namespace prefixes that are to be added to the
+# "xsi:type" attribute value.  See the _exportAttributes method of
+# any generated element type and the generation of "xsi:type" for an
+# example of the use of this table.
+# An example table:
+#
+#     # File: generatedsnamespaces.py
+#
+#     GenerateDSNamespaceTypePrefixes = {
+#         "ElementtypeC": "aaa:",
+#         "ElementtypeD": "bbb:",
+#     }
+#
+
+try:
+    from generatedsnamespaces import GenerateDSNamespaceDefs as GenerateDSNamespaceDefs_
+except ModulenotfoundExp_ :
+    GenerateDSNamespaceDefs_ = {}
+try:
+    from generatedsnamespaces import GenerateDSNamespaceTypePrefixes as GenerateDSNamespaceTypePrefixes_
+except ModulenotfoundExp_ :
+    GenerateDSNamespaceTypePrefixes_ = {}
+
+#
+# You can replace the following class definition by defining an
+# importable module named "generatedscollector" containing a class
+# named "GdsCollector".  See the default class definition below for
+# clues about the possible content of that class.
+#
+try:
+    from generatedscollector import GdsCollector as GdsCollector_
+except ModulenotfoundExp_ :
+
+    class GdsCollector_(object):
+
+        def __init__(self, messages=None):
+            if messages is None:
+                self.messages = []
+            else:
+                self.messages = messages
+
+        def add_message(self, msg):
+            self.messages.append(msg)
+
+        def get_messages(self):
+            return self.messages
+
+        def clear_messages(self):
+            self.messages = []
+
+        def print_messages(self):
+            for msg in self.messages:
+                print("Warning: {}".format(msg))
+
+        def write_messages(self, outstream):
+            for msg in self.messages:
+                outstream.write("Warning: {}\n".format(msg))
+
+
+#
+# The super-class for enum types
+#
+
+try:
+    from enum import Enum
+except ModulenotfoundExp_ :
+    Enum = object
+
+#
+# The root super-class for element type classes
+#
+# Calls to the methods in these classes are generated by generateDS.py.
+# You can replace these methods by re-implementing the following class
+#   in a module named generatedssuper.py.
+
+try:
+    from generatedssuper import GeneratedsSuper
+except ModulenotfoundExp_ as exp:
+    try:
+        from generatedssupersuper import GeneratedsSuperSuper
+    except ModulenotfoundExp_ as exp:
+        class GeneratedsSuperSuper(object):
+            pass
+    
+    class GeneratedsSuper(GeneratedsSuperSuper):
+        __hash__ = object.__hash__
+        tzoff_pattern = re_.compile('(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)$')
+        class _FixedOffsetTZ(datetime_.tzinfo):
+            def __init__(self, offset, name):
+                self.__offset = datetime_.timedelta(minutes=offset)
+                self.__name = name
+            def utcoffset(self, dt):
+                return self.__offset
+            def tzname(self, dt):
+                return self.__name
+            def dst(self, dt):
+                return None
+        def __str__(self):
+            settings = {
+                'str_pretty_print': True,
+                'str_indent_level': 0,
+                'str_namespaceprefix': '',
+                'str_name': self.__class__.__name__,
+                'str_namespacedefs': '',
+            }
+            for n in settings:
+                if hasattr(self, n):
+                    settings[n] = getattr(self, n)
+            if sys.version_info.major == 2:
+                from StringIO import StringIO
+            else:
+                from io import StringIO
+            output = StringIO()
+            self.export(
+                output,
+                settings['str_indent_level'],
+                pretty_print=settings['str_pretty_print'],
+                namespaceprefix_=settings['str_namespaceprefix'],
+                name_=settings['str_name'],
+                namespacedef_=settings['str_namespacedefs']
+            )
+            strval = output.getvalue()
+            output.close()
+            return strval
+        def gds_format_string(self, input_data, input_name=''):
+            return input_data
+        def gds_parse_string(self, input_data, node=None, input_name=''):
+            return input_data
+        def gds_validate_string(self, input_data, node=None, input_name=''):
+            if not input_data:
+                return ''
+            else:
+                return input_data
+        def gds_format_base64(self, input_data, input_name=''):
+            return base64.b64encode(input_data).decode('ascii')
+        def gds_validate_base64(self, input_data, node=None, input_name=''):
+            return input_data
+        def gds_format_integer(self, input_data, input_name=''):
+            return '%d' % int(input_data)
+        def gds_parse_integer(self, input_data, node=None, input_name=''):
+            try:
+                ival = int(input_data)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(node, 'Requires integer value: %s' % exp)
+            return ival
+        def gds_validate_integer(self, input_data, node=None, input_name=''):
+            try:
+                value = int(input_data)
+            except (TypeError, ValueError):
+                raise_parse_error(node, 'Requires integer value')
+            return value
+        def gds_format_integer_list(self, input_data, input_name=''):
+            if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
+                input_data = [str(s) for s in input_data]
+            return '%s' % ' '.join(input_data)
+        def gds_validate_integer_list(
+                self, input_data, node=None, input_name=''):
+            values = input_data.split()
+            for value in values:
+                try:
+                    int(value)
+                except (TypeError, ValueError):
+                    raise_parse_error(node, 'Requires sequence of integer values')
+            return values
+        def gds_format_float(self, input_data, input_name=''):
+            value = ('%.15f' % float(input_data)).rstrip('0')
+            if value.endswith('.'):
+                value += '0'
+            return value
+    
+        def gds_parse_float(self, input_data, node=None, input_name=''):
+            try:
+                fval_ = float(input_data)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(node, 'Requires float or double value: %s' % exp)
+            return fval_
+        def gds_validate_float(self, input_data, node=None, input_name=''):
+            try:
+                value = float(input_data)
+            except (TypeError, ValueError):
+                raise_parse_error(node, 'Requires float value')
+            return value
+        def gds_format_float_list(self, input_data, input_name=''):
+            if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
+                input_data = [str(s) for s in input_data]
+            return '%s' % ' '.join(input_data)
+        def gds_validate_float_list(
+                self, input_data, node=None, input_name=''):
+            values = input_data.split()
+            for value in values:
+                try:
+                    float(value)
+                except (TypeError, ValueError):
+                    raise_parse_error(node, 'Requires sequence of float values')
+            return values
+        def gds_format_decimal(self, input_data, input_name=''):
+            return_value = '%s' % input_data
+            if '.' in return_value:
+                return_value = return_value.rstrip('0')
+                if return_value.endswith('.'):
+                    return_value = return_value.rstrip('.')
+            return return_value
+        def gds_parse_decimal(self, input_data, node=None, input_name=''):
+            try:
+                decimal_value = decimal_.Decimal(input_data)
+            except (TypeError, ValueError):
+                raise_parse_error(node, 'Requires decimal value')
+            return decimal_value
+        def gds_validate_decimal(self, input_data, node=None, input_name=''):
+            try:
+                value = decimal_.Decimal(input_data)
+            except (TypeError, ValueError):
+                raise_parse_error(node, 'Requires decimal value')
+            return value
+        def gds_format_decimal_list(self, input_data, input_name=''):
+            if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
+                input_data = [str(s) for s in input_data]
+            return ' '.join([self.gds_format_decimal(item) for item in input_data])
+        def gds_validate_decimal_list(
+                self, input_data, node=None, input_name=''):
+            values = input_data.split()
+            for value in values:
+                try:
+                    decimal_.Decimal(value)
+                except (TypeError, ValueError):
+                    raise_parse_error(node, 'Requires sequence of decimal values')
+            return values
+        def gds_format_double(self, input_data, input_name=''):
+            return '%s' % input_data
+        def gds_parse_double(self, input_data, node=None, input_name=''):
+            try:
+                fval_ = float(input_data)
+            except (TypeError, ValueError) as exp:
+                raise_parse_error(node, 'Requires double or float value: %s' % exp)
+            return fval_
+        def gds_validate_double(self, input_data, node=None, input_name=''):
+            try:
+                value = float(input_data)
+            except (TypeError, ValueError):
+                raise_parse_error(node, 'Requires double or float value')
+            return value
+        def gds_format_double_list(self, input_data, input_name=''):
+            if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
+                input_data = [str(s) for s in input_data]
+            return '%s' % ' '.join(input_data)
+        def gds_validate_double_list(
+                self, input_data, node=None, input_name=''):
+            values = input_data.split()
+            for value in values:
+                try:
+                    float(value)
+                except (TypeError, ValueError):
+                    raise_parse_error(
+                        node, 'Requires sequence of double or float values')
+            return values
+        def gds_format_boolean(self, input_data, input_name=''):
+            return ('%s' % input_data).lower()
+        def gds_parse_boolean(self, input_data, node=None, input_name=''):
+            input_data = input_data.strip()
+            if input_data in ('true', '1'):
+                bval = True
+            elif input_data in ('false', '0'):
+                bval = False
+            else:
+                raise_parse_error(node, 'Requires boolean value')
+            return bval
+        def gds_validate_boolean(self, input_data, node=None, input_name=''):
+            if input_data not in (True, 1, False, 0, ):
+                raise_parse_error(
+                    node,
+                    'Requires boolean value '
+                    '(one of True, 1, False, 0)')
+            return input_data
+        def gds_format_boolean_list(self, input_data, input_name=''):
+            if len(input_data) > 0 and not isinstance(input_data[0], BaseStrType_):
+                input_data = [str(s) for s in input_data]
+            return '%s' % ' '.join(input_data)
+        def gds_validate_boolean_list(
+                self, input_data, node=None, input_name=''):
+            values = input_data.split()
+            for value in values:
+                value = self.gds_parse_boolean(value, node, input_name)
+                if value not in (True, 1, False, 0, ):
+                    raise_parse_error(
+                        node,
+                        'Requires sequence of boolean values '
+                        '(one of True, 1, False, 0)')
+            return values
+        def gds_validate_datetime(self, input_data, node=None, input_name=''):
+            return input_data
+        def gds_format_datetime(self, input_data, input_name=''):
+            if input_data.microsecond == 0:
+                _svalue = '%04d-%02d-%02dT%02d:%02d:%02d' % (
+                    input_data.year,
+                    input_data.month,
+                    input_data.day,
+                    input_data.hour,
+                    input_data.minute,
+                    input_data.second,
+                )
+            else:
+                _svalue = '%04d-%02d-%02dT%02d:%02d:%02d.%s' % (
+                    input_data.year,
+                    input_data.month,
+                    input_data.day,
+                    input_data.hour,
+                    input_data.minute,
+                    input_data.second,
+                    ('%f' % (float(input_data.microsecond) / 1000000))[2:],
+                )
+            if input_data.tzinfo is not None:
+                tzoff = input_data.tzinfo.utcoffset(input_data)
+                if tzoff is not None:
+                    total_seconds = tzoff.seconds + (86400 * tzoff.days)
+                    if total_seconds == 0:
+                        _svalue += 'Z'
+                    else:
+                        if total_seconds < 0:
+                            _svalue += '-'
+                            total_seconds *= -1
+                        else:
+                            _svalue += '+'
+                        hours = total_seconds // 3600
+                        minutes = (total_seconds - (hours * 3600)) // 60
+                        _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
+            return _svalue
+        @classmethod
+        def gds_parse_datetime(cls, input_data):
+            tz = None
+            if input_data[-1] == 'Z':
+                tz = GeneratedsSuper._FixedOffsetTZ(0, 'UTC')
+                input_data = input_data[:-1]
+            else:
+                results = GeneratedsSuper.tzoff_pattern.search(input_data)
+                if results is not None:
+                    tzoff_parts = results.group(2).split(':')
+                    tzoff = int(tzoff_parts[0]) * 60 + int(tzoff_parts[1])
+                    if results.group(1) == '-':
+                        tzoff *= -1
+                    tz = GeneratedsSuper._FixedOffsetTZ(
+                        tzoff, results.group(0))
+                    input_data = input_data[:-6]
+            time_parts = input_data.split('.')
+            if len(time_parts) > 1:
+                micro_seconds = int(float('0.' + time_parts[1]) * 1000000)
+                input_data = '%s.%s' % (
+                    time_parts[0], "{}".format(micro_seconds).rjust(6, "0"), )
+                dt = datetime_.datetime.strptime(
+                    input_data, '%Y-%m-%dT%H:%M:%S.%f')
+            else:
+                dt = datetime_.datetime.strptime(
+                    input_data, '%Y-%m-%dT%H:%M:%S')
+            dt = dt.replace(tzinfo=tz)
+            return dt
+        def gds_validate_date(self, input_data, node=None, input_name=''):
+            return input_data
+        def gds_format_date(self, input_data, input_name=''):
+            _svalue = '%04d-%02d-%02d' % (
+                input_data.year,
+                input_data.month,
+                input_data.day,
+            )
+            try:
+                if input_data.tzinfo is not None:
+                    tzoff = input_data.tzinfo.utcoffset(input_data)
+                    if tzoff is not None:
+                        total_seconds = tzoff.seconds + (86400 * tzoff.days)
+                        if total_seconds == 0:
+                            _svalue += 'Z'
+                        else:
+                            if total_seconds < 0:
+                                _svalue += '-'
+                                total_seconds *= -1
+                            else:
+                                _svalue += '+'
+                            hours = total_seconds // 3600
+                            minutes = (total_seconds - (hours * 3600)) // 60
+                            _svalue += '{0:02d}:{1:02d}'.format(
+                                hours, minutes)
+            except AttributeError:
+                pass
+            return _svalue
+        @classmethod
+        def gds_parse_date(cls, input_data):
+            tz = None
+            if input_data[-1] == 'Z':
+                tz = GeneratedsSuper._FixedOffsetTZ(0, 'UTC')
+                input_data = input_data[:-1]
+            else:
+                results = GeneratedsSuper.tzoff_pattern.search(input_data)
+                if results is not None:
+                    tzoff_parts = results.group(2).split(':')
+                    tzoff = int(tzoff_parts[0]) * 60 + int(tzoff_parts[1])
+                    if results.group(1) == '-':
+                        tzoff *= -1
+                    tz = GeneratedsSuper._FixedOffsetTZ(
+                        tzoff, results.group(0))
+                    input_data = input_data[:-6]
+            dt = datetime_.datetime.strptime(input_data, '%Y-%m-%d')
+            dt = dt.replace(tzinfo=tz)
+            return dt.date()
+        def gds_validate_time(self, input_data, node=None, input_name=''):
+            return input_data
+        def gds_format_time(self, input_data, input_name=''):
+            if input_data.microsecond == 0:
+                _svalue = '%02d:%02d:%02d' % (
+                    input_data.hour,
+                    input_data.minute,
+                    input_data.second,
+                )
+            else:
+                _svalue = '%02d:%02d:%02d.%s' % (
+                    input_data.hour,
+                    input_data.minute,
+                    input_data.second,
+                    ('%f' % (float(input_data.microsecond) / 1000000))[2:],
+                )
+            if input_data.tzinfo is not None:
+                tzoff = input_data.tzinfo.utcoffset(input_data)
+                if tzoff is not None:
+                    total_seconds = tzoff.seconds + (86400 * tzoff.days)
+                    if total_seconds == 0:
+                        _svalue += 'Z'
+                    else:
+                        if total_seconds < 0:
+                            _svalue += '-'
+                            total_seconds *= -1
+                        else:
+                            _svalue += '+'
+                        hours = total_seconds // 3600
+                        minutes = (total_seconds - (hours * 3600)) // 60
+                        _svalue += '{0:02d}:{1:02d}'.format(hours, minutes)
+            return _svalue
+        def gds_validate_simple_patterns(self, patterns, target):
+            # pat is a list of lists of strings/patterns.
+            # The target value must match at least one of the patterns
+            # in order for the test to succeed.
+            found1 = True
+            target = str(target)
+            for patterns1 in patterns:
+                found2 = False
+                for patterns2 in patterns1:
+                    mo = re_.search(patterns2, target)
+                    if mo is not None and len(mo.group(0)) == len(target):
+                        found2 = True
+                        break
+                if not found2:
+                    found1 = False
+                    break
+            return found1
+        @classmethod
+        def gds_parse_time(cls, input_data):
+            tz = None
+            if input_data[-1] == 'Z':
+                tz = GeneratedsSuper._FixedOffsetTZ(0, 'UTC')
+                input_data = input_data[:-1]
+            else:
+                results = GeneratedsSuper.tzoff_pattern.search(input_data)
+                if results is not None:
+                    tzoff_parts = results.group(2).split(':')
+                    tzoff = int(tzoff_parts[0]) * 60 + int(tzoff_parts[1])
+                    if results.group(1) == '-':
+                        tzoff *= -1
+                    tz = GeneratedsSuper._FixedOffsetTZ(
+                        tzoff, results.group(0))
+                    input_data = input_data[:-6]
+            if len(input_data.split('.')) > 1:
+                dt = datetime_.datetime.strptime(input_data, '%H:%M:%S.%f')
+            else:
+                dt = datetime_.datetime.strptime(input_data, '%H:%M:%S')
+            dt = dt.replace(tzinfo=tz)
+            return dt.time()
+        def gds_check_cardinality_(
+                self, value, input_name,
+                min_occurs=0, max_occurs=1, required=None):
+            if value is None:
+                length = 0
+            elif isinstance(value, list):
+                length = len(value)
+            else:
+                length = 1
+            if required is not None :
+                if required and length < 1:
+                    self.gds_collector_.add_message(
+                        "Required value {}{} is missing".format(
+                            input_name, self.gds_get_node_lineno_()))
+            if length < min_occurs:
+                self.gds_collector_.add_message(
+                    "Number of values for {}{} is below "
+                    "the minimum allowed, "
+                    "expected at least {}, found {}".format(
+                        input_name, self.gds_get_node_lineno_(),
+                        min_occurs, length))
+            elif length > max_occurs:
+                self.gds_collector_.add_message(
+                    "Number of values for {}{} is above "
+                    "the maximum allowed, "
+                    "expected at most {}, found {}".format(
+                        input_name, self.gds_get_node_lineno_(),
+                        max_occurs, length))
+        def gds_validate_builtin_ST_(
+                self, validator, value, input_name,
+                min_occurs=None, max_occurs=None, required=None):
+            if value is not None:
+                try:
+                    validator(value, input_name=input_name)
+                except GDSParseError as parse_error:
+                    self.gds_collector_.add_message(str(parse_error))
+        def gds_validate_defined_ST_(
+                self, validator, value, input_name,
+                min_occurs=None, max_occurs=None, required=None):
+            if value is not None:
+                try:
+                    validator(value)
+                except GDSParseError as parse_error:
+                    self.gds_collector_.add_message(str(parse_error))
+        def gds_str_lower(self, instring):
+            return instring.lower()
+        def get_path_(self, node):
+            path_list = []
+            self.get_path_list_(node, path_list)
+            path_list.reverse()
+            path = '/'.join(path_list)
+            return path
+        Tag_strip_pattern_ = re_.compile(r'{.*}')
+        def get_path_list_(self, node, path_list):
+            if node is None:
+                return
+            tag = GeneratedsSuper.Tag_strip_pattern_.sub('', node.tag)
+            if tag:
+                path_list.append(tag)
+            self.get_path_list_(node.getparent(), path_list)
+        def get_class_obj_(self, node, default_class=None):
+            class_obj1 = default_class
+            if 'xsi' in node.nsmap:
+                classname = node.get('{%s}type' % node.nsmap['xsi'])
+                if classname is not None:
+                    names = classname.split(':')
+                    if len(names) == 2:
+                        classname = names[1]
+                    class_obj2 = globals().get(classname)
+                    if class_obj2 is not None:
+                        class_obj1 = class_obj2
+            return class_obj1
+        def gds_build_any(self, node, type_name=None):
+            # provide default value in case option --disable-xml is used.
+            content = ""
+            content = etree_.tostring(node, encoding="unicode")
+            return content
+        @classmethod
+        def gds_reverse_node_mapping(cls, mapping):
+            return dict(((v, k) for k, v in mapping.items()))
+        @staticmethod
+        def gds_encode(instring):
+            if sys.version_info.major == 2:
+                if ExternalEncoding:
+                    encoding = ExternalEncoding
+                else:
+                    encoding = 'utf-8'
+                return instring.encode(encoding)
+            else:
+                return instring
+        @staticmethod
+        def convert_unicode(instring):
+            if isinstance(instring, str):
+                result = quote_xml(instring)
+            elif sys.version_info.major == 2 and isinstance(instring, unicode):
+                result = quote_xml(instring).encode('utf8')
+            else:
+                result = GeneratedsSuper.gds_encode(str(instring))
+            return result
+        def __eq__(self, other):
+            def excl_select_objs_(obj):
+                return (obj[0] != 'parent_object_' and
+                        obj[0] != 'gds_collector_')
+            if type(self) != type(other):
+                return False
+            return all(x == y for x, y in zip_longest(
+                filter(excl_select_objs_, self.__dict__.items()),
+                filter(excl_select_objs_, other.__dict__.items())))
+        def __ne__(self, other):
+            return not self.__eq__(other)
+        # Django ETL transform hooks.
+        def gds_djo_etl_transform(self):
+            pass
+        def gds_djo_etl_transform_db_obj(self, dbobj):
+            pass
+        # SQLAlchemy ETL transform hooks.
+        def gds_sqa_etl_transform(self):
+            return 0, None
+        def gds_sqa_etl_transform_db_obj(self, dbobj):
+            pass
+        def gds_get_node_lineno_(self):
+            if (hasattr(self, "gds_elementtree_node_") and
+                    self.gds_elementtree_node_ is not None):
+                return ' near line {}'.format(
+                    self.gds_elementtree_node_.sourceline)
+            else:
+                return ""
+    
+    
+    def getSubclassFromModule_(module, class_):
+        '''Get the subclass of a class from a specific module.'''
+        name = class_.__name__ + 'Sub'
+        if hasattr(module, name):
+            return getattr(module, name)
+        else:
+            return None
+
+
+#
+# If you have installed IPython you can uncomment and use the following.
+# IPython is available from http://ipython.scipy.org/.
+#
+
+## from IPython.Shell import IPShellEmbed
+## args = ''
+## ipshell = IPShellEmbed(args,
+##     banner = 'Dropping into IPython',
+##     exit_msg = 'Leaving Interpreter, back to program.')
+
+# Then use the following line where and when you want to drop into the
+# IPython shell:
+#    ipshell('<some message> -- Entering ipshell.\nHit Ctrl-D to exit')
+
+#
+# Globals
+#
+
+ExternalEncoding = ''
+# Set this to false in order to deactivate during export, the use of
+# name space prefixes captured from the input document.
+UseCapturedNS_ = True
+CapturedNsmap_ = {}
+Tag_pattern_ = re_.compile(r'({.*})?(.*)')
+String_cleanup_pat_ = re_.compile(r"[\n\r\s]+")
+Namespace_extract_pat_ = re_.compile(r'{(.*)}(.*)')
+CDATA_pattern_ = re_.compile(r"<!\[CDATA\[.*?\]\]>", re_.DOTALL)
+
+# Change this to redirect the generated superclass module to use a
+# specific subclass module.
+CurrentSubclassModule_ = None
+
+#
+# Support/utility functions.
+#
+
+
+def showIndent(outfile, level, pretty_print=True):
+    if pretty_print:
+        for idx in range(level):
+            outfile.write('    ')
+
+
+def quote_xml(inStr):
+    "Escape markup chars, but do not modify CDATA sections."
+    if not inStr:
+        return ''
+    s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
+    s2 = ''
+    pos = 0
+    matchobjects = CDATA_pattern_.finditer(s1)
+    for mo in matchobjects:
+        s3 = s1[pos:mo.start()]
+        s2 += quote_xml_aux(s3)
+        s2 += s1[mo.start():mo.end()]
+        pos = mo.end()
+    s3 = s1[pos:]
+    s2 += quote_xml_aux(s3)
+    return s2
+
+
+def quote_xml_aux(inStr):
+    s1 = inStr.replace('&', '&amp;')
+    s1 = s1.replace('<', '&lt;')
+    s1 = s1.replace('>', '&gt;')
+    return s1
+
+
+def quote_attrib(inStr):
+    s1 = (isinstance(inStr, BaseStrType_) and inStr or '%s' % inStr)
+    s1 = s1.replace('&', '&amp;')
+    s1 = s1.replace('<', '&lt;')
+    s1 = s1.replace('>', '&gt;')
+    s1 = s1.replace('\n', '&#10;')
+    if '"' in s1:
+        if "'" in s1:
+            s1 = '"%s"' % s1.replace('"', "&quot;")
+        else:
+            s1 = "'%s'" % s1
+    else:
+        s1 = '"%s"' % s1
+    return s1
+
+
+def quote_python(inStr):
+    s1 = inStr
+    if s1.find("'") == -1:
+        if s1.find('\n') == -1:
+            return "'%s'" % s1
+        else:
+            return "'''%s'''" % s1
+    else:
+        if s1.find('"') != -1:
+            s1 = s1.replace('"', '\\"')
+        if s1.find('\n') == -1:
+            return '"%s"' % s1
+        else:
+            return '"""%s"""' % s1
+
+
+def get_all_text_(node):
+    if node.text is not None:
+        text = node.text
+    else:
+        text = ''
+    for child in node:
+        if child.tail is not None:
+            text += child.tail
+    return text
+
+
+def find_attr_value_(attr_name, node):
+    attrs = node.attrib
+    attr_parts = attr_name.split(':')
+    value = None
+    if len(attr_parts) == 1:
+        value = attrs.get(attr_name)
+    elif len(attr_parts) == 2:
+        prefix, name = attr_parts
+        if prefix == 'xml':
+            namespace = 'http://www.w3.org/XML/1998/namespace'
+        else:
+            namespace = node.nsmap.get(prefix)
+        if namespace is not None:
+            value = attrs.get('{%s}%s' % (namespace, name, ))
+    return value
+
+
+def encode_str_2_3(instr):
+    return instr
+
+
+class GDSParseError(Exception):
+    pass
+
+
+def raise_parse_error(node, msg):
+    if node is not None:
+        msg = '%s (element %s/line %d)' % (msg, node.tag, node.sourceline, )
+    raise GDSParseError(msg)
+
+
+class MixedContainer:
+    # Constants for category:
+    CategoryNone = 0
+    CategoryText = 1
+    CategorySimple = 2
+    CategoryComplex = 3
+    # Constants for content_type:
+    TypeNone = 0
+    TypeText = 1
+    TypeString = 2
+    TypeInteger = 3
+    TypeFloat = 4
+    TypeDecimal = 5
+    TypeDouble = 6
+    TypeBoolean = 7
+    TypeBase64 = 8
+    def __init__(self, category, content_type, name, value):
+        self.category = category
+        self.content_type = content_type
+        self.name = name
+        self.value = value
+    def getCategory(self):
+        return self.category
+    def getContenttype(self, content_type):
+        return self.content_type
+    def getValue(self):
+        return self.value
+    def getName(self):
+        return self.name
+    def export(self, outfile, level, name, namespace,
+               pretty_print=True):
+        if self.category == MixedContainer.CategoryText:
+            # Prevent exporting empty content as empty lines.
+            if self.value.strip():
+                outfile.write(self.value)
+        elif self.category == MixedContainer.CategorySimple:
+            self.exportSimple(outfile, level, name)
+        else:    # category == MixedContainer.CategoryComplex
+            self.value.export(
+                outfile, level, namespace, name_=name,
+                pretty_print=pretty_print)
+    def exportSimple(self, outfile, level, name):
+        if self.content_type == MixedContainer.TypeString:
+            outfile.write('<%s>%s</%s>' % (
+                self.name, self.value, self.name))
+        elif self.content_type == MixedContainer.TypeInteger or \
+                self.content_type == MixedContainer.TypeBoolean:
+            outfile.write('<%s>%d</%s>' % (
+                self.name, self.value, self.name))
+        elif self.content_type == MixedContainer.TypeFloat or \
+                self.content_type == MixedContainer.TypeDecimal:
+            outfile.write('<%s>%f</%s>' % (
+                self.name, self.value, self.name))
+        elif self.content_type == MixedContainer.TypeDouble:
+            outfile.write('<%s>%g</%s>' % (
+                self.name, self.value, self.name))
+        elif self.content_type == MixedContainer.TypeBase64:
+            outfile.write('<%s>%s</%s>' % (
+                self.name,
+                base64.b64encode(self.value),
+                self.name))
+    def to_etree(self, element, mapping_=None, reverse_mapping_=None, nsmap_=None):
+        if self.category == MixedContainer.CategoryText:
+            # Prevent exporting empty content as empty lines.
+            if self.value.strip():
+                if len(element) > 0:
+                    if element[-1].tail is None:
+                        element[-1].tail = self.value
+                    else:
+                        element[-1].tail += self.value
+                else:
+                    if element.text is None:
+                        element.text = self.value
+                    else:
+                        element.text += self.value
+        elif self.category == MixedContainer.CategorySimple:
+            subelement = etree_.SubElement(
+                element, '%s' % self.name)
+            subelement.text = self.to_etree_simple()
+        else:    # category == MixedContainer.CategoryComplex
+            self.value.to_etree(element)
+    def to_etree_simple(self, mapping_=None, reverse_mapping_=None, nsmap_=None):
+        if self.content_type == MixedContainer.TypeString:
+            text = self.value
+        elif (self.content_type == MixedContainer.TypeInteger or
+                self.content_type == MixedContainer.TypeBoolean):
+            text = '%d' % self.value
+        elif (self.content_type == MixedContainer.TypeFloat or
+                self.content_type == MixedContainer.TypeDecimal):
+            text = '%f' % self.value
+        elif self.content_type == MixedContainer.TypeDouble:
+            text = '%g' % self.value
+        elif self.content_type == MixedContainer.TypeBase64:
+            text = '%s' % base64.b64encode(self.value)
+        return text
+    def exportLiteral(self, outfile, level, name):
+        if self.category == MixedContainer.CategoryText:
+            showIndent(outfile, level)
+            outfile.write(
+                'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
+                    self.category, self.content_type,
+                    self.name, self.value))
+        elif self.category == MixedContainer.CategorySimple:
+            showIndent(outfile, level)
+            outfile.write(
+                'model_.MixedContainer(%d, %d, "%s", "%s"),\n' % (
+                    self.category, self.content_type,
+                    self.name, self.value))
+        else:    # category == MixedContainer.CategoryComplex
+            showIndent(outfile, level)
+            outfile.write(
+                'model_.MixedContainer(%d, %d, "%s",\n' % (
+                    self.category, self.content_type, self.name,))
+            self.value.exportLiteral(outfile, level + 1)
+            showIndent(outfile, level)
+            outfile.write(')\n')
+
+
+class MemberSpec_(object):
+    def __init__(self, name='', data_type='', container=0,
+            optional=0, child_attrs=None, choice=None):
+        self.name = name
+        self.data_type = data_type
+        self.container = container
+        self.child_attrs = child_attrs
+        self.choice = choice
+        self.optional = optional
+    def set_name(self, name): self.name = name
+    def get_name(self): return self.name
+    def set_data_type(self, data_type): self.data_type = data_type
+    def get_data_type_chain(self): return self.data_type
+    def get_data_type(self):
+        if isinstance(self.data_type, list):
+            if len(self.data_type) > 0:
+                return self.data_type[-1]
+            else:
+                return 'xs:string'
+        else:
+            return self.data_type
+    def set_container(self, container): self.container = container
+    def get_container(self): return self.container
+    def set_child_attrs(self, child_attrs): self.child_attrs = child_attrs
+    def get_child_attrs(self): return self.child_attrs
+    def set_choice(self, choice): self.choice = choice
+    def get_choice(self): return self.choice
+    def set_optional(self, optional): self.optional = optional
+    def get_optional(self): return self.optional
+
+
+def _cast(typ, value):
+    if typ is None or value is None:
+        return value
+    return typ(value)
+
+
+#
+# Start enum classes
+#
+class ccOperatorEnumType(str, Enum):
+    """ccOperatorEnumType --  The type for the allowed @operator names for the
+    <
+    xccdf:complex-check
+    >
+    operator attribute. Only AND and OR operators are
+    supported. (The
+    <
+    xccdf:complex-check
+    >
+    has a separate mechanism for negation.)
+    
+    """
+    OR='OR' # The logical OR of the component terms
+    AND='AND' # The logical AND of the component terms
+
+
+class fixStrategyEnumType(str, Enum):
+    """fixStrategyEnumType --  Allowed @strategy keyword values for an
+    <
+    xccdf:Rule
+    >
+    element's
+    <
+    xccdf:fix
+    >
+    or
+    <
+    xccdf:fixtext
+    >
+    elements.
+    The values indicate the method or approach for fixing non-compliance with a
+    particular
+    <
+    xccdf:Rule
+    >
+    .
+    
+    """
+    UNKNOWN='unknown' # Strategy not defined (default)
+    CONFIGURE='configure' # Adjust target configuration/settings
+    COMBINATION='combination' # Combination of two or more approaches
+    DISABLE='disable' # Turn off or uninstall a target component
+    ENABLE='enable' # Turn on or install a target component
+    PATCH='patch' # Apply a patch, hotfix, update, etc.
+    POLICY='policy' # Remediation requires out-of-band adjustments to policies or procedures
+    RESTRICT='restrict' # Adjust permissions, access rights, filters, or other access restrictions
+    UPDATE='update' # Install, upgrade or update the system
+
+
+class interfaceHintType(str, Enum):
+    """interfaceHintType --  Allowed interface hint values.
+    <
+    xccdf:Value
+    >
+    elements may contain a hint or recommendation to a benchmark consumer or producer
+    about how the user might select or adjust the
+    <
+    xccdf:Value
+    >
+    . This type
+    enumerates the possible values of this hint.
+    
+    """
+    CHOICE='choice' # Multiple choice
+    TEXTLINE='textline' # Multiple lines of text
+    TEXT='text' # Single line of text
+    DATE='date' # Date
+    DATETIME='datetime' # Date and time
+
+
+class msgSevEnumType(str, Enum):
+    """msgSevEnumType --  Allowed values to indicate the severity of messages
+    from the checking engine. These values don't affect scoring themselves but are
+    present merely to convey diagnostic information from the checking engine. Benchmark
+    consumers may choose to log these messages or display them to the user.
+    
+    """
+    ERROR='error' # Denotes a serious problem identified; test did not run.
+    WARNING='warning' # Denotes a possible issue; test may not have run.
+    INFO='info' # Denotes important information about the tests.
+
+
+class operatorEnumeration(str, Enum):
+    AND='AND'
+    OR='OR'
+
+
+class ratingEnumType(str, Enum):
+    """ratingEnumType --  This type enumerates allowed rating values the
+    disruption and complexity properties of an
+    <
+    xccdf:Rule
+    >
+    element's
+    <
+    xccdf:fix
+    >
+    or
+    <
+    xccdf:fixtext
+    >
+    elements.
+    
+    """
+    UNKNOWN='unknown' # Rating unknown or impossible to estimate (default)
+    LOW='low' # Little or no potential for disruption, very modest complexity
+    MEDIUM='medium' # Some chance of minor disruption, substantial complexity
+    HIGH='high' # Likely to cause serious disruption, very complex
+
+
+class resultEnumType(str, Enum):
+    """resultEnumType -- Allowed result indicators for a
+    test.
+    
+    """
+    PASS='pass' # The target system or system component satisfied all the conditions of the <xccdf:Rule>.
+    FAIL='fail' # The target system or system component did not satisfy all the conditions of the <xccdf:Rule>.
+    ERROR='error' # The checking engine could not complete the evaluation; therefore the status of the target’s compliance with the <xccdf:Rule> is not certain. This could happen, for example, if a testing tool was run with insufficient privileges and could not gather all of the necessary information.
+    UNKNOWN='unknown' # The testing tool encountered some problem and the result is unknown. For example, a result of ‘unknown’ might be given if the testing tool was unable to interpret the output of the checking engine (the output has no meaning to the testing tool).
+    NOTAPPLICABLE='notapplicable' # The <xccdf:Rule> was not applicable to the target of the test. For example, the <xccdf:Rule> might have been specific to a different version of the target OS, or it might have been a test against a platform feature that was not installed.
+    NOTCHECKED='notchecked' # The <xccdf:Rule> was not evaluated by the checking engine. This status is designed for <xccdf:Rule> elements that have no check. It may also correspond to a status returned by a checking engine if the checking engine does not support the indicated check code.
+    NOTSELECTED='notselected' # The <xccdf:Rule> was not selected in the <xccdf:Benchmark>.
+    INFORMATIONAL='informational' # The <xccdf:Rule> was checked, but the output from the checking engine is simply information for auditors or administrators; it is not a compliance category. This status value is designed for <xccdf:Rule> elements whose main purpose is to extract information from the target rather than test the target.
+    FIXED='fixed' # The <xccdf:Rule> had failed, but was then fixed (possibly by a tool that can automatically apply remediation, or possibly by the human auditor).
+
+
+class roleEnumType(str, Enum):
+    """roleEnumType -- Allowed checking and scoring roles for an
+    <
+    xccdf:Rule
+    >
+    .
+    
+    """
+    FULL='full' # If the <xccdf:Rule> is selected, then check it and let the result contribute to the score and appear in reports (default).
+    UNSCORED='unscored' # If the <xccdf:Rule> is selected, then check it and include it in the test report, but give the result a status of informational and do not use the result in score computations.
+    UNCHECKED='unchecked' # Do not check the <xccdf:Rule>; just force the result status to notchecked.
+
+
+class severityEnumType(str, Enum):
+    """severityEnumType -- Allowed severity values for the @severity attribute of
+    an
+    <
+    xccdf:Rule
+    >
+    . The value of this attribute provides an indication of the
+    importance of the
+    <
+    xccdf:Rule
+    >
+    element's recommendation. This information is
+    informative only and does not affect scoring.
+    
+    """
+    UNKNOWN='unknown' # Severity not defined (default).
+    INFO='info' # <xccdf:Rule> is informational and failure does not represent a problem.
+    LOW='low' # Not a serious problem.
+    MEDIUM='medium' # Fairly serious problem.
+    HIGH='high' # A grave or critical problem.
+
+
+class statusType(str, Enum):
+    """statusType --  The statusType represents the possible levels of
+    maturity or consensus level for its parent element as recorded by an
+    <
+    xccdf:status
+    >
+    element.
+    
+    """
+    ACCEPTED='accepted' # Released as final
+    DEPRECATED='deprecated' # No longer needed
+    DRAFT='draft' # Released in draft state
+    INCOMPLETE='incomplete' # Under initial development
+    INTERIM='interim' # Revised and in the process of being finalized
+
+
+class subUseEnumType(str, Enum):
+    """subUseEnumType -- This holds the possible values of the @use attribute
+    within an
+    <
+    xccdf:sub
+    >
+    element. The @use attribute is only applicable with the
+    subType's @idref attribute holds the value of the @id of an
+    <
+    xccdf:Value
+    >
+    element.
+    
+    """
+    VALUE='value' # Replace with the selected <xccdf:value> or <xccdf:complex-value> of an <xccdf:Value>.
+    TITLE='title' # Replace with the <xccdf:title> of the <xccdf:Value>.
+    LEGACY='legacy' # Use the context-dependent processing of <xccdf:sub> elements outlined in XCCDF 1.1.4.
+
+
+class valueOperatorType(str, Enum):
+    """valueOperatorType --  This type enumerates allowed values of the @operator
+    property of
+    <
+    xccdf:Value
+    >
+    elements. The specific interpretation of these
+    operators depends on the checking system used.
+    
+    """
+    EQUALS='equals'
+    NOTEQUAL='not equal'
+    GREATERTHAN='greater than'
+    LESSTHAN='less than'
+    GREATERTHANOREQUAL='greater than or equal'
+    LESSTHANOREQUAL='less than or equal'
+    PATTERNMATCH='pattern match'
+
+
+class valueTypeType(str, Enum):
+    """valueTypeType -- Allowed data types for
+    <
+    xccdf:Value
+    >
+    elements,
+    string, numeric, and boolean. A tool may choose any convenient form to store an
+    <
+    xccdf:Value
+    >
+    element
+    ’
+    s
+    <
+    xccdf:value
+    >
+    element, but the @type conveys how
+    the value should be treated for user input validation purposes during tailoring
+    processing. The @type may also be used to give additional guidance to the user or to
+    validate the user
+    ’
+    s input. For example, if an
+    <
+    xccdf:value
+    >
+    element
+    ’
+    s @type
+    attribute is
+    “
+    number
+    ”
+    , then a tool might choose to reject user tailoring input that
+    is not composed of digits. In the case of a list of values, the @type applies to all
+    elements of the list individually. Note that checking systems may have their own
+    understanding of data types that may not be identical to the typing indicated in
+    XCCDF
+    
+    """
+    NUMBER='number' # A numeric value. This may be decimal or integer.
+    STRING='string' # Any character data
+    BOOLEAN='boolean' # True/false
+
+
+class warningCategoryEnumType(str, Enum):
+    """warningCategoryEnumType --  Allowed warning category keywords for the
+    <
+    xccdf:warning
+    >
+    element used in
+    <
+    xccdf:Rule
+    >
+    elements.
+    
+    """
+    GENERAL='general' # Broad or general-purpose warning (default)
+    FUNCTIONALITY='functionality' # Warning about possible impacts to functionality or operational features
+    PERFORMANCE='performance' # Warning about changes to target system performance or throughput
+    HARDWARE='hardware' # Warning about hardware restrictions or possible impacts to hardware
+    LEGAL='legal' # Warning about legal implications
+    REGULATORY='regulatory' # Warning about regulatory obligations or compliance implications
+    MANAGEMENT='management' # Warning about impacts to the management or administration of the target system
+    AUDIT='audit' # Warning about impacts to audit or logging
+    DEPENDENCY='dependency' # Warning about dependencies between this element and other parts of the target system, or version dependencies
+
+
+#
+# Start data representation classes
+#
+class Benchmark(GeneratedsSuper):
+    """status -- Status of the
+    <
+    xccdf:Benchmark
+    >
+    indicating its level of maturity or consensus. If more than one
+    <
+    xccdf:status
+    >
+    element appears, the element's @date attribute
+    should be included.
+    dc-status -- Holds additional status information using
+    the Dublin Core format.
+    title -- Title of the
+    <
+    xccdf:Benchmark
+    >
+    ; an
+    <
+    xccdf:Benchmark
+    >
+    should have an
+    <
+    xccdf:title
+    >
+    .
+    description -- Text that describes the
+    <
+    xccdf:Benchmark
+    >
+    ; an
+    <
+    xccdf:Benchmark
+    >
+    should have an
+    <
+    xccdf:description
+    >
+    .
+    notice -- Legal notices (licensing information, terms
+    of use, etc.), copyright statements, warnings, and other advisory
+    notices about this
+    <
+    xccdf:Benchmark
+    >
+    and its
+    use.
+    front-matter -- Introductory matter for the beginning of
+    the
+    <
+    xccdf:Benchmark
+    >
+    document; intended for use during Document
+    Generation.
+    rear-matter -- Concluding material for the end of the
+    <
+    xccdf:Benchmark
+    >
+    document; intended for use during Document
+    Generation.
+    reference -- Supporting references for the
+    <
+    xccdf:Benchmark
+    >
+    document.
+    plain-text -- Definitions for reusable text blocks, each
+    with a unique identifier.
+    platform-specification -- A list of identifiers for complex platform
+    definitions, written in CPE applicability language format. Authors may
+    define complex platforms within this element, and then use their locally
+    unique identifiers anywhere in the
+    <
+    xccdf:Benchmark
+    >
+    element in
+    place of a CPE name.
+    platform -- Applicable platforms for this
+    <
+    xccdf:Benchmark
+    >
+    . Authors should use the element to identify the
+    systems or products to which the
+    <
+    xccdf:Benchmark
+    >
+    applies.
+    version -- Version number of the
+    <
+    xccdf:Benchmark
+    >
+    .
+    metadata -- XML metadata for the
+    <
+    xccdf:Benchmark
+    >
+    . Metadata allows many additional pieces of
+    information, including authorship, publisher, support, and other similar
+    details, to be embedded in an
+    <
+    xccdf:Benchmark
+    >
+    .
+    model -- URIs of suggested scoring models to be used
+    when computing a score for this
+    <
+    xccdf:Benchmark
+    >
+    . A suggested
+    list of scoring models and their URIs is provided in the XCCDF
+    specification.
+    Profile -- <
+    xccdf:Profile
+    >
+    elements that
+    reference and customize sets of items in the
+    <
+    xccdf:Benchmark
+    >
+    .
+    Value -- Parameter
+    <
+    xccdf:Value
+    >
+    elements that
+    support
+    <
+    xccdf:Rule
+    >
+    elements and descriptions in the
+    <
+    xccdf:Benchmark
+    >
+    .
+    Group -- <
+    xccdf:Group
+    >
+    elements that
+    comprise the
+    <
+    xccdf:Benchmark
+    >
+    ; each may contain additional
+    <
+    xccdf:Value
+    >
+    ,
+    <
+    xccdf:Rule
+    >
+    , and other
+    <
+    xccdf:Group
+    >
+    elements.
+    Rule -- <
+    xccdf:Rule
+    >
+    elements that
+    comprise the
+    <
+    xccdf:Benchmark
+    >
+    .
+    TestResult -- <
+    xccdf:Benchmark
+    >
+    test result records
+    (one per
+    <
+    xccdf:Benchmark
+    >
+    run).
+    signature -- A digital signature asserting authorship
+    and allowing verification of the integrity of the
+    <
+    xccdf:Benchmark
+    >
+    .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, Id=None, resolved=False, style=None, style_href=None, lang=None, status=None, dc_status=None, title=None, description=None, notice=None, front_matter=None, rear_matter=None, reference=None, plain_text=None, platform_specification=None, platform=None, version=None, metadata=None, model=None, Profile=None, Value=None, Group=None, Rule=None, TestResult=None, signature=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.Id = _cast(None, Id)
+        self.Id_nsprefix_ = None
+        self.resolved = _cast(bool, resolved)
+        self.resolved_nsprefix_ = None
+        self.style = _cast(None, style)
+        self.style_nsprefix_ = None
+        self.style_href = _cast(None, style_href)
+        self.style_href_nsprefix_ = None
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        if status is None:
+            self.status = []
+        else:
+            self.status = status
+        self.status_nsprefix_ = "cdf"
+        if dc_status is None:
+            self.dc_status = []
+        else:
+            self.dc_status = dc_status
+        self.dc_status_nsprefix_ = "cdf"
+        if title is None:
+            self.title = []
+        else:
+            self.title = title
+        self.title_nsprefix_ = "cdf"
+        if description is None:
+            self.description = []
+        else:
+            self.description = description
+        self.description_nsprefix_ = "cdf"
+        if notice is None:
+            self.notice = []
+        else:
+            self.notice = notice
+        self.notice_nsprefix_ = "cdf"
+        if front_matter is None:
+            self.front_matter = []
+        else:
+            self.front_matter = front_matter
+        self.front_matter_nsprefix_ = "cdf"
+        if rear_matter is None:
+            self.rear_matter = []
+        else:
+            self.rear_matter = rear_matter
+        self.rear_matter_nsprefix_ = "cdf"
+        if reference is None:
+            self.reference = []
+        else:
+            self.reference = reference
+        self.reference_nsprefix_ = "cdf"
+        if plain_text is None:
+            self.plain_text = []
+        else:
+            self.plain_text = plain_text
+        self.plain_text_nsprefix_ = "cdf"
+        self.platform_specification = platform_specification
+        self.platform_specification_nsprefix_ = "cpe2"
+        if platform is None:
+            self.platform = []
+        else:
+            self.platform = platform
+        self.platform_nsprefix_ = "cdf"
+        self.version = version
+        self.version_nsprefix_ = "cdf"
+        if metadata is None:
+            self.metadata = []
+        else:
+            self.metadata = metadata
+        self.metadata_nsprefix_ = "cdf"
+        if model is None:
+            self.model = []
+        else:
+            self.model = model
+        self.model_nsprefix_ = "cdf"
+        if Profile is None:
+            self.Profile = []
+        else:
+            self.Profile = Profile
+        self.Profile_nsprefix_ = "cdf"
+        if Value is None:
+            self.Value = []
+        else:
+            self.Value = Value
+        self.Value_nsprefix_ = "cdf"
+        if Group is None:
+            self.Group = []
+        else:
+            self.Group = Group
+        self.Group_nsprefix_ = "cdf"
+        if Rule is None:
+            self.Rule = []
+        else:
+            self.Rule = Rule
+        self.Rule_nsprefix_ = "cdf"
+        if TestResult is None:
+            self.TestResult = []
+        else:
+            self.TestResult = TestResult
+        self.TestResult_nsprefix_ = "cdf"
+        self.signature = signature
+        self.signature_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, Benchmark)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if Benchmark.subclass:
+            return Benchmark.subclass(*args_, **kwargs_)
+        else:
+            return Benchmark(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_status(self):
+        return self.status
+    def set_status(self, status):
+        self.status = status
+    def add_status(self, value):
+        self.status.append(value)
+    def insert_status_at(self, index, value):
+        self.status.insert(index, value)
+    def replace_status_at(self, index, value):
+        self.status[index] = value
+    def get_dc_status(self):
+        return self.dc_status
+    def set_dc_status(self, dc_status):
+        self.dc_status = dc_status
+    def add_dc_status(self, value):
+        self.dc_status.append(value)
+    def insert_dc_status_at(self, index, value):
+        self.dc_status.insert(index, value)
+    def replace_dc_status_at(self, index, value):
+        self.dc_status[index] = value
+    def get_title(self):
+        return self.title
+    def set_title(self, title):
+        self.title = title
+    def add_title(self, value):
+        self.title.append(value)
+    def insert_title_at(self, index, value):
+        self.title.insert(index, value)
+    def replace_title_at(self, index, value):
+        self.title[index] = value
+    def get_description(self):
+        return self.description
+    def set_description(self, description):
+        self.description = description
+    def add_description(self, value):
+        self.description.append(value)
+    def insert_description_at(self, index, value):
+        self.description.insert(index, value)
+    def replace_description_at(self, index, value):
+        self.description[index] = value
+    def get_notice(self):
+        return self.notice
+    def set_notice(self, notice):
+        self.notice = notice
+    def add_notice(self, value):
+        self.notice.append(value)
+    def insert_notice_at(self, index, value):
+        self.notice.insert(index, value)
+    def replace_notice_at(self, index, value):
+        self.notice[index] = value
+    def get_front_matter(self):
+        return self.front_matter
+    def set_front_matter(self, front_matter):
+        self.front_matter = front_matter
+    def add_front_matter(self, value):
+        self.front_matter.append(value)
+    def insert_front_matter_at(self, index, value):
+        self.front_matter.insert(index, value)
+    def replace_front_matter_at(self, index, value):
+        self.front_matter[index] = value
+    def get_rear_matter(self):
+        return self.rear_matter
+    def set_rear_matter(self, rear_matter):
+        self.rear_matter = rear_matter
+    def add_rear_matter(self, value):
+        self.rear_matter.append(value)
+    def insert_rear_matter_at(self, index, value):
+        self.rear_matter.insert(index, value)
+    def replace_rear_matter_at(self, index, value):
+        self.rear_matter[index] = value
+    def get_reference(self):
+        return self.reference
+    def set_reference(self, reference):
+        self.reference = reference
+    def add_reference(self, value):
+        self.reference.append(value)
+    def insert_reference_at(self, index, value):
+        self.reference.insert(index, value)
+    def replace_reference_at(self, index, value):
+        self.reference[index] = value
+    def get_plain_text(self):
+        return self.plain_text
+    def set_plain_text(self, plain_text):
+        self.plain_text = plain_text
+    def add_plain_text(self, value):
+        self.plain_text.append(value)
+    def insert_plain_text_at(self, index, value):
+        self.plain_text.insert(index, value)
+    def replace_plain_text_at(self, index, value):
+        self.plain_text[index] = value
+    def get_platform_specification(self):
+        return self.platform_specification
+    def set_platform_specification(self, platform_specification):
+        self.platform_specification = platform_specification
+    def get_platform(self):
+        return self.platform
+    def set_platform(self, platform):
+        self.platform = platform
+    def add_platform(self, value):
+        self.platform.append(value)
+    def insert_platform_at(self, index, value):
+        self.platform.insert(index, value)
+    def replace_platform_at(self, index, value):
+        self.platform[index] = value
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def get_metadata(self):
+        return self.metadata
+    def set_metadata(self, metadata):
+        self.metadata = metadata
+    def add_metadata(self, value):
+        self.metadata.append(value)
+    def insert_metadata_at(self, index, value):
+        self.metadata.insert(index, value)
+    def replace_metadata_at(self, index, value):
+        self.metadata[index] = value
+    def get_model(self):
+        return self.model
+    def set_model(self, model):
+        self.model = model
+    def add_model(self, value):
+        self.model.append(value)
+    def insert_model_at(self, index, value):
+        self.model.insert(index, value)
+    def replace_model_at(self, index, value):
+        self.model[index] = value
+    def get_Profile(self):
+        return self.Profile
+    def set_Profile(self, Profile):
+        self.Profile = Profile
+    def add_Profile(self, value):
+        self.Profile.append(value)
+    def insert_Profile_at(self, index, value):
+        self.Profile.insert(index, value)
+    def replace_Profile_at(self, index, value):
+        self.Profile[index] = value
+    def get_Value(self):
+        return self.Value
+    def set_Value(self, Value):
+        self.Value = Value
+    def add_Value(self, value):
+        self.Value.append(value)
+    def insert_Value_at(self, index, value):
+        self.Value.insert(index, value)
+    def replace_Value_at(self, index, value):
+        self.Value[index] = value
+    def get_Group(self):
+        return self.Group
+    def set_Group(self, Group):
+        self.Group = Group
+    def add_Group(self, value):
+        self.Group.append(value)
+    def insert_Group_at(self, index, value):
+        self.Group.insert(index, value)
+    def replace_Group_at(self, index, value):
+        self.Group[index] = value
+    def get_Rule(self):
+        return self.Rule
+    def set_Rule(self, Rule):
+        self.Rule = Rule
+    def add_Rule(self, value):
+        self.Rule.append(value)
+    def insert_Rule_at(self, index, value):
+        self.Rule.insert(index, value)
+    def replace_Rule_at(self, index, value):
+        self.Rule[index] = value
+    def get_TestResult(self):
+        return self.TestResult
+    def set_TestResult(self, TestResult):
+        self.TestResult = TestResult
+    def add_TestResult(self, value):
+        self.TestResult.append(value)
+    def insert_TestResult_at(self, index, value):
+        self.TestResult.insert(index, value)
+    def replace_TestResult_at(self, index, value):
+        self.TestResult[index] = value
+    def get_signature(self):
+        return self.signature
+    def set_signature(self, signature):
+        self.signature = signature
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_Id(self):
+        return self.Id
+    def set_Id(self, Id):
+        self.Id = Id
+    def get_resolved(self):
+        return self.resolved
+    def set_resolved(self, resolved):
+        self.resolved = resolved
+    def get_style(self):
+        return self.style
+    def set_style(self, style):
+        self.style = style
+    def get_style_href(self):
+        return self.style_href
+    def set_style_href(self, style_href):
+        self.style_href = style_href
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def validate_benchmarkIdType(self, value):
+        # Validate type cdf:benchmarkIdType, a restriction on xsd:NCName.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            if not self.gds_validate_simple_patterns(
+                    self.validate_benchmarkIdType_patterns_, value):
+                self.gds_collector_.add_message('Value "%s" does not match xsd pattern restrictions: %s' % (encode_str_2_3(value), self.validate_benchmarkIdType_patterns_, ))
+    validate_benchmarkIdType_patterns_ = [['^(xccdf_[^_]+_benchmark_.+)$']]
+    def has__content(self):
+        if (
+            self.status or
+            self.dc_status or
+            self.title or
+            self.description or
+            self.notice or
+            self.front_matter or
+            self.rear_matter or
+            self.reference or
+            self.plain_text or
+            self.platform_specification is not None or
+            self.platform or
+            self.version is not None or
+            self.metadata or
+            self.model or
+            self.Profile or
+            self.Value or
+            self.Group or
+            self.Rule or
+            self.TestResult or
+            self.signature is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cpe2="http://cpe.mitre.org/language/2.0" ', name_='Benchmark', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('Benchmark')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'Benchmark':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='Benchmark')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='Benchmark', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='Benchmark'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.Id is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
+        if self.resolved and 'resolved' not in already_processed:
+            already_processed.add('resolved')
+            outfile.write(' resolved="%s"' % self.gds_format_boolean(self.resolved, input_name='resolved'))
+        if self.style is not None and 'style' not in already_processed:
+            already_processed.add('style')
+            outfile.write(' style=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.style), input_name='style')), ))
+        if self.style_href is not None and 'style_href' not in already_processed:
+            already_processed.add('style_href')
+            outfile.write(' style-href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.style_href), input_name='style-href')), ))
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cpe2="http://cpe.mitre.org/language/2.0" ', name_='Benchmark', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for status_ in self.status:
+            namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
+            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+        for dc_status_ in self.dc_status:
+            namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
+            dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
+        for title_ in self.title:
+            namespaceprefix_ = self.title_nsprefix_ + ':' if (UseCapturedNS_ and self.title_nsprefix_) else ''
+            title_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='title', pretty_print=pretty_print)
+        for description_ in self.description:
+            namespaceprefix_ = self.description_nsprefix_ + ':' if (UseCapturedNS_ and self.description_nsprefix_) else ''
+            description_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='description', pretty_print=pretty_print)
+        for notice_ in self.notice:
+            namespaceprefix_ = self.notice_nsprefix_ + ':' if (UseCapturedNS_ and self.notice_nsprefix_) else ''
+            notice_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='notice', pretty_print=pretty_print)
+        for front_matter_ in self.front_matter:
+            namespaceprefix_ = self.front_matter_nsprefix_ + ':' if (UseCapturedNS_ and self.front_matter_nsprefix_) else ''
+            front_matter_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='front-matter', pretty_print=pretty_print)
+        for rear_matter_ in self.rear_matter:
+            namespaceprefix_ = self.rear_matter_nsprefix_ + ':' if (UseCapturedNS_ and self.rear_matter_nsprefix_) else ''
+            rear_matter_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='rear-matter', pretty_print=pretty_print)
+        for reference_ in self.reference:
+            namespaceprefix_ = self.reference_nsprefix_ + ':' if (UseCapturedNS_ and self.reference_nsprefix_) else ''
+            reference_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='reference', pretty_print=pretty_print)
+        for plain_text_ in self.plain_text:
+            namespaceprefix_ = self.plain_text_nsprefix_ + ':' if (UseCapturedNS_ and self.plain_text_nsprefix_) else ''
+            plain_text_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='plain-text', pretty_print=pretty_print)
+        if self.platform_specification is not None:
+            namespaceprefix_ = self.platform_specification_nsprefix_ + ':' if (UseCapturedNS_ and self.platform_specification_nsprefix_) else ''
+            self.platform_specification.export(outfile, level, namespaceprefix_='cpe2:', namespacedef_='', name_='platform-specification', pretty_print=pretty_print)
+        for platform_ in self.platform:
+            namespaceprefix_ = self.platform_nsprefix_ + ':' if (UseCapturedNS_ and self.platform_nsprefix_) else ''
+            platform_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='platform', pretty_print=pretty_print)
+        if self.version is not None:
+            namespaceprefix_ = self.version_nsprefix_ + ':' if (UseCapturedNS_ and self.version_nsprefix_) else ''
+            self.version.export(outfile, level, namespaceprefix_, namespacedef_='', name_='version', pretty_print=pretty_print)
+        for metadata_ in self.metadata:
+            namespaceprefix_ = self.metadata_nsprefix_ + ':' if (UseCapturedNS_ and self.metadata_nsprefix_) else ''
+            metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
+        for model_ in self.model:
+            namespaceprefix_ = self.model_nsprefix_ + ':' if (UseCapturedNS_ and self.model_nsprefix_) else ''
+            model_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='model', pretty_print=pretty_print)
+        for Profile_ in self.Profile:
+            namespaceprefix_ = self.Profile_nsprefix_ + ':' if (UseCapturedNS_ and self.Profile_nsprefix_) else ''
+            Profile_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Profile', pretty_print=pretty_print)
+        for Value_ in self.Value:
+            namespaceprefix_ = self.Value_nsprefix_ + ':' if (UseCapturedNS_ and self.Value_nsprefix_) else ''
+            Value_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Value', pretty_print=pretty_print)
+        for Group_ in self.Group:
+            namespaceprefix_ = self.Group_nsprefix_ + ':' if (UseCapturedNS_ and self.Group_nsprefix_) else ''
+            Group_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Group', pretty_print=pretty_print)
+        for Rule_ in self.Rule:
+            namespaceprefix_ = self.Rule_nsprefix_ + ':' if (UseCapturedNS_ and self.Rule_nsprefix_) else ''
+            Rule_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Rule', pretty_print=pretty_print)
+        for TestResult_ in self.TestResult:
+            namespaceprefix_ = self.TestResult_nsprefix_ + ':' if (UseCapturedNS_ and self.TestResult_nsprefix_) else ''
+            TestResult_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='TestResult', pretty_print=pretty_print)
+        if self.signature is not None:
+            namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
+            self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+            self.validate_benchmarkIdType(self.id)    # validate type benchmarkIdType
+        value = find_attr_value_('Id', node)
+        if value is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            self.Id = value
+        value = find_attr_value_('resolved', node)
+        if value is not None and 'resolved' not in already_processed:
+            already_processed.add('resolved')
+            if value in ('true', '1'):
+                self.resolved = True
+            elif value in ('false', '0'):
+                self.resolved = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('style', node)
+        if value is not None and 'style' not in already_processed:
+            already_processed.add('style')
+            self.style = value
+        value = find_attr_value_('style-href', node)
+        if value is not None and 'style-href' not in already_processed:
+            already_processed.add('style-href')
+            self.style_href = value
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'status':
+            obj_ = status.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.status.append(obj_)
+            obj_.original_tagname_ = 'status'
+        elif nodeName_ == 'dc-status':
+            obj_ = dc_statusType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.dc_status.append(obj_)
+            obj_.original_tagname_ = 'dc-status'
+        elif nodeName_ == 'title':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.title.append(obj_)
+            obj_.original_tagname_ = 'title'
+        elif nodeName_ == 'description':
+            class_obj_ = self.get_class_obj_(child_, htmlTextWithSubType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.description.append(obj_)
+            obj_.original_tagname_ = 'description'
+        elif nodeName_ == 'notice':
+            obj_ = noticeType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.notice.append(obj_)
+            obj_.original_tagname_ = 'notice'
+        elif nodeName_ == 'front-matter':
+            class_obj_ = self.get_class_obj_(child_, htmlTextWithSubType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.front_matter.append(obj_)
+            obj_.original_tagname_ = 'front-matter'
+        elif nodeName_ == 'rear-matter':
+            class_obj_ = self.get_class_obj_(child_, htmlTextWithSubType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.rear_matter.append(obj_)
+            obj_.original_tagname_ = 'rear-matter'
+        elif nodeName_ == 'reference':
+            obj_ = referenceType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.reference.append(obj_)
+            obj_.original_tagname_ = 'reference'
+        elif nodeName_ == 'plain-text':
+            obj_ = plainTextType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.plain_text.append(obj_)
+            obj_.original_tagname_ = 'plain-text'
+        elif nodeName_ == 'platform-specification':
+            obj_ = platformSpecificationType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.platform_specification = obj_
+            obj_.original_tagname_ = 'platform-specification'
+        elif nodeName_ == 'platform':
+            class_obj_ = self.get_class_obj_(child_, CPE2idrefType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.platform.append(obj_)
+            obj_.original_tagname_ = 'platform'
+        elif nodeName_ == 'version':
+            obj_ = versionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.version = obj_
+            obj_.original_tagname_ = 'version'
+        elif nodeName_ == 'metadata':
+            obj_ = metadataType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.metadata.append(obj_)
+            obj_.original_tagname_ = 'metadata'
+        elif nodeName_ == 'model':
+            obj_ = model.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.model.append(obj_)
+            obj_.original_tagname_ = 'model'
+        elif nodeName_ == 'Profile':
+            obj_ = profileType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Profile.append(obj_)
+            obj_.original_tagname_ = 'Profile'
+        elif nodeName_ == 'Value':
+            obj_ = valueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Value.append(obj_)
+            obj_.original_tagname_ = 'Value'
+        elif nodeName_ == 'Group':
+            obj_ = groupType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Group.append(obj_)
+            obj_.original_tagname_ = 'Group'
+        elif nodeName_ == 'Rule':
+            obj_ = ruleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Rule.append(obj_)
+            obj_.original_tagname_ = 'Rule'
+        elif nodeName_ == 'TestResult':
+            obj_ = testResultType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.TestResult.append(obj_)
+            obj_.original_tagname_ = 'TestResult'
+        elif nodeName_ == 'signature':
+            obj_ = signatureType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.signature = obj_
+            obj_.original_tagname_ = 'signature'
+# end class Benchmark
+
+
+class noticeType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, base=None, lang=None, anytypeobjs_=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.base = _cast(None, base)
+        self.base_nsprefix_ = None
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, noticeType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if noticeType.subclass:
+            return noticeType.subclass(*args_, **kwargs_)
+        else:
+            return noticeType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_base(self):
+        return self.base
+    def set_base(self, base):
+        self.base = base
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            self.anytypeobjs_ or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='noticeType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('noticeType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'noticeType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='noticeType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='noticeType'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.base is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            outfile.write(' xml:base=%s' % (quote_attrib(self.base), ))
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='noticeType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            for obj_ in self.anytypeobjs_:
+                showIndent(outfile, level, pretty_print)
+                outfile.write(str(obj_))
+                outfile.write('\n')
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+        value = find_attr_value_('base', node)
+        if value is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            self.base = value
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == '':
+            obj_ = __ANY__.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, '', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_'):
+              self.add_(obj_.value)
+            elif hasattr(self, 'set_'):
+              self.set_(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class noticeType
+
+
+class dc_statusType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, anytypeobjs_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, dc_statusType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if dc_statusType.subclass:
+            return dc_statusType.subclass(*args_, **kwargs_)
+        else:
+            return dc_statusType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def has__content(self):
+        if (
+            self.anytypeobjs_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='dc-statusType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('dc-statusType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'dc-statusType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='dc-statusType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='dc-statusType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='dc-statusType'):
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='dc-statusType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            for obj_ in self.anytypeobjs_:
+                showIndent(outfile, level, pretty_print)
+                outfile.write(str(obj_))
+                outfile.write('\n')
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        pass
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        content_ = self.gds_build_any(child_, 'dc-statusType')
+        self.anytypeobjs_.append(content_)
+# end class dc_statusType
+
+
+class plainTextType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, plainTextType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if plainTextType.subclass:
+            return plainTextType.subclass(*args_, **kwargs_)
+        else:
+            return plainTextType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='plainTextType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('plainTextType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'plainTextType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='plainTextType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='plainTextType'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='plainTextType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class plainTextType
+
+
+class referenceType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, href=None, override=None, anytypeobjs_=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.href = _cast(None, href)
+        self.href_nsprefix_ = None
+        self.override = _cast(bool, override)
+        self.override_nsprefix_ = None
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, referenceType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if referenceType.subclass:
+            return referenceType.subclass(*args_, **kwargs_)
+        else:
+            return referenceType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def get_href(self):
+        return self.href
+    def set_href(self, href):
+        self.href = href
+    def get_override(self):
+        return self.override
+    def set_override(self, override):
+        self.override = override
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            self.anytypeobjs_ or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='referenceType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('referenceType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'referenceType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='referenceType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='referenceType'):
+        if self.href is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
+        if self.override is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='referenceType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            for obj_ in self.anytypeobjs_:
+                showIndent(outfile, level, pretty_print)
+                outfile.write(str(obj_))
+                outfile.write('\n')
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('href', node)
+        if value is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            self.href = value
+        value = find_attr_value_('override', node)
+        if value is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            if value in ('true', '1'):
+                self.override = True
+            elif value in ('false', '0'):
+                self.override = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == '':
+            obj_ = __ANY__.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, '', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_'):
+              self.add_(obj_.value)
+            elif hasattr(self, 'set_'):
+              self.set_(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class referenceType
+
+
+class signatureType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, anytypeobjs_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, signatureType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if signatureType.subclass:
+            return signatureType.subclass(*args_, **kwargs_)
+        else:
+            return signatureType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def has__content(self):
+        if (
+            self.anytypeobjs_ is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='signatureType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('signatureType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'signatureType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='signatureType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='signatureType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='signatureType'):
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='signatureType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            if self.anytypeobjs_ is not None:
+                content_ = self.anytypeobjs_
+                outfile.write(content_)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        pass
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        content_ = self.gds_build_any(child_, 'signatureType')
+        self.set_anytypeobjs_(content_)
+# end class signatureType
+
+
+class metadataType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, anytypeobjs_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, metadataType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if metadataType.subclass:
+            return metadataType.subclass(*args_, **kwargs_)
+        else:
+            return metadataType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def has__content(self):
+        if (
+            self.anytypeobjs_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='metadataType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('metadataType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'metadataType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='metadataType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='metadataType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='metadataType'):
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='metadataType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            for obj_ in self.anytypeobjs_:
+                showIndent(outfile, level, pretty_print)
+                outfile.write(str(obj_))
+                outfile.write('\n')
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        pass
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        content_ = self.gds_build_any(child_, 'metadataType')
+        self.anytypeobjs_.append(content_)
+# end class metadataType
+
+
+class status(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, date=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if isinstance(date, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(date, '%Y-%m-%d').date()
+        else:
+            initvalue_ = date
+        self.date = initvalue_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, status)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if status.subclass:
+            return status.subclass(*args_, **kwargs_)
+        else:
+            return status(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_date(self):
+        return self.date
+    def set_date(self, date):
+        self.date = date
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_statusType(self, value):
+        result = True
+        # Validate type statusType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['accepted', 'deprecated', 'draft', 'incomplete', 'interim']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on statusType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+        return result
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='status', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('status')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'status':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='status')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='status'):
+        if self.date is not None and 'date' not in already_processed:
+            already_processed.add('date')
+            outfile.write(' date="%s"' % self.gds_format_date(self.date, input_name='date'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='status', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('date', node)
+        if value is not None and 'date' not in already_processed:
+            already_processed.add('date')
+            try:
+                self.date = self.gds_parse_date(value)
+            except ValueError as exp:
+                raise ValueError('Bad date attribute (date): %s' % exp)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class status
+
+
+class model(GeneratedsSuper):
+    """param -- Parameters provided as input to the
+    designated scoring model.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, system=None, param=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.system = _cast(None, system)
+        self.system_nsprefix_ = None
+        if param is None:
+            self.param = []
+        else:
+            self.param = param
+        self.param_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, model)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if model.subclass:
+            return model.subclass(*args_, **kwargs_)
+        else:
+            return model(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_param(self):
+        return self.param
+    def set_param(self, param):
+        self.param = param
+    def add_param(self, value):
+        self.param.append(value)
+    def insert_param_at(self, index, value):
+        self.param.insert(index, value)
+    def replace_param_at(self, index, value):
+        self.param[index] = value
+    def get_system(self):
+        return self.system
+    def set_system(self, system):
+        self.system = system
+    def has__content(self):
+        if (
+            self.param
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='model', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('model')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'model':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='model')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='model', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='model'):
+        if self.system is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='model', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for param_ in self.param:
+            namespaceprefix_ = self.param_nsprefix_ + ':' if (UseCapturedNS_ and self.param_nsprefix_) else ''
+            param_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='param', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('system', node)
+        if value is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            self.system = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'param':
+            obj_ = paramType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.param.append(obj_)
+            obj_.original_tagname_ = 'param'
+# end class model
+
+
+class paramType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.name = _cast(None, name)
+        self.name_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, paramType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if paramType.subclass:
+            return paramType.subclass(*args_, **kwargs_)
+        else:
+            return paramType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_name(self):
+        return self.name
+    def set_name(self, name):
+        self.name = name
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='paramType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('paramType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'paramType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='paramType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='paramType'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='paramType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class paramType
+
+
+class versionType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, time=None, update=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if isinstance(time, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
+        else:
+            initvalue_ = time
+        self.time = initvalue_
+        self.update = _cast(None, update)
+        self.update_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, versionType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if versionType.subclass:
+            return versionType.subclass(*args_, **kwargs_)
+        else:
+            return versionType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_time(self):
+        return self.time
+    def set_time(self, time):
+        self.time = time
+    def get_update(self):
+        return self.update
+    def set_update(self, update):
+        self.update = update
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='versionType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('versionType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'versionType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='versionType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='versionType'):
+        if self.time is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
+        if self.update is not None and 'update' not in already_processed:
+            already_processed.add('update')
+            outfile.write(' update=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.update), input_name='update')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='versionType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('time', node)
+        if value is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            try:
+                self.time = self.gds_parse_datetime(value)
+            except ValueError as exp:
+                raise ValueError('Bad date-time attribute (time): %s' % exp)
+        value = find_attr_value_('update', node)
+        if value is not None and 'update' not in already_processed:
+            already_processed.add('update')
+            self.update = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class versionType
+
+
+class textType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, lang=None, override=False, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        self.override = _cast(bool, override)
+        self.override_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, textType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if textType.subclass:
+            return textType.subclass(*args_, **kwargs_)
+        else:
+            return textType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_override(self):
+        return self.override
+    def set_override(self, override):
+        self.override = override
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('textType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'textType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='textType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='textType'):
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+        if self.override is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+        value = find_attr_value_('override', node)
+        if value is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            if value in ('true', '1'):
+                self.override = True
+            elif value in ('false', '0'):
+                self.override = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class textType
+
+
+class htmlTextType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, lang=None, override=False, anytypeobjs_=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        self.override = _cast(bool, override)
+        self.override_nsprefix_ = None
+        if anytypeobjs_ is None:
+            self.anytypeobjs_ = []
+        else:
+            self.anytypeobjs_ = anytypeobjs_
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, htmlTextType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if htmlTextType.subclass:
+            return htmlTextType.subclass(*args_, **kwargs_)
+        else:
+            return htmlTextType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def add_anytypeobjs_(self, value): self.anytypeobjs_.append(value)
+    def insert_anytypeobjs_(self, index, value): self._anytypeobjs_[index] = value
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_override(self):
+        return self.override
+    def set_override(self, override):
+        self.override = override
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            self.anytypeobjs_ or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('htmlTextType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'htmlTextType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='htmlTextType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='htmlTextType'):
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+        if self.override is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            for obj_ in self.anytypeobjs_:
+                showIndent(outfile, level, pretty_print)
+                outfile.write(str(obj_))
+                outfile.write('\n')
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+        value = find_attr_value_('override', node)
+        if value is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            if value in ('true', '1'):
+                self.override = True
+            elif value in ('false', '0'):
+                self.override = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == '':
+            obj_ = __ANY__.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, '', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_'):
+              self.add_(obj_.value)
+            elif hasattr(self, 'set_'):
+              self.set_(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class htmlTextType
+
+
+class htmlTextWithSubType(GeneratedsSuper):
+    """sub -- Specifies an
+    <
+    xccdf:Value
+    >
+    or
+    <
+    xccdf:plain-text
+    >
+    element to be used for text
+    substitution
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, lang=None, override=False, sub=None, anytypeobjs_=None, valueOf_=None, mixedclass_=None, content_=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        self.override = _cast(bool, override)
+        self.override_nsprefix_ = None
+        if sub is None:
+            self.sub = []
+        else:
+            self.sub = sub
+        self.sub_nsprefix_ = "cdf"
+        self.anytypeobjs_ = anytypeobjs_
+        self.valueOf_ = valueOf_
+        self.extensiontype_ = extensiontype_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, htmlTextWithSubType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if htmlTextWithSubType.subclass:
+            return htmlTextWithSubType.subclass(*args_, **kwargs_)
+        else:
+            return htmlTextWithSubType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_sub(self):
+        return self.sub
+    def set_sub(self, sub):
+        self.sub = sub
+    def add_sub(self, value):
+        self.sub.append(value)
+    def insert_sub_at(self, index, value):
+        self.sub.insert(index, value)
+    def replace_sub_at(self, index, value):
+        self.sub[index] = value
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_override(self):
+        return self.override
+    def set_override(self, override):
+        self.override = override
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+            self.sub or
+            self.anytypeobjs_ is not None or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextWithSubType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('htmlTextWithSubType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'htmlTextWithSubType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='htmlTextWithSubType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='htmlTextWithSubType'):
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+        if self.override is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextWithSubType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for sub_ in self.sub:
+            namespaceprefix_ = self.sub_nsprefix_ + ':' if (UseCapturedNS_ and self.sub_nsprefix_) else ''
+            sub_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='sub', pretty_print=pretty_print)
+        if not fromsubclass_:
+            if self.anytypeobjs_ is not None:
+                content_ = self.anytypeobjs_
+                outfile.write(content_)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+        value = find_attr_value_('override', node)
+        if value is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            if value in ('true', '1'):
+                self.override = True
+            elif value in ('false', '0'):
+                self.override = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'sub':
+            obj_ = subType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, 'sub', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_sub'):
+              self.add_sub(obj_.value)
+            elif hasattr(self, 'set_sub'):
+              self.set_sub(obj_.value)
+        elif nodeName_ == '':
+            obj_ = __ANY__.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, '', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_'):
+              self.add_(obj_.value)
+            elif hasattr(self, 'set_'):
+              self.set_(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class htmlTextWithSubType
+
+
+class profileNoteType(GeneratedsSuper):
+    """sub -- Specifies an
+    <
+    xccdf:Value
+    >
+    or
+    <
+    xccdf:plain-text
+    >
+    element to be used for text
+    substitution
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, lang=None, tag=None, sub=None, anytypeobjs_=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        self.tag = _cast(None, tag)
+        self.tag_nsprefix_ = None
+        if sub is None:
+            self.sub = []
+        else:
+            self.sub = sub
+        self.sub_nsprefix_ = "cdf"
+        self.anytypeobjs_ = anytypeobjs_
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, profileNoteType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if profileNoteType.subclass:
+            return profileNoteType.subclass(*args_, **kwargs_)
+        else:
+            return profileNoteType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_sub(self):
+        return self.sub
+    def set_sub(self, sub):
+        self.sub = sub
+    def add_sub(self, value):
+        self.sub.append(value)
+    def insert_sub_at(self, index, value):
+        self.sub.insert(index, value)
+    def replace_sub_at(self, index, value):
+        self.sub[index] = value
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_tag(self):
+        return self.tag
+    def set_tag(self, tag):
+        self.tag = tag
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            self.sub or
+            self.anytypeobjs_ is not None or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileNoteType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileNoteType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'profileNoteType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileNoteType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profileNoteType'):
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+        if self.tag is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileNoteType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for sub_ in self.sub:
+            namespaceprefix_ = self.sub_nsprefix_ + ':' if (UseCapturedNS_ and self.sub_nsprefix_) else ''
+            sub_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='sub', pretty_print=pretty_print)
+        if not fromsubclass_:
+            if self.anytypeobjs_ is not None:
+                content_ = self.anytypeobjs_
+                outfile.write(content_)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+        value = find_attr_value_('tag', node)
+        if value is not None and 'tag' not in already_processed:
+            already_processed.add('tag')
+            self.tag = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'sub':
+            obj_ = subType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, 'sub', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_sub'):
+              self.add_sub(obj_.value)
+            elif hasattr(self, 'set_sub'):
+              self.set_sub(obj_.value)
+        elif nodeName_ == '':
+            obj_ = __ANY__.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, '', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_'):
+              self.add_(obj_.value)
+            elif hasattr(self, 'set_'):
+              self.set_(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class profileNoteType
+
+
+class textWithSubType(GeneratedsSuper):
+    """sub -- Specifies an
+    <
+    xccdf:Value
+    >
+    or
+    <
+    xccdf:plain-text
+    >
+    element to be used for text substitution.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, lang=None, override=False, sub=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        self.override = _cast(bool, override)
+        self.override_nsprefix_ = None
+        if sub is None:
+            self.sub = []
+        else:
+            self.sub = sub
+        self.sub_nsprefix_ = "cdf"
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, textWithSubType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if textWithSubType.subclass:
+            return textWithSubType.subclass(*args_, **kwargs_)
+        else:
+            return textWithSubType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_sub(self):
+        return self.sub
+    def set_sub(self, sub):
+        self.sub = sub
+    def add_sub(self, value):
+        self.sub.append(value)
+    def insert_sub_at(self, index, value):
+        self.sub.insert(index, value)
+    def replace_sub_at(self, index, value):
+        self.sub[index] = value
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_override(self):
+        return self.override
+    def set_override(self, override):
+        self.override = override
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            self.sub or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textWithSubType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('textWithSubType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'textWithSubType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='textWithSubType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='textWithSubType'):
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+        if self.override is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textWithSubType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for sub_ in self.sub:
+            namespaceprefix_ = self.sub_nsprefix_ + ':' if (UseCapturedNS_ and self.sub_nsprefix_) else ''
+            sub_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='sub', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+        value = find_attr_value_('override', node)
+        if value is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            if value in ('true', '1'):
+                self.override = True
+            elif value in ('false', '0'):
+                self.override = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'sub':
+            obj_ = subType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, 'sub', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_sub'):
+              self.add_sub(obj_.value)
+            elif hasattr(self, 'set_sub'):
+              self.set_sub(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class textWithSubType
+
+
+class idrefType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, idrefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if idrefType.subclass:
+            return idrefType.subclass(*args_, **kwargs_)
+        else:
+            return idrefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('idrefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'idrefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='idrefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='idrefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='idrefType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class idrefType
+
+
+class idrefListType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, idrefListType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if idrefListType.subclass:
+            return idrefListType.subclass(*args_, **kwargs_)
+        else:
+            return idrefListType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefListType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('idrefListType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'idrefListType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='idrefListType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='idrefListType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='idrefListType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (quote_attrib(self.idref), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefListType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class idrefListType
+
+
+class CPE2idrefType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, CPE2idrefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if CPE2idrefType.subclass:
+            return CPE2idrefType.subclass(*args_, **kwargs_)
+        else:
+            return CPE2idrefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='CPE2idrefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('CPE2idrefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'CPE2idrefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CPE2idrefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='CPE2idrefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='CPE2idrefType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='CPE2idrefType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class CPE2idrefType
+
+
+class overrideableCPE2idrefType(CPE2idrefType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = CPE2idrefType
+    def __init__(self, idref=None, override=False, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("overrideableCPE2idrefType"), self).__init__(idref,  **kwargs_)
+        self.override = _cast(bool, override)
+        self.override_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, overrideableCPE2idrefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if overrideableCPE2idrefType.subclass:
+            return overrideableCPE2idrefType.subclass(*args_, **kwargs_)
+        else:
+            return overrideableCPE2idrefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_override(self):
+        return self.override
+    def set_override(self, override):
+        self.override = override
+    def has__content(self):
+        if (
+            super(overrideableCPE2idrefType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideableCPE2idrefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('overrideableCPE2idrefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'overrideableCPE2idrefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='overrideableCPE2idrefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='overrideableCPE2idrefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='overrideableCPE2idrefType'):
+        super(overrideableCPE2idrefType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='overrideableCPE2idrefType')
+        if self.override is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideableCPE2idrefType', fromsubclass_=False, pretty_print=True):
+        super(overrideableCPE2idrefType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('override', node)
+        if value is not None and 'override' not in already_processed:
+            already_processed.add('override')
+            if value in ('true', '1'):
+                self.override = True
+            elif value in ('false', '0'):
+                self.override = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        super(overrideableCPE2idrefType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(overrideableCPE2idrefType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class overrideableCPE2idrefType
+
+
+class itemType(GeneratedsSuper):
+    """status -- Status of the item and date at which it
+    attained that status.
+    <
+    xccdf:Benchmark
+    >
+    authors may use this element
+    to record the maturity or consensus level for elements in the
+    <
+    xccdf:Benchmark
+    >
+    . If an item does not have an explicit
+    <
+    xccdf:status
+    >
+    given, then its status is that of its
+    parent.
+    dc-status -- Holds additional status information using the
+    Dublin Core format.
+    version -- Version information about this item.
+      
+    * title -- Title of the item. Every item should have an
+      <
+      xccdf:title
+      >
+      , because this helps people understand the purpose of the
+      item.
+    * description -- Text that describes the item.
+      
+    * warning -- A note or caveat about the item intended to
+      convey important cautionary information for the
+      <
+      xccdf:Benchmark
+      >
+      user
+      (e.g.,
+      “
+      Complying with this rule will cause the system to reject all IP
+      packets
+      ”
+      ). If multiple
+      <
+      xccdf:warning
+      >
+      elements appear, benchmark
+      consumers should concatenate them for generating reports or documents.
+      Benchmark consumers may present this information in a special manner in
+      generated documents.
+    * question -- Interrogative text to present to the user
+      during tailoring. It may also be included into a generated document. For
+      <
+      xccdf:Rule
+      >
+      and
+      <
+      xccdf:Group
+      >
+      elements, the
+      <
+      xccdf:question
+      >
+      text should be a simple binary (yes/no) question
+      because it is supporting the selection aspect of tailoring. For
+      <
+      xccdf:Value
+      >
+      elements, the
+      <
+      xccdf:question
+      >
+      should solicit the
+      user to provide a specific value. Tools may also display constraints on
+      values and any defaults as specified by the other
+      <
+      xccdf:Value
+      >
+      properties.
+    * reference -- References where the user can learn more about
+      the subject of this item.
+    * metadata -- XML metadata associated with this item, such as
+      sources, special information, or other details.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, abstract=False, cluster_id=None, extends=None, hidden=False, prohibitChanges=False, lang=None, base=None, Id=None, status=None, dc_status=None, version=None, title=None, description=None, warning=None, question=None, reference=None, metadata=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.abstract = _cast(bool, abstract)
+        self.abstract_nsprefix_ = None
+        self.cluster_id = _cast(None, cluster_id)
+        self.cluster_id_nsprefix_ = None
+        self.extends = _cast(None, extends)
+        self.extends_nsprefix_ = None
+        self.hidden = _cast(bool, hidden)
+        self.hidden_nsprefix_ = None
+        self.prohibitChanges = _cast(bool, prohibitChanges)
+        self.prohibitChanges_nsprefix_ = None
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        self.base = _cast(None, base)
+        self.base_nsprefix_ = None
+        self.Id = _cast(None, Id)
+        self.Id_nsprefix_ = None
+        if status is None:
+            self.status = []
+        else:
+            self.status = status
+        self.status_nsprefix_ = "cdf"
+        if dc_status is None:
+            self.dc_status = []
+        else:
+            self.dc_status = dc_status
+        self.dc_status_nsprefix_ = "cdf"
+        self.version = version
+        self.version_nsprefix_ = "cdf"
+        if title is None:
+            self.title = []
+        else:
+            self.title = title
+        self.title_nsprefix_ = "cdf"
+        if description is None:
+            self.description = []
+        else:
+            self.description = description
+        self.description_nsprefix_ = "cdf"
+        if warning is None:
+            self.warning = []
+        else:
+            self.warning = warning
+        self.warning_nsprefix_ = "cdf"
+        if question is None:
+            self.question = []
+        else:
+            self.question = question
+        self.question_nsprefix_ = "cdf"
+        if reference is None:
+            self.reference = []
+        else:
+            self.reference = reference
+        self.reference_nsprefix_ = "cdf"
+        if metadata is None:
+            self.metadata = []
+        else:
+            self.metadata = metadata
+        self.metadata_nsprefix_ = "cdf"
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, itemType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if itemType.subclass:
+            return itemType.subclass(*args_, **kwargs_)
+        else:
+            return itemType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_status(self):
+        return self.status
+    def set_status(self, status):
+        self.status = status
+    def add_status(self, value):
+        self.status.append(value)
+    def insert_status_at(self, index, value):
+        self.status.insert(index, value)
+    def replace_status_at(self, index, value):
+        self.status[index] = value
+    def get_dc_status(self):
+        return self.dc_status
+    def set_dc_status(self, dc_status):
+        self.dc_status = dc_status
+    def add_dc_status(self, value):
+        self.dc_status.append(value)
+    def insert_dc_status_at(self, index, value):
+        self.dc_status.insert(index, value)
+    def replace_dc_status_at(self, index, value):
+        self.dc_status[index] = value
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def get_title(self):
+        return self.title
+    def set_title(self, title):
+        self.title = title
+    def add_title(self, value):
+        self.title.append(value)
+    def insert_title_at(self, index, value):
+        self.title.insert(index, value)
+    def replace_title_at(self, index, value):
+        self.title[index] = value
+    def get_description(self):
+        return self.description
+    def set_description(self, description):
+        self.description = description
+    def add_description(self, value):
+        self.description.append(value)
+    def insert_description_at(self, index, value):
+        self.description.insert(index, value)
+    def replace_description_at(self, index, value):
+        self.description[index] = value
+    def get_warning(self):
+        return self.warning
+    def set_warning(self, warning):
+        self.warning = warning
+    def add_warning(self, value):
+        self.warning.append(value)
+    def insert_warning_at(self, index, value):
+        self.warning.insert(index, value)
+    def replace_warning_at(self, index, value):
+        self.warning[index] = value
+    def get_question(self):
+        return self.question
+    def set_question(self, question):
+        self.question = question
+    def add_question(self, value):
+        self.question.append(value)
+    def insert_question_at(self, index, value):
+        self.question.insert(index, value)
+    def replace_question_at(self, index, value):
+        self.question[index] = value
+    def get_reference(self):
+        return self.reference
+    def set_reference(self, reference):
+        self.reference = reference
+    def add_reference(self, value):
+        self.reference.append(value)
+    def insert_reference_at(self, index, value):
+        self.reference.insert(index, value)
+    def replace_reference_at(self, index, value):
+        self.reference[index] = value
+    def get_metadata(self):
+        return self.metadata
+    def set_metadata(self, metadata):
+        self.metadata = metadata
+    def add_metadata(self, value):
+        self.metadata.append(value)
+    def insert_metadata_at(self, index, value):
+        self.metadata.insert(index, value)
+    def replace_metadata_at(self, index, value):
+        self.metadata[index] = value
+    def get_abstract(self):
+        return self.abstract
+    def set_abstract(self, abstract):
+        self.abstract = abstract
+    def get_cluster_id(self):
+        return self.cluster_id
+    def set_cluster_id(self, cluster_id):
+        self.cluster_id = cluster_id
+    def get_extends(self):
+        return self.extends
+    def set_extends(self, extends):
+        self.extends = extends
+    def get_hidden(self):
+        return self.hidden
+    def set_hidden(self, hidden):
+        self.hidden = hidden
+    def get_prohibitChanges(self):
+        return self.prohibitChanges
+    def set_prohibitChanges(self, prohibitChanges):
+        self.prohibitChanges = prohibitChanges
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_base(self):
+        return self.base
+    def set_base(self, base):
+        self.base = base
+    def get_Id(self):
+        return self.Id
+    def set_Id(self, Id):
+        self.Id = Id
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+            self.status or
+            self.dc_status or
+            self.version is not None or
+            self.title or
+            self.description or
+            self.warning or
+            self.question or
+            self.reference or
+            self.metadata
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='itemType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('itemType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'itemType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='itemType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='itemType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='itemType'):
+        if self.abstract and 'abstract' not in already_processed:
+            already_processed.add('abstract')
+            outfile.write(' abstract="%s"' % self.gds_format_boolean(self.abstract, input_name='abstract'))
+        if self.cluster_id is not None and 'cluster_id' not in already_processed:
+            already_processed.add('cluster_id')
+            outfile.write(' cluster-id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.cluster_id), input_name='cluster-id')), ))
+        if self.extends is not None and 'extends' not in already_processed:
+            already_processed.add('extends')
+            outfile.write(' extends=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.extends), input_name='extends')), ))
+        if self.hidden and 'hidden' not in already_processed:
+            already_processed.add('hidden')
+            outfile.write(' hidden="%s"' % self.gds_format_boolean(self.hidden, input_name='hidden'))
+        if self.prohibitChanges and 'prohibitChanges' not in already_processed:
+            already_processed.add('prohibitChanges')
+            outfile.write(' prohibitChanges="%s"' % self.gds_format_boolean(self.prohibitChanges, input_name='prohibitChanges'))
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+        if self.base is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            outfile.write(' xml:base=%s' % (quote_attrib(self.base), ))
+        if self.Id is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='itemType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for status_ in self.status:
+            namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
+            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+        for dc_status_ in self.dc_status:
+            namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
+            dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
+        if self.version is not None:
+            namespaceprefix_ = self.version_nsprefix_ + ':' if (UseCapturedNS_ and self.version_nsprefix_) else ''
+            self.version.export(outfile, level, namespaceprefix_, namespacedef_='', name_='version', pretty_print=pretty_print)
+        for title_ in self.title:
+            namespaceprefix_ = self.title_nsprefix_ + ':' if (UseCapturedNS_ and self.title_nsprefix_) else ''
+            title_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='title', pretty_print=pretty_print)
+        for description_ in self.description:
+            namespaceprefix_ = self.description_nsprefix_ + ':' if (UseCapturedNS_ and self.description_nsprefix_) else ''
+            description_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='description', pretty_print=pretty_print)
+        for warning_ in self.warning:
+            namespaceprefix_ = self.warning_nsprefix_ + ':' if (UseCapturedNS_ and self.warning_nsprefix_) else ''
+            warning_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='warning', pretty_print=pretty_print)
+        for question_ in self.question:
+            namespaceprefix_ = self.question_nsprefix_ + ':' if (UseCapturedNS_ and self.question_nsprefix_) else ''
+            question_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='question', pretty_print=pretty_print)
+        for reference_ in self.reference:
+            namespaceprefix_ = self.reference_nsprefix_ + ':' if (UseCapturedNS_ and self.reference_nsprefix_) else ''
+            reference_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='reference', pretty_print=pretty_print)
+        for metadata_ in self.metadata:
+            namespaceprefix_ = self.metadata_nsprefix_ + ':' if (UseCapturedNS_ and self.metadata_nsprefix_) else ''
+            metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('abstract', node)
+        if value is not None and 'abstract' not in already_processed:
+            already_processed.add('abstract')
+            if value in ('true', '1'):
+                self.abstract = True
+            elif value in ('false', '0'):
+                self.abstract = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('cluster-id', node)
+        if value is not None and 'cluster-id' not in already_processed:
+            already_processed.add('cluster-id')
+            self.cluster_id = value
+        value = find_attr_value_('extends', node)
+        if value is not None and 'extends' not in already_processed:
+            already_processed.add('extends')
+            self.extends = value
+        value = find_attr_value_('hidden', node)
+        if value is not None and 'hidden' not in already_processed:
+            already_processed.add('hidden')
+            if value in ('true', '1'):
+                self.hidden = True
+            elif value in ('false', '0'):
+                self.hidden = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('prohibitChanges', node)
+        if value is not None and 'prohibitChanges' not in already_processed:
+            already_processed.add('prohibitChanges')
+            if value in ('true', '1'):
+                self.prohibitChanges = True
+            elif value in ('false', '0'):
+                self.prohibitChanges = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+        value = find_attr_value_('base', node)
+        if value is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            self.base = value
+        value = find_attr_value_('Id', node)
+        if value is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            self.Id = value
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'status':
+            obj_ = status.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.status.append(obj_)
+            obj_.original_tagname_ = 'status'
+        elif nodeName_ == 'dc-status':
+            obj_ = dc_statusType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.dc_status.append(obj_)
+            obj_.original_tagname_ = 'dc-status'
+        elif nodeName_ == 'version':
+            obj_ = versionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.version = obj_
+            obj_.original_tagname_ = 'version'
+        elif nodeName_ == 'title':
+            obj_ = textWithSubType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.title.append(obj_)
+            obj_.original_tagname_ = 'title'
+        elif nodeName_ == 'description':
+            class_obj_ = self.get_class_obj_(child_, htmlTextWithSubType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.description.append(obj_)
+            obj_.original_tagname_ = 'description'
+        elif nodeName_ == 'warning':
+            obj_ = warningType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.warning.append(obj_)
+            obj_.original_tagname_ = 'warning'
+        elif nodeName_ == 'question':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.question.append(obj_)
+            obj_.original_tagname_ = 'question'
+        elif nodeName_ == 'reference':
+            obj_ = referenceType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.reference.append(obj_)
+            obj_.original_tagname_ = 'reference'
+        elif nodeName_ == 'metadata':
+            obj_ = metadataType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.metadata.append(obj_)
+            obj_.original_tagname_ = 'metadata'
+# end class itemType
+
+
+class selectableItemType(itemType):
+    """rationale -- Descriptive text giving rationale or
+    motivations for abiding by this
+    <
+    xccdf:Group
+    >
+    /
+    <
+    xccdf:Rule
+    >
+    (i.e., why it is important to
+    the security of the target platform).
+    platform -- Platforms to which this
+    <
+    xccdf:Group
+    >
+    /
+    <
+    xccdf:Rule
+    >
+    applies.
+    requires -- The identifiers of other
+    <
+    xccdf:Group
+    >
+    or
+    <
+    xccdf:Rule
+    >
+    elements that must be
+    selected for this
+    <
+    xccdf:Group
+    >
+    /
+    <
+    xccdf:Rule
+    >
+    to be
+    evaluated and scored properly. Each
+    <
+    xccdf:requires
+    >
+    element
+    specifies a
+    list of one or more required items by their identifiers.
+    If at least one of the specified
+    <
+    xccdf:Group
+    >
+    or
+    <
+    xccdf:Rule
+    >
+    elements is selected, the requirement is met.
+      
+    * conflicts -- The identifier of another
+      <
+      xccdf:Group
+      >
+      or
+      <
+      xccdf:Rule
+      >
+      that must be unselected
+      for this
+      <
+      xccdf:Group
+      >
+      /
+      <
+      xccdf:Rule
+      >
+      to be evaluated and
+      scored properly. Each
+      <
+      xccdf:conflicts
+      >
+      element specifies a
+      single conflicting item using its idref attribute. If the specified
+      <
+      xccdf:Group
+      >
+      or
+      <
+      xccdf:Rule
+      >
+      element is not selected,
+      the requirement is met.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = itemType
+    def __init__(self, abstract=False, cluster_id=None, extends=None, hidden=False, prohibitChanges=False, lang=None, base=None, Id=None, status=None, dc_status=None, version=None, title=None, description=None, warning=None, question=None, reference=None, metadata=None, selected=True, weight='1.0', rationale=None, platform=None, requires=None, conflicts=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("selectableItemType"), self).__init__(abstract, cluster_id, extends, hidden, prohibitChanges, lang, base, Id, status, dc_status, version, title, description, warning, question, reference, metadata, extensiontype_,  **kwargs_)
+        self.selected = _cast(bool, selected)
+        self.selected_nsprefix_ = None
+        self.weight = _cast(float, weight)
+        self.weight_nsprefix_ = None
+        if rationale is None:
+            self.rationale = []
+        else:
+            self.rationale = rationale
+        self.rationale_nsprefix_ = "cdf"
+        if platform is None:
+            self.platform = []
+        else:
+            self.platform = platform
+        self.platform_nsprefix_ = "cdf"
+        if requires is None:
+            self.requires = []
+        else:
+            self.requires = requires
+        self.requires_nsprefix_ = "cdf"
+        if conflicts is None:
+            self.conflicts = []
+        else:
+            self.conflicts = conflicts
+        self.conflicts_nsprefix_ = "cdf"
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, selectableItemType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if selectableItemType.subclass:
+            return selectableItemType.subclass(*args_, **kwargs_)
+        else:
+            return selectableItemType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_rationale(self):
+        return self.rationale
+    def set_rationale(self, rationale):
+        self.rationale = rationale
+    def add_rationale(self, value):
+        self.rationale.append(value)
+    def insert_rationale_at(self, index, value):
+        self.rationale.insert(index, value)
+    def replace_rationale_at(self, index, value):
+        self.rationale[index] = value
+    def get_platform(self):
+        return self.platform
+    def set_platform(self, platform):
+        self.platform = platform
+    def add_platform(self, value):
+        self.platform.append(value)
+    def insert_platform_at(self, index, value):
+        self.platform.insert(index, value)
+    def replace_platform_at(self, index, value):
+        self.platform[index] = value
+    def get_requires(self):
+        return self.requires
+    def set_requires(self, requires):
+        self.requires = requires
+    def add_requires(self, value):
+        self.requires.append(value)
+    def insert_requires_at(self, index, value):
+        self.requires.insert(index, value)
+    def replace_requires_at(self, index, value):
+        self.requires[index] = value
+    def get_conflicts(self):
+        return self.conflicts
+    def set_conflicts(self, conflicts):
+        self.conflicts = conflicts
+    def add_conflicts(self, value):
+        self.conflicts.append(value)
+    def insert_conflicts_at(self, index, value):
+        self.conflicts.insert(index, value)
+    def replace_conflicts_at(self, index, value):
+        self.conflicts[index] = value
+    def get_selected(self):
+        return self.selected
+    def set_selected(self, selected):
+        self.selected = selected
+    def get_weight(self):
+        return self.weight
+    def set_weight(self, weight):
+        self.weight = weight
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def validate_weightType(self, value):
+        # Validate type cdf:weightType, a restriction on xsd:decimal.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, decimal_.Decimal):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (decimal_.Decimal)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0.0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on weightType' % {"value": value, "lineno": lineno} )
+                result = False
+            if len(str(value)) >= 3:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd totalDigits restriction on weightType' % {"value": value, "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.rationale or
+            self.platform or
+            self.requires or
+            self.conflicts or
+            super(selectableItemType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selectableItemType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('selectableItemType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'selectableItemType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selectableItemType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='selectableItemType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='selectableItemType'):
+        super(selectableItemType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selectableItemType')
+        if not self.selected and 'selected' not in already_processed:
+            already_processed.add('selected')
+            outfile.write(' selected="%s"' % self.gds_format_boolean(self.selected, input_name='selected'))
+        if self.weight != 1.0 and 'weight' not in already_processed:
+            already_processed.add('weight')
+            outfile.write(' weight="%s"' % self.gds_format_decimal(self.weight, input_name='weight'))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selectableItemType', fromsubclass_=False, pretty_print=True):
+        super(selectableItemType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for rationale_ in self.rationale:
+            namespaceprefix_ = self.rationale_nsprefix_ + ':' if (UseCapturedNS_ and self.rationale_nsprefix_) else ''
+            rationale_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='rationale', pretty_print=pretty_print)
+        for platform_ in self.platform:
+            namespaceprefix_ = self.platform_nsprefix_ + ':' if (UseCapturedNS_ and self.platform_nsprefix_) else ''
+            platform_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='platform', pretty_print=pretty_print)
+        for requires_ in self.requires:
+            namespaceprefix_ = self.requires_nsprefix_ + ':' if (UseCapturedNS_ and self.requires_nsprefix_) else ''
+            requires_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='requires', pretty_print=pretty_print)
+        for conflicts_ in self.conflicts:
+            namespaceprefix_ = self.conflicts_nsprefix_ + ':' if (UseCapturedNS_ and self.conflicts_nsprefix_) else ''
+            conflicts_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='conflicts', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('selected', node)
+        if value is not None and 'selected' not in already_processed:
+            already_processed.add('selected')
+            if value in ('true', '1'):
+                self.selected = True
+            elif value in ('false', '0'):
+                self.selected = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('weight', node)
+        if value is not None and 'weight' not in already_processed:
+            already_processed.add('weight')
+            value = self.gds_parse_decimal(value, node, 'weight')
+            self.weight = value
+            self.validate_weightType(self.weight)    # validate type weightType
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+        super(selectableItemType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'rationale':
+            class_obj_ = self.get_class_obj_(child_, htmlTextWithSubType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.rationale.append(obj_)
+            obj_.original_tagname_ = 'rationale'
+        elif nodeName_ == 'platform':
+            obj_ = overrideableCPE2idrefType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.platform.append(obj_)
+            obj_.original_tagname_ = 'platform'
+        elif nodeName_ == 'requires':
+            obj_ = idrefListType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.requires.append(obj_)
+            obj_.original_tagname_ = 'requires'
+        elif nodeName_ == 'conflicts':
+            class_obj_ = self.get_class_obj_(child_, idrefType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.conflicts.append(obj_)
+            obj_.original_tagname_ = 'conflicts'
+        super(selectableItemType, self)._buildChildren(child_, node, nodeName_, True)
+# end class selectableItemType
+
+
+class groupType(selectableItemType):
+    """Value -- <
+    xccdf:Value
+    >
+    elements that
+    belong to this
+    <
+    xccdf:Group
+    >
+    .
+    Group -- Sub-
+    <
+    xccdf:Groups
+    >
+    under this
+    <
+    xccdf:Group
+    >
+    .
+    Rule -- <
+    xccdf:Rule
+    >
+    elements that
+    belong to this
+    <
+    xccdf:Group
+    >
+    .
+    signature -- A digital signature asserting
+    authorship and allowing verification of the integrity of the
+    <
+    xccdf:Group
+    >
+    .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = selectableItemType
+    def __init__(self, abstract=False, cluster_id=None, extends=None, hidden=False, prohibitChanges=False, lang=None, base=None, Id=None, status=None, dc_status=None, version=None, title=None, description=None, warning=None, question=None, reference=None, metadata=None, selected=True, weight='1.0', rationale=None, platform=None, requires=None, conflicts=None, id=None, Value=None, Group=None, Rule=None, signature=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("groupType"), self).__init__(abstract, cluster_id, extends, hidden, prohibitChanges, lang, base, Id, status, dc_status, version, title, description, warning, question, reference, metadata, selected, weight, rationale, platform, requires, conflicts,  **kwargs_)
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        if Value is None:
+            self.Value = []
+        else:
+            self.Value = Value
+        self.Value_nsprefix_ = "cdf"
+        if Group is None:
+            self.Group = []
+        else:
+            self.Group = Group
+        self.Group_nsprefix_ = "cdf"
+        if Rule is None:
+            self.Rule = []
+        else:
+            self.Rule = Rule
+        self.Rule_nsprefix_ = "cdf"
+        self.signature = signature
+        self.signature_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, groupType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if groupType.subclass:
+            return groupType.subclass(*args_, **kwargs_)
+        else:
+            return groupType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_Value(self):
+        return self.Value
+    def set_Value(self, Value):
+        self.Value = Value
+    def add_Value(self, value):
+        self.Value.append(value)
+    def insert_Value_at(self, index, value):
+        self.Value.insert(index, value)
+    def replace_Value_at(self, index, value):
+        self.Value[index] = value
+    def get_Group(self):
+        return self.Group
+    def set_Group(self, Group):
+        self.Group = Group
+    def add_Group(self, value):
+        self.Group.append(value)
+    def insert_Group_at(self, index, value):
+        self.Group.insert(index, value)
+    def replace_Group_at(self, index, value):
+        self.Group[index] = value
+    def get_Rule(self):
+        return self.Rule
+    def set_Rule(self, Rule):
+        self.Rule = Rule
+    def add_Rule(self, value):
+        self.Rule.append(value)
+    def insert_Rule_at(self, index, value):
+        self.Rule.insert(index, value)
+    def replace_Rule_at(self, index, value):
+        self.Rule[index] = value
+    def get_signature(self):
+        return self.signature
+    def set_signature(self, signature):
+        self.signature = signature
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def validate_groupIdType(self, value):
+        # Validate type cdf:groupIdType, a restriction on xsd:NCName.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            if not self.gds_validate_simple_patterns(
+                    self.validate_groupIdType_patterns_, value):
+                self.gds_collector_.add_message('Value "%s" does not match xsd pattern restrictions: %s' % (encode_str_2_3(value), self.validate_groupIdType_patterns_, ))
+    validate_groupIdType_patterns_ = [['^(xccdf_[^_]+_group_.+)$']]
+    def has__content(self):
+        if (
+            self.Value or
+            self.Group or
+            self.Rule or
+            self.signature is not None or
+            super(groupType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='groupType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('groupType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'groupType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='groupType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='groupType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='groupType'):
+        super(groupType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='groupType')
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='groupType', fromsubclass_=False, pretty_print=True):
+        super(groupType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for Value_ in self.Value:
+            namespaceprefix_ = self.Value_nsprefix_ + ':' if (UseCapturedNS_ and self.Value_nsprefix_) else ''
+            Value_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Value', pretty_print=pretty_print)
+        for Group_ in self.Group:
+            namespaceprefix_ = self.Group_nsprefix_ + ':' if (UseCapturedNS_ and self.Group_nsprefix_) else ''
+            Group_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Group', pretty_print=pretty_print)
+        for Rule_ in self.Rule:
+            namespaceprefix_ = self.Rule_nsprefix_ + ':' if (UseCapturedNS_ and self.Rule_nsprefix_) else ''
+            Rule_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Rule', pretty_print=pretty_print)
+        if self.signature is not None:
+            namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
+            self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+            self.validate_groupIdType(self.id)    # validate type groupIdType
+        super(groupType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'Value':
+            obj_ = valueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Value.append(obj_)
+            obj_.original_tagname_ = 'Value'
+        elif nodeName_ == 'Group':
+            obj_ = groupType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Group.append(obj_)
+            obj_.original_tagname_ = 'Group'
+        elif nodeName_ == 'Rule':
+            obj_ = ruleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Rule.append(obj_)
+            obj_.original_tagname_ = 'Rule'
+        elif nodeName_ == 'signature':
+            obj_ = signatureType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.signature = obj_
+            obj_.original_tagname_ = 'signature'
+        super(groupType, self)._buildChildren(child_, node, nodeName_, True)
+# end class groupType
+
+
+class ruleType(selectableItemType):
+    """ident -- A globally meaningful identifier for
+    this
+    <
+    xccdf:Rule
+    >
+    . This may be the name or identifier of a
+    security configuration issue or vulnerability that the
+    <
+    xccdf:Rule
+    >
+    assesses.
+    impact-metric -- The potential impact of failure to
+    conform to the
+    <
+    xccdf:Rule
+    >
+    , expressed as a CVSS 2.0 base
+    vector.
+    profile-note -- Text that describes special aspects of
+    the
+    <
+    xccdf:Rule
+    >
+    related to one or more
+    <
+    xccdf:Profile
+    >
+    elements. This allows an author to document things within
+    <
+    xccdf:Rule
+    >
+    elements that are specific to a given
+    <
+    xccdf:Profile
+    >
+    , and then select the appropriate text based on
+    the selected
+    <
+    xccdf:Profile
+    >
+    and display it to the
+    reader.
+    fixtext -- Data that describes how to bring a
+    target system into compliance with this
+    <
+    xccdf:Rule
+    >
+    .
+    fix -- A command string, script, or other
+    system modification statement that, if executed on the target
+    system, can bring it into full, or at least better, compliance with
+    this
+    <
+    xccdf:Rule
+    >
+    .
+    check -- The definition of, or a reference
+    to, the target system check needed to test compliance with this
+    <
+    xccdf:Rule
+    >
+    . Sibling
+    <
+    xccdf:check
+    >
+    elements must
+    have different values for the combination of their @selector and
+    @system attributes, and must have different values for their @id
+    attribute (if any).
+    complex-check -- A boolean expression composed of
+    operators (and, or, not) and individual
+    checks.
+    signature -- A digital signature asserting
+    authorship and allowing verification of the integrity of the
+    <
+    xccdf:Rule
+    >
+    .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = selectableItemType
+    def __init__(self, abstract=False, cluster_id=None, extends=None, hidden=False, prohibitChanges=False, lang=None, base=None, Id=None, status=None, dc_status=None, version=None, title=None, description=None, warning=None, question=None, reference=None, metadata=None, selected=True, weight='1.0', rationale=None, platform=None, requires=None, conflicts=None, id=None, role='full', severity='unknown', multiple=False, ident=None, impact_metric=None, profile_note=None, fixtext=None, fix=None, check=None, complex_check=None, signature=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("ruleType"), self).__init__(abstract, cluster_id, extends, hidden, prohibitChanges, lang, base, Id, status, dc_status, version, title, description, warning, question, reference, metadata, selected, weight, rationale, platform, requires, conflicts,  **kwargs_)
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.role = _cast(None, role)
+        self.role_nsprefix_ = None
+        self.severity = _cast(None, severity)
+        self.severity_nsprefix_ = None
+        self.multiple = _cast(bool, multiple)
+        self.multiple_nsprefix_ = None
+        if ident is None:
+            self.ident = []
+        else:
+            self.ident = ident
+        self.ident_nsprefix_ = "cdf"
+        self.impact_metric = impact_metric
+        self.impact_metric_nsprefix_ = "cdf"
+        if profile_note is None:
+            self.profile_note = []
+        else:
+            self.profile_note = profile_note
+        self.profile_note_nsprefix_ = "cdf"
+        if fixtext is None:
+            self.fixtext = []
+        else:
+            self.fixtext = fixtext
+        self.fixtext_nsprefix_ = "cdf"
+        if fix is None:
+            self.fix = []
+        else:
+            self.fix = fix
+        self.fix_nsprefix_ = "cdf"
+        if check is None:
+            self.check = []
+        else:
+            self.check = check
+        self.check_nsprefix_ = "cdf"
+        self.complex_check = complex_check
+        self.complex_check_nsprefix_ = "cdf"
+        self.signature = signature
+        self.signature_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ruleType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ruleType.subclass:
+            return ruleType.subclass(*args_, **kwargs_)
+        else:
+            return ruleType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_ident(self):
+        return self.ident
+    def set_ident(self, ident):
+        self.ident = ident
+    def add_ident(self, value):
+        self.ident.append(value)
+    def insert_ident_at(self, index, value):
+        self.ident.insert(index, value)
+    def replace_ident_at(self, index, value):
+        self.ident[index] = value
+    def get_impact_metric(self):
+        return self.impact_metric
+    def set_impact_metric(self, impact_metric):
+        self.impact_metric = impact_metric
+    def get_profile_note(self):
+        return self.profile_note
+    def set_profile_note(self, profile_note):
+        self.profile_note = profile_note
+    def add_profile_note(self, value):
+        self.profile_note.append(value)
+    def insert_profile_note_at(self, index, value):
+        self.profile_note.insert(index, value)
+    def replace_profile_note_at(self, index, value):
+        self.profile_note[index] = value
+    def get_fixtext(self):
+        return self.fixtext
+    def set_fixtext(self, fixtext):
+        self.fixtext = fixtext
+    def add_fixtext(self, value):
+        self.fixtext.append(value)
+    def insert_fixtext_at(self, index, value):
+        self.fixtext.insert(index, value)
+    def replace_fixtext_at(self, index, value):
+        self.fixtext[index] = value
+    def get_fix(self):
+        return self.fix
+    def set_fix(self, fix):
+        self.fix = fix
+    def add_fix(self, value):
+        self.fix.append(value)
+    def insert_fix_at(self, index, value):
+        self.fix.insert(index, value)
+    def replace_fix_at(self, index, value):
+        self.fix[index] = value
+    def get_check(self):
+        return self.check
+    def set_check(self, check):
+        self.check = check
+    def add_check(self, value):
+        self.check.append(value)
+    def insert_check_at(self, index, value):
+        self.check.insert(index, value)
+    def replace_check_at(self, index, value):
+        self.check[index] = value
+    def get_complex_check(self):
+        return self.complex_check
+    def set_complex_check(self, complex_check):
+        self.complex_check = complex_check
+    def get_signature(self):
+        return self.signature
+    def set_signature(self, signature):
+        self.signature = signature
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_role(self):
+        return self.role
+    def set_role(self, role):
+        self.role = role
+    def get_severity(self):
+        return self.severity
+    def set_severity(self, severity):
+        self.severity = severity
+    def get_multiple(self):
+        return self.multiple
+    def set_multiple(self, multiple):
+        self.multiple = multiple
+    def validate_ruleIdType(self, value):
+        # Validate type cdf:ruleIdType, a restriction on xsd:NCName.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            if not self.gds_validate_simple_patterns(
+                    self.validate_ruleIdType_patterns_, value):
+                self.gds_collector_.add_message('Value "%s" does not match xsd pattern restrictions: %s' % (encode_str_2_3(value), self.validate_ruleIdType_patterns_, ))
+    validate_ruleIdType_patterns_ = [['^(xccdf_[^_]+_rule_.+)$']]
+    def validate_roleEnumType(self, value):
+        # Validate type cdf:roleEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['full', 'unscored', 'unchecked']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on roleEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_severityEnumType(self, value):
+        # Validate type cdf:severityEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['unknown', 'info', 'low', 'medium', 'high']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on severityEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.ident or
+            self.impact_metric is not None or
+            self.profile_note or
+            self.fixtext or
+            self.fix or
+            self.check or
+            self.complex_check is not None or
+            self.signature is not None or
+            super(ruleType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='ruleType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('ruleType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'ruleType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ruleType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ruleType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ruleType'):
+        super(ruleType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ruleType')
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.role != "full" and 'role' not in already_processed:
+            already_processed.add('role')
+            outfile.write(' role=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.role), input_name='role')), ))
+        if self.severity != "unknown" and 'severity' not in already_processed:
+            already_processed.add('severity')
+            outfile.write(' severity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.severity), input_name='severity')), ))
+        if self.multiple and 'multiple' not in already_processed:
+            already_processed.add('multiple')
+            outfile.write(' multiple="%s"' % self.gds_format_boolean(self.multiple, input_name='multiple'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='ruleType', fromsubclass_=False, pretty_print=True):
+        super(ruleType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for ident_ in self.ident:
+            namespaceprefix_ = self.ident_nsprefix_ + ':' if (UseCapturedNS_ and self.ident_nsprefix_) else ''
+            ident_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='ident', pretty_print=pretty_print)
+        if self.impact_metric is not None:
+            namespaceprefix_ = self.impact_metric_nsprefix_ + ':' if (UseCapturedNS_ and self.impact_metric_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%simpact-metric>%s</%simpact-metric>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.impact_metric), input_name='impact-metric')), namespaceprefix_ , eol_))
+        for profile_note_ in self.profile_note:
+            namespaceprefix_ = self.profile_note_nsprefix_ + ':' if (UseCapturedNS_ and self.profile_note_nsprefix_) else ''
+            profile_note_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='profile-note', pretty_print=pretty_print)
+        for fixtext_ in self.fixtext:
+            namespaceprefix_ = self.fixtext_nsprefix_ + ':' if (UseCapturedNS_ and self.fixtext_nsprefix_) else ''
+            fixtext_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='fixtext', pretty_print=pretty_print)
+        for fix_ in self.fix:
+            namespaceprefix_ = self.fix_nsprefix_ + ':' if (UseCapturedNS_ and self.fix_nsprefix_) else ''
+            fix_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='fix', pretty_print=pretty_print)
+        for check_ in self.check:
+            namespaceprefix_ = self.check_nsprefix_ + ':' if (UseCapturedNS_ and self.check_nsprefix_) else ''
+            check_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='check', pretty_print=pretty_print)
+        if self.complex_check is not None:
+            namespaceprefix_ = self.complex_check_nsprefix_ + ':' if (UseCapturedNS_ and self.complex_check_nsprefix_) else ''
+            self.complex_check.export(outfile, level, namespaceprefix_, namespacedef_='', name_='complex-check', pretty_print=pretty_print)
+        if self.signature is not None:
+            namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
+            self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+            self.validate_ruleIdType(self.id)    # validate type ruleIdType
+        value = find_attr_value_('role', node)
+        if value is not None and 'role' not in already_processed:
+            already_processed.add('role')
+            self.role = value
+            self.validate_roleEnumType(self.role)    # validate type roleEnumType
+        value = find_attr_value_('severity', node)
+        if value is not None and 'severity' not in already_processed:
+            already_processed.add('severity')
+            self.severity = value
+            self.validate_severityEnumType(self.severity)    # validate type severityEnumType
+        value = find_attr_value_('multiple', node)
+        if value is not None and 'multiple' not in already_processed:
+            already_processed.add('multiple')
+            if value in ('true', '1'):
+                self.multiple = True
+            elif value in ('false', '0'):
+                self.multiple = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        super(ruleType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'ident':
+            obj_ = identType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.ident.append(obj_)
+            obj_.original_tagname_ = 'ident'
+        elif nodeName_ == 'impact-metric':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'impact_metric')
+            value_ = self.gds_validate_string(value_, node, 'impact_metric')
+            self.impact_metric = value_
+            self.impact_metric_nsprefix_ = child_.prefix
+        elif nodeName_ == 'profile-note':
+            obj_ = profileNoteType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.profile_note.append(obj_)
+            obj_.original_tagname_ = 'profile-note'
+        elif nodeName_ == 'fixtext':
+            obj_ = fixTextType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.fixtext.append(obj_)
+            obj_.original_tagname_ = 'fixtext'
+        elif nodeName_ == 'fix':
+            obj_ = fixType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.fix.append(obj_)
+            obj_.original_tagname_ = 'fix'
+        elif nodeName_ == 'check':
+            obj_ = checkType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check.append(obj_)
+            obj_.original_tagname_ = 'check'
+        elif nodeName_ == 'complex-check':
+            obj_ = complexCheckType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.complex_check = obj_
+            obj_.original_tagname_ = 'complex-check'
+        elif nodeName_ == 'signature':
+            obj_ = signatureType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.signature = obj_
+            obj_.original_tagname_ = 'signature'
+        super(ruleType, self)._buildChildren(child_, node, nodeName_, True)
+# end class ruleType
+
+
+class identType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, system=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.system = _cast(None, system)
+        self.system_nsprefix_ = None
+        self.valueOf_ = valueOf_
+        self.anyAttributes_ = {}
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, identType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if identType.subclass:
+            return identType.subclass(*args_, **kwargs_)
+        else:
+            return identType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_system(self):
+        return self.system
+    def set_system(self, system):
+        self.system = system
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def get_anyAttributes_(self): return self.anyAttributes_
+    def set_anyAttributes_(self, anyAttributes_): self.anyAttributes_ = anyAttributes_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('identType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'identType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='identType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='identType'):
+        unique_counter = 0
+        for name, value in self.anyAttributes_.items():
+            xsinamespaceprefix = 'xsi'
+            xsinamespace1 = 'http://www.w3.org/2001/XMLSchema-instance'
+            xsinamespace2 = '{%s}' % (xsinamespace1, )
+            if name.startswith(xsinamespace2):
+                name1 = name[len(xsinamespace2):]
+                name2 = '%s:%s' % (xsinamespaceprefix, name1, )
+                if name2 not in already_processed:
+                    already_processed.add(name2)
+                    outfile.write(' %s=%s' % (name2, quote_attrib(value), ))
+            else:
+                mo = re_.match(Namespace_extract_pat_, name)
+                if mo is not None:
+                    namespace, name = mo.group(1, 2)
+                    if name not in already_processed:
+                        already_processed.add(name)
+                        if namespace == 'http://www.w3.org/XML/1998/namespace':
+                            outfile.write(' %s=%s' % (
+                                name, quote_attrib(value), ))
+                        else:
+                            unique_counter += 1
+                            outfile.write(' xmlns:%d="%s"' % (
+                                unique_counter, namespace, ))
+                            outfile.write(' %d:%s=%s' % (
+                                unique_counter, name, quote_attrib(value), ))
+                else:
+                    if name not in already_processed:
+                        already_processed.add(name)
+                        outfile.write(' %s=%s' % (
+                            name, quote_attrib(value), ))
+        if self.system is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('system', node)
+        if value is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            self.system = value
+        self.anyAttributes_ = {}
+        for name, value in attrs.items():
+            if name not in already_processed:
+                self.anyAttributes_[name] = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class identType
+
+
+class warningType(htmlTextWithSubType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = htmlTextWithSubType
+    def __init__(self, lang=None, override=False, sub=None, anytypeobjs_=None, category='general', valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("warningType"), self).__init__(lang, override, sub, anytypeobjs_, valueOf_, mixedclass_, content_,  **kwargs_)
+        self.category = _cast(None, category)
+        self.category_nsprefix_ = None
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, warningType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if warningType.subclass:
+            return warningType.subclass(*args_, **kwargs_)
+        else:
+            return warningType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_category(self):
+        return self.category
+    def set_category(self, category):
+        self.category = category
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_warningCategoryEnumType(self, value):
+        # Validate type cdf:warningCategoryEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['general', 'functionality', 'performance', 'hardware', 'legal', 'regulatory', 'management', 'audit', 'dependency']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on warningCategoryEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_ or
+            super(warningType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='warningType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('warningType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'warningType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='warningType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='warningType'):
+        super(warningType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='warningType')
+        if self.category != "general" and 'category' not in already_processed:
+            already_processed.add('category')
+            outfile.write(' category=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.category), input_name='category')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='warningType', fromsubclass_=False, pretty_print=True):
+        super(warningType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('category', node)
+        if value is not None and 'category' not in already_processed:
+            already_processed.add('category')
+            self.category = value
+            self.validate_warningCategoryEnumType(self.category)    # validate type warningCategoryEnumType
+        super(warningType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+        super(warningType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class warningType
+
+
+class fixTextType(htmlTextWithSubType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = htmlTextWithSubType
+    def __init__(self, lang=None, override=False, sub=None, anytypeobjs_=None, fixref=None, reboot=False, strategy='unknown', disruption='unknown', complexity='unknown', valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("fixTextType"), self).__init__(lang, override, sub, anytypeobjs_, valueOf_, mixedclass_, content_,  **kwargs_)
+        self.fixref = _cast(None, fixref)
+        self.fixref_nsprefix_ = None
+        self.reboot = _cast(bool, reboot)
+        self.reboot_nsprefix_ = None
+        self.strategy = _cast(None, strategy)
+        self.strategy_nsprefix_ = None
+        self.disruption = _cast(None, disruption)
+        self.disruption_nsprefix_ = None
+        self.complexity = _cast(None, complexity)
+        self.complexity_nsprefix_ = None
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, fixTextType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if fixTextType.subclass:
+            return fixTextType.subclass(*args_, **kwargs_)
+        else:
+            return fixTextType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_fixref(self):
+        return self.fixref
+    def set_fixref(self, fixref):
+        self.fixref = fixref
+    def get_reboot(self):
+        return self.reboot
+    def set_reboot(self, reboot):
+        self.reboot = reboot
+    def get_strategy(self):
+        return self.strategy
+    def set_strategy(self, strategy):
+        self.strategy = strategy
+    def get_disruption(self):
+        return self.disruption
+    def set_disruption(self, disruption):
+        self.disruption = disruption
+    def get_complexity(self):
+        return self.complexity
+    def set_complexity(self, complexity):
+        self.complexity = complexity
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_fixStrategyEnumType(self, value):
+        # Validate type cdf:fixStrategyEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['unknown', 'configure', 'combination', 'disable', 'enable', 'patch', 'policy', 'restrict', 'update']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on fixStrategyEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_ratingEnumType(self, value):
+        # Validate type cdf:ratingEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['unknown', 'low', 'medium', 'high']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on ratingEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_ or
+            super(fixTextType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixTextType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('fixTextType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'fixTextType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='fixTextType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='fixTextType'):
+        super(fixTextType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='fixTextType')
+        if self.fixref is not None and 'fixref' not in already_processed:
+            already_processed.add('fixref')
+            outfile.write(' fixref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.fixref), input_name='fixref')), ))
+        if self.reboot is not None and 'reboot' not in already_processed:
+            already_processed.add('reboot')
+            outfile.write(' reboot="%s"' % self.gds_format_boolean(self.reboot, input_name='reboot'))
+        if self.strategy != "unknown" and 'strategy' not in already_processed:
+            already_processed.add('strategy')
+            outfile.write(' strategy=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.strategy), input_name='strategy')), ))
+        if self.disruption != "unknown" and 'disruption' not in already_processed:
+            already_processed.add('disruption')
+            outfile.write(' disruption=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.disruption), input_name='disruption')), ))
+        if self.complexity != "unknown" and 'complexity' not in already_processed:
+            already_processed.add('complexity')
+            outfile.write(' complexity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.complexity), input_name='complexity')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixTextType', fromsubclass_=False, pretty_print=True):
+        super(fixTextType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('fixref', node)
+        if value is not None and 'fixref' not in already_processed:
+            already_processed.add('fixref')
+            self.fixref = value
+        value = find_attr_value_('reboot', node)
+        if value is not None and 'reboot' not in already_processed:
+            already_processed.add('reboot')
+            if value in ('true', '1'):
+                self.reboot = True
+            elif value in ('false', '0'):
+                self.reboot = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('strategy', node)
+        if value is not None and 'strategy' not in already_processed:
+            already_processed.add('strategy')
+            self.strategy = value
+            self.validate_fixStrategyEnumType(self.strategy)    # validate type fixStrategyEnumType
+        value = find_attr_value_('disruption', node)
+        if value is not None and 'disruption' not in already_processed:
+            already_processed.add('disruption')
+            self.disruption = value
+            self.validate_ratingEnumType(self.disruption)    # validate type ratingEnumType
+        value = find_attr_value_('complexity', node)
+        if value is not None and 'complexity' not in already_processed:
+            already_processed.add('complexity')
+            self.complexity = value
+            self.validate_ratingEnumType(self.complexity)    # validate type ratingEnumType
+        super(fixTextType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+        super(fixTextType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class fixTextType
+
+
+class fixType(GeneratedsSuper):
+    """sub -- Specifies an
+    <
+    xccdf:Value
+    >
+    or
+    <
+    xccdf:plain-text
+    >
+    element to be used for text substitution
+      
+    * instance -- Designates a spot where the name of the
+      instance should be substituted into the fix template to generate the final
+      fix data. If the @context attribute is omitted, the value of the @context
+      defaults to
+      “
+      undefined
+      ”
+      .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, reboot=False, strategy='unknown', disruption='unknown', complexity='unknown', system=None, platform=None, sub=None, instance=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.reboot = _cast(bool, reboot)
+        self.reboot_nsprefix_ = None
+        self.strategy = _cast(None, strategy)
+        self.strategy_nsprefix_ = None
+        self.disruption = _cast(None, disruption)
+        self.disruption_nsprefix_ = None
+        self.complexity = _cast(None, complexity)
+        self.complexity_nsprefix_ = None
+        self.system = _cast(None, system)
+        self.system_nsprefix_ = None
+        self.platform = _cast(None, platform)
+        self.platform_nsprefix_ = None
+        if sub is None:
+            self.sub = []
+        else:
+            self.sub = sub
+        self.sub_nsprefix_ = "cdf"
+        if instance is None:
+            self.instance = []
+        else:
+            self.instance = instance
+        self.instance_nsprefix_ = "cdf"
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, fixType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if fixType.subclass:
+            return fixType.subclass(*args_, **kwargs_)
+        else:
+            return fixType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_sub(self):
+        return self.sub
+    def set_sub(self, sub):
+        self.sub = sub
+    def add_sub(self, value):
+        self.sub.append(value)
+    def insert_sub_at(self, index, value):
+        self.sub.insert(index, value)
+    def replace_sub_at(self, index, value):
+        self.sub[index] = value
+    def get_instance(self):
+        return self.instance
+    def set_instance(self, instance):
+        self.instance = instance
+    def add_instance(self, value):
+        self.instance.append(value)
+    def insert_instance_at(self, index, value):
+        self.instance.insert(index, value)
+    def replace_instance_at(self, index, value):
+        self.instance[index] = value
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_reboot(self):
+        return self.reboot
+    def set_reboot(self, reboot):
+        self.reboot = reboot
+    def get_strategy(self):
+        return self.strategy
+    def set_strategy(self, strategy):
+        self.strategy = strategy
+    def get_disruption(self):
+        return self.disruption
+    def set_disruption(self, disruption):
+        self.disruption = disruption
+    def get_complexity(self):
+        return self.complexity
+    def set_complexity(self, complexity):
+        self.complexity = complexity
+    def get_system(self):
+        return self.system
+    def set_system(self, system):
+        self.system = system
+    def get_platform(self):
+        return self.platform
+    def set_platform(self, platform):
+        self.platform = platform
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_fixStrategyEnumType(self, value):
+        # Validate type cdf:fixStrategyEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['unknown', 'configure', 'combination', 'disable', 'enable', 'patch', 'policy', 'restrict', 'update']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on fixStrategyEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_ratingEnumType(self, value):
+        # Validate type cdf:ratingEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['unknown', 'low', 'medium', 'high']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on ratingEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.sub or
+            self.instance or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('fixType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'fixType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='fixType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='fixType'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.reboot is not None and 'reboot' not in already_processed:
+            already_processed.add('reboot')
+            outfile.write(' reboot="%s"' % self.gds_format_boolean(self.reboot, input_name='reboot'))
+        if self.strategy != "unknown" and 'strategy' not in already_processed:
+            already_processed.add('strategy')
+            outfile.write(' strategy=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.strategy), input_name='strategy')), ))
+        if self.disruption != "unknown" and 'disruption' not in already_processed:
+            already_processed.add('disruption')
+            outfile.write(' disruption=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.disruption), input_name='disruption')), ))
+        if self.complexity != "unknown" and 'complexity' not in already_processed:
+            already_processed.add('complexity')
+            outfile.write(' complexity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.complexity), input_name='complexity')), ))
+        if self.system is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
+        if self.platform is not None and 'platform' not in already_processed:
+            already_processed.add('platform')
+            outfile.write(' platform=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.platform), input_name='platform')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for sub_ in self.sub:
+            namespaceprefix_ = self.sub_nsprefix_ + ':' if (UseCapturedNS_ and self.sub_nsprefix_) else ''
+            sub_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='sub', pretty_print=pretty_print)
+        for instance_ in self.instance:
+            namespaceprefix_ = self.instance_nsprefix_ + ':' if (UseCapturedNS_ and self.instance_nsprefix_) else ''
+            instance_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='instance', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+        value = find_attr_value_('reboot', node)
+        if value is not None and 'reboot' not in already_processed:
+            already_processed.add('reboot')
+            if value in ('true', '1'):
+                self.reboot = True
+            elif value in ('false', '0'):
+                self.reboot = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('strategy', node)
+        if value is not None and 'strategy' not in already_processed:
+            already_processed.add('strategy')
+            self.strategy = value
+            self.validate_fixStrategyEnumType(self.strategy)    # validate type fixStrategyEnumType
+        value = find_attr_value_('disruption', node)
+        if value is not None and 'disruption' not in already_processed:
+            already_processed.add('disruption')
+            self.disruption = value
+            self.validate_ratingEnumType(self.disruption)    # validate type ratingEnumType
+        value = find_attr_value_('complexity', node)
+        if value is not None and 'complexity' not in already_processed:
+            already_processed.add('complexity')
+            self.complexity = value
+            self.validate_ratingEnumType(self.complexity)    # validate type ratingEnumType
+        value = find_attr_value_('system', node)
+        if value is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            self.system = value
+        value = find_attr_value_('platform', node)
+        if value is not None and 'platform' not in already_processed:
+            already_processed.add('platform')
+            self.platform = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'sub':
+            obj_ = subType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, 'sub', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_sub'):
+              self.add_sub(obj_.value)
+            elif hasattr(self, 'set_sub'):
+              self.set_sub(obj_.value)
+        elif nodeName_ == 'instance':
+            obj_ = instanceFixType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, 'instance', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_instance'):
+              self.add_instance(obj_.value)
+            elif hasattr(self, 'set_instance'):
+              self.set_instance(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class fixType
+
+
+class instanceFixType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, context='undefined', gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.context = _cast(None, context)
+        self.context_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, instanceFixType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if instanceFixType.subclass:
+            return instanceFixType.subclass(*args_, **kwargs_)
+        else:
+            return instanceFixType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_context(self):
+        return self.context
+    def set_context(self, context):
+        self.context = context
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceFixType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('instanceFixType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'instanceFixType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='instanceFixType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='instanceFixType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='instanceFixType'):
+        if self.context != "undefined" and 'context' not in already_processed:
+            already_processed.add('context')
+            outfile.write(' context=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.context), input_name='context')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceFixType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('context', node)
+        if value is not None and 'context' not in already_processed:
+            already_processed.add('context')
+            self.context = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class instanceFixType
+
+
+class complexCheckType(GeneratedsSuper):
+    """check -- Instructions for a single
+    test.
+    complex-check -- A child
+    <
+    xccdf:complex-check
+    >
+    , allowing
+    another level of logic in combining component checks.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, operator=None, negate=False, check=None, complex_check=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.operator = _cast(None, operator)
+        self.operator_nsprefix_ = None
+        self.negate = _cast(bool, negate)
+        self.negate_nsprefix_ = None
+        if check is None:
+            self.check = []
+        else:
+            self.check = check
+        self.check_nsprefix_ = "cdf"
+        if complex_check is None:
+            self.complex_check = []
+        else:
+            self.complex_check = complex_check
+        self.complex_check_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, complexCheckType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if complexCheckType.subclass:
+            return complexCheckType.subclass(*args_, **kwargs_)
+        else:
+            return complexCheckType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_check(self):
+        return self.check
+    def set_check(self, check):
+        self.check = check
+    def add_check(self, value):
+        self.check.append(value)
+    def insert_check_at(self, index, value):
+        self.check.insert(index, value)
+    def replace_check_at(self, index, value):
+        self.check[index] = value
+    def get_complex_check(self):
+        return self.complex_check
+    def set_complex_check(self, complex_check):
+        self.complex_check = complex_check
+    def add_complex_check(self, value):
+        self.complex_check.append(value)
+    def insert_complex_check_at(self, index, value):
+        self.complex_check.insert(index, value)
+    def replace_complex_check_at(self, index, value):
+        self.complex_check[index] = value
+    def get_operator(self):
+        return self.operator
+    def set_operator(self, operator):
+        self.operator = operator
+    def get_negate(self):
+        return self.negate
+    def set_negate(self, negate):
+        self.negate = negate
+    def validate_ccOperatorEnumType(self, value):
+        # Validate type cdf:ccOperatorEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['OR', 'AND']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on ccOperatorEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.check or
+            self.complex_check
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexCheckType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('complexCheckType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'complexCheckType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='complexCheckType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='complexCheckType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='complexCheckType'):
+        if self.operator is not None and 'operator' not in already_processed:
+            already_processed.add('operator')
+            outfile.write(' operator=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.operator), input_name='operator')), ))
+        if self.negate is not None and 'negate' not in already_processed:
+            already_processed.add('negate')
+            outfile.write(' negate="%s"' % self.gds_format_boolean(self.negate, input_name='negate'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexCheckType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for check_ in self.check:
+            namespaceprefix_ = self.check_nsprefix_ + ':' if (UseCapturedNS_ and self.check_nsprefix_) else ''
+            check_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='check', pretty_print=pretty_print)
+        for complex_check_ in self.complex_check:
+            namespaceprefix_ = self.complex_check_nsprefix_ + ':' if (UseCapturedNS_ and self.complex_check_nsprefix_) else ''
+            complex_check_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='complex-check', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('operator', node)
+        if value is not None and 'operator' not in already_processed:
+            already_processed.add('operator')
+            self.operator = value
+            self.validate_ccOperatorEnumType(self.operator)    # validate type ccOperatorEnumType
+        value = find_attr_value_('negate', node)
+        if value is not None and 'negate' not in already_processed:
+            already_processed.add('negate')
+            if value in ('true', '1'):
+                self.negate = True
+            elif value in ('false', '0'):
+                self.negate = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'check':
+            obj_ = checkType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check.append(obj_)
+            obj_.original_tagname_ = 'check'
+        elif nodeName_ == 'complex-check':
+            obj_ = complexCheckType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.complex_check.append(obj_)
+            obj_.original_tagname_ = 'complex-check'
+# end class complexCheckType
+
+
+class checkType(GeneratedsSuper):
+    """check-import -- Identifies a value to be retrieved from the
+    checking system during testing of a target system. This element's body must
+    be empty within an
+    <
+    xccdf:check
+    >
+    . After the associated check results
+    have been collected, the result structure returned by the checking engine is
+    processed to collect the named information. This information is then
+    recorded in the check-import element in the corresponding
+    <
+    xccdf:rule-result
+    >
+    .
+    check-export -- A mapping from an
+    <
+    xccdf:Value
+    >
+    element
+    to a checking system variable (i.e., external name or id for use by the
+    checking system). This supports export of tailoring values from the XCCDF
+    processing environment to the checking system.
+    check-content-ref -- Points to code for a detached check in another
+    location that uses the language or system specified by the
+    <
+    xccdf:check
+    >
+    element
+    ’
+    s @system attribute. If multiple
+    <
+    xccdf:check-content-ref
+    >
+    elements appear, they represent alternative
+    locations from which a benchmark consumer may obtain the check content.
+    Benchmark consumers should process the alternatives in the order in which
+    they appear in the XML. The first
+    <
+    xccdf:check-content-ref
+    >
+    from which
+    content can be successfully retrieved should be used.
+    check-content -- Holds the actual code of a check, in the
+    language or system specified by the
+    <
+    xccdf:check
+    >
+    element
+    ’
+    s @system
+    attribute. If both
+    <
+    xccdf:check-content-ref
+    >
+    and
+    <
+    xccdf:check-content
+    >
+    elements appear in a single
+    <
+    xccdf:check
+    >
+    element, benchmark consumers should use the
+    <
+    xccdf:check-content
+    >
+    element only if none of the references can be resolved to provide
+    content.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, system=None, negate=False, id=None, selector='', multi_check=False, base=None, check_import=None, check_export=None, check_content_ref=None, check_content=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.system = _cast(None, system)
+        self.system_nsprefix_ = None
+        self.negate = _cast(bool, negate)
+        self.negate_nsprefix_ = None
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.selector = _cast(None, selector)
+        self.selector_nsprefix_ = None
+        self.multi_check = _cast(bool, multi_check)
+        self.multi_check_nsprefix_ = None
+        self.base = _cast(None, base)
+        self.base_nsprefix_ = None
+        if check_import is None:
+            self.check_import = []
+        else:
+            self.check_import = check_import
+        self.check_import_nsprefix_ = "cdf"
+        if check_export is None:
+            self.check_export = []
+        else:
+            self.check_export = check_export
+        self.check_export_nsprefix_ = "cdf"
+        if check_content_ref is None:
+            self.check_content_ref = []
+        else:
+            self.check_content_ref = check_content_ref
+        self.check_content_ref_nsprefix_ = "cdf"
+        self.check_content = check_content
+        self.check_content_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, checkType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if checkType.subclass:
+            return checkType.subclass(*args_, **kwargs_)
+        else:
+            return checkType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_check_import(self):
+        return self.check_import
+    def set_check_import(self, check_import):
+        self.check_import = check_import
+    def add_check_import(self, value):
+        self.check_import.append(value)
+    def insert_check_import_at(self, index, value):
+        self.check_import.insert(index, value)
+    def replace_check_import_at(self, index, value):
+        self.check_import[index] = value
+    def get_check_export(self):
+        return self.check_export
+    def set_check_export(self, check_export):
+        self.check_export = check_export
+    def add_check_export(self, value):
+        self.check_export.append(value)
+    def insert_check_export_at(self, index, value):
+        self.check_export.insert(index, value)
+    def replace_check_export_at(self, index, value):
+        self.check_export[index] = value
+    def get_check_content_ref(self):
+        return self.check_content_ref
+    def set_check_content_ref(self, check_content_ref):
+        self.check_content_ref = check_content_ref
+    def add_check_content_ref(self, value):
+        self.check_content_ref.append(value)
+    def insert_check_content_ref_at(self, index, value):
+        self.check_content_ref.insert(index, value)
+    def replace_check_content_ref_at(self, index, value):
+        self.check_content_ref[index] = value
+    def get_check_content(self):
+        return self.check_content
+    def set_check_content(self, check_content):
+        self.check_content = check_content
+    def get_system(self):
+        return self.system
+    def set_system(self, system):
+        self.system = system
+    def get_negate(self):
+        return self.negate
+    def set_negate(self, negate):
+        self.negate = negate
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_selector(self):
+        return self.selector
+    def set_selector(self, selector):
+        self.selector = selector
+    def get_multi_check(self):
+        return self.multi_check
+    def set_multi_check(self, multi_check):
+        self.multi_check = multi_check
+    def get_base(self):
+        return self.base
+    def set_base(self, base):
+        self.base = base
+    def has__content(self):
+        if (
+            self.check_import or
+            self.check_export or
+            self.check_content_ref or
+            self.check_content is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'checkType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='checkType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='checkType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='checkType'):
+        if self.system is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
+        if self.negate and 'negate' not in already_processed:
+            already_processed.add('negate')
+            outfile.write(' negate="%s"' % self.gds_format_boolean(self.negate, input_name='negate'))
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.selector != "" and 'selector' not in already_processed:
+            already_processed.add('selector')
+            outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
+        if self.multi_check and 'multi_check' not in already_processed:
+            already_processed.add('multi_check')
+            outfile.write(' multi-check="%s"' % self.gds_format_boolean(self.multi_check, input_name='multi-check'))
+        if self.base is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            outfile.write(' xml:base=%s' % (quote_attrib(self.base), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for check_import_ in self.check_import:
+            namespaceprefix_ = self.check_import_nsprefix_ + ':' if (UseCapturedNS_ and self.check_import_nsprefix_) else ''
+            check_import_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='check-import', pretty_print=pretty_print)
+        for check_export_ in self.check_export:
+            namespaceprefix_ = self.check_export_nsprefix_ + ':' if (UseCapturedNS_ and self.check_export_nsprefix_) else ''
+            check_export_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='check-export', pretty_print=pretty_print)
+        for check_content_ref_ in self.check_content_ref:
+            namespaceprefix_ = self.check_content_ref_nsprefix_ + ':' if (UseCapturedNS_ and self.check_content_ref_nsprefix_) else ''
+            check_content_ref_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='check-content-ref', pretty_print=pretty_print)
+        if self.check_content is not None:
+            namespaceprefix_ = self.check_content_nsprefix_ + ':' if (UseCapturedNS_ and self.check_content_nsprefix_) else ''
+            self.check_content.export(outfile, level, namespaceprefix_, namespacedef_='', name_='check-content', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('system', node)
+        if value is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            self.system = value
+        value = find_attr_value_('negate', node)
+        if value is not None and 'negate' not in already_processed:
+            already_processed.add('negate')
+            if value in ('true', '1'):
+                self.negate = True
+            elif value in ('false', '0'):
+                self.negate = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+        value = find_attr_value_('selector', node)
+        if value is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            self.selector = value
+        value = find_attr_value_('multi-check', node)
+        if value is not None and 'multi-check' not in already_processed:
+            already_processed.add('multi-check')
+            if value in ('true', '1'):
+                self.multi_check = True
+            elif value in ('false', '0'):
+                self.multi_check = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('base', node)
+        if value is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            self.base = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'check-import':
+            obj_ = checkImportType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check_import.append(obj_)
+            obj_.original_tagname_ = 'check-import'
+        elif nodeName_ == 'check-export':
+            obj_ = checkExportType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check_export.append(obj_)
+            obj_.original_tagname_ = 'check-export'
+        elif nodeName_ == 'check-content-ref':
+            obj_ = checkContentRefType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check_content_ref.append(obj_)
+            obj_.original_tagname_ = 'check-content-ref'
+        elif nodeName_ == 'check-content':
+            obj_ = checkContentType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check_content = obj_
+            obj_.original_tagname_ = 'check-content'
+# end class checkType
+
+
+class checkImportType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, import_name=None, import_xpath=None, anytypeobjs_=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.import_name = _cast(None, import_name)
+        self.import_name_nsprefix_ = None
+        self.import_xpath = _cast(None, import_xpath)
+        self.import_xpath_nsprefix_ = None
+        self.anytypeobjs_ = anytypeobjs_
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, checkImportType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if checkImportType.subclass:
+            return checkImportType.subclass(*args_, **kwargs_)
+        else:
+            return checkImportType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def get_import_name(self):
+        return self.import_name
+    def set_import_name(self, import_name):
+        self.import_name = import_name
+    def get_import_xpath(self):
+        return self.import_xpath
+    def set_import_xpath(self, import_xpath):
+        self.import_xpath = import_xpath
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            self.anytypeobjs_ is not None or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkImportType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkImportType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'checkImportType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='checkImportType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='checkImportType'):
+        if self.import_name is not None and 'import_name' not in already_processed:
+            already_processed.add('import_name')
+            outfile.write(' import-name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.import_name), input_name='import-name')), ))
+        if self.import_xpath is not None and 'import_xpath' not in already_processed:
+            already_processed.add('import_xpath')
+            outfile.write(' import-xpath=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.import_xpath), input_name='import-xpath')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkImportType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            if self.anytypeobjs_ is not None:
+                content_ = self.anytypeobjs_
+                outfile.write(content_)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('import-name', node)
+        if value is not None and 'import-name' not in already_processed:
+            already_processed.add('import-name')
+            self.import_name = value
+        value = find_attr_value_('import-xpath', node)
+        if value is not None and 'import-xpath' not in already_processed:
+            already_processed.add('import-xpath')
+            self.import_xpath = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == '':
+            obj_ = __ANY__.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, '', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_'):
+              self.add_(obj_.value)
+            elif hasattr(self, 'set_'):
+              self.set_(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class checkImportType
+
+
+class checkExportType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, value_id=None, export_name=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.value_id = _cast(None, value_id)
+        self.value_id_nsprefix_ = None
+        self.export_name = _cast(None, export_name)
+        self.export_name_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, checkExportType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if checkExportType.subclass:
+            return checkExportType.subclass(*args_, **kwargs_)
+        else:
+            return checkExportType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_value_id(self):
+        return self.value_id
+    def set_value_id(self, value_id):
+        self.value_id = value_id
+    def get_export_name(self):
+        return self.export_name
+    def set_export_name(self, export_name):
+        self.export_name = export_name
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkExportType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkExportType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'checkExportType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='checkExportType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='checkExportType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='checkExportType'):
+        if self.value_id is not None and 'value_id' not in already_processed:
+            already_processed.add('value_id')
+            outfile.write(' value-id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value_id), input_name='value-id')), ))
+        if self.export_name is not None and 'export_name' not in already_processed:
+            already_processed.add('export_name')
+            outfile.write(' export-name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.export_name), input_name='export-name')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkExportType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('value-id', node)
+        if value is not None and 'value-id' not in already_processed:
+            already_processed.add('value-id')
+            self.value_id = value
+        value = find_attr_value_('export-name', node)
+        if value is not None and 'export-name' not in already_processed:
+            already_processed.add('export-name')
+            self.export_name = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class checkExportType
+
+
+class checkContentRefType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, href=None, name=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.href = _cast(None, href)
+        self.href_nsprefix_ = None
+        self.name = _cast(None, name)
+        self.name_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, checkContentRefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if checkContentRefType.subclass:
+            return checkContentRefType.subclass(*args_, **kwargs_)
+        else:
+            return checkContentRefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_href(self):
+        return self.href
+    def set_href(self, href):
+        self.href = href
+    def get_name(self):
+        return self.name
+    def set_name(self, name):
+        self.name = name
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentRefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkContentRefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'checkContentRefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='checkContentRefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='checkContentRefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='checkContentRefType'):
+        if self.href is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentRefType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('href', node)
+        if value is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            self.href = value
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class checkContentRefType
+
+
+class checkContentType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, anytypeobjs_=None, valueOf_=None, mixedclass_=None, content_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.anytypeobjs_ = anytypeobjs_
+        self.valueOf_ = valueOf_
+        if mixedclass_ is None:
+            self.mixedclass_ = MixedContainer
+        else:
+            self.mixedclass_ = mixedclass_
+        if content_ is None:
+            self.content_ = []
+        else:
+            self.content_ = content_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, checkContentType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if checkContentType.subclass:
+            return checkContentType.subclass(*args_, **kwargs_)
+        else:
+            return checkContentType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            self.anytypeobjs_ is not None or
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.content_
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkContentType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'checkContentType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='checkContentType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='checkContentType'):
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentType', fromsubclass_=False, pretty_print=True):
+        if not fromsubclass_:
+            for item_ in self.content_:
+                item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if not fromsubclass_:
+            if self.anytypeobjs_ is not None:
+                content_ = self.anytypeobjs_
+                outfile.write(content_)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        if node.text is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', node.text)
+            self.content_.append(obj_)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        pass
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == '':
+            obj_ = __ANY__.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            obj_ = self.mixedclass_(MixedContainer.CategoryComplex,
+                MixedContainer.TypeNone, '', obj_)
+            self.content_.append(obj_)
+            if hasattr(self, 'add_'):
+              self.add_(obj_.value)
+            elif hasattr(self, 'set_'):
+              self.set_(obj_.value)
+        if not fromsubclass_ and child_.tail is not None:
+            obj_ = self.mixedclass_(MixedContainer.CategoryText,
+                MixedContainer.TypeNone, '', child_.tail)
+            self.content_.append(obj_)
+# end class checkContentType
+
+
+class valueType(itemType):
+    """value -- A simple (number, string, or
+    boolean) value associated with this
+    <
+    xccdf:Value
+    >
+    . At any
+    time an
+    <
+    xccdf:Value
+    >
+    has one active (simple or complex)
+    value. If a selector value has been provided under
+    <
+    xccdf:Profile
+    >
+    selection or tailoring then the active
+    <
+    xccdf:value
+    >
+    /
+    <
+    xccdf:complex-value
+    >
+    is the one with
+    a matching @selector. If there is no provided selector or if the
+    provided selector does not match the @selector attribute of any
+    <
+    xccdf:value
+    >
+    or
+    <
+    xccdf:complex-value
+    >
+    , the active
+    <
+    xccdf:value
+    >
+    /
+    <
+    xccdf:complex-value
+    >
+    is the one with
+    an empty or absent @selector or, failing that, the first
+    <
+    xccdf:value
+    >
+    or
+    <
+    xccdf:complex-value
+    >
+    in the XML.
+    When an
+    <
+    xccdf:Value
+    >
+    is exported or used in text
+    substitution, it is the currently active
+    <
+    xccdf:value
+    >
+    or
+    <
+    xccdf:complex-value
+    >
+    that is actually used. If there are
+    multiple
+    <
+    xccdf:value
+    >
+    and/or
+    <
+    xccdf:complex-value
+    >
+    elements, only one may omit a @selector attribute and no two may
+    have the same @selector value.
+    complex-value -- A complex (list) value associated
+    with this
+    <
+    xccdf:Value
+    >
+    . See the description of the
+    <
+    xccdf:value
+    >
+    property for
+    <
+    xccdf:Rule
+    >
+    elements
+    regarding activation of an
+    <
+    xccdf:complex-value
+    >
+    .
+      
+    * default -- The default value displayed to the
+      user as a suggestion by benchmark producers during tailoring of
+      this
+      <
+      xccdf:Value
+      >
+      element. (This is not the default value
+      of an
+      <
+      xccdf:Value
+      >
+      ; it is just the default display.) If
+      there are multiple
+      <
+      xccdf:default
+      >
+      and/or
+      <
+      xccdf:complex-default
+      >
+      elements, only one may omit a
+      @selector attribute and no two may have the same @selector
+      value.
+    * complex-default -- The default
+      <
+      xccdf:complex-value
+      >
+      displayed to the user as a
+      suggestion by benchmark producers during tailoring of this
+      <
+      xccdf:Value
+      >
+      element. (This is not the default value of
+      an
+      <
+      xccdf:Value
+      >
+      ; it is just the default display.) If
+      there are multiple
+      <
+      xccdf:default
+      >
+      and
+      <
+      xccdf:complex-default
+      >
+      elements, only one may omit a
+      @selector attribute and no two may have the same @selector
+      value.
+    * match -- A Perl Compatible Regular Expression
+      that a benchmark producer may apply during tailoring to validate a
+      user
+      ’
+      s input for the
+      <
+      xccdf:Value
+      >
+      . It uses implicit
+      anchoring. It applies only when the @type property is
+      “
+      string
+      ”
+      or
+      “
+      number
+      ”
+      or a list of strings and/or numbers.
+    * lower-bound -- Minimum legal value for this
+      <
+      xccdf:Value
+      >
+      . It is used to constrain value input during
+      tailoring, when the @type property is
+      “
+      number
+      ”
+      . Values supplied by
+      the user for tailoring the
+      <
+      xccdf:Benchmark
+      >
+      must be equal to
+      or greater than this number.
+    * upper-bound -- Maximum legal value for this
+      <
+      xccdf:Value
+      >
+      . It is used to constrain value input during
+      tailoring, when the @type is
+      “
+      number
+      ”
+      . Values supplied by the user
+      for tailoring the
+      <
+      xccdf:Benchmark
+      >
+      must be less than or equal
+      to than this number.
+    * choices -- A list of legal or suggested choices
+      (values) for an
+      <
+      xccdf:Value
+      >
+      element, to be used during
+      tailoring and document generation.
+    * source -- URI indicating where the tool may
+      acquire values, value bounds, or value choices for this
+      <
+      xccdf:Value
+      >
+      element. XCCDF does not attach any meaning to
+      the URI; it may be an arbitrary community or tool-specific value, or
+      a pointer directly to a resource. If several instances of the
+      <
+      xccdf:source
+      >
+      property appear, then they represent
+      alternative means or locations for obtaining the value in descending
+      order of preference (i.e., most preferred first).
+      
+    * signature -- A digital signature asserting
+      authorship and allowing verification of the integrity of the
+      <
+      xccdf:Value
+      >
+      .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = itemType
+    def __init__(self, abstract=False, cluster_id=None, extends=None, hidden=False, prohibitChanges=False, lang=None, base=None, Id=None, status=None, dc_status=None, version=None, title=None, description=None, warning=None, question=None, reference=None, metadata=None, id=None, type_='string', operator='equals', interactive=False, interfaceHint=None, value=None, complex_value=None, default=None, complex_default=None, match=None, lower_bound=None, upper_bound=None, choices=None, source=None, signature=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("valueType"), self).__init__(abstract, cluster_id, extends, hidden, prohibitChanges, lang, base, Id, status, dc_status, version, title, description, warning, question, reference, metadata,  **kwargs_)
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.type_ = _cast(None, type_)
+        self.type__nsprefix_ = None
+        self.operator = _cast(None, operator)
+        self.operator_nsprefix_ = None
+        self.interactive = _cast(bool, interactive)
+        self.interactive_nsprefix_ = None
+        self.interfaceHint = _cast(None, interfaceHint)
+        self.interfaceHint_nsprefix_ = None
+        if value is None:
+            self.value = []
+        else:
+            self.value = value
+        self.value_nsprefix_ = "cdf"
+        if complex_value is None:
+            self.complex_value = []
+        else:
+            self.complex_value = complex_value
+        self.complex_value_nsprefix_ = "cdf"
+        if default is None:
+            self.default = []
+        else:
+            self.default = default
+        self.default_nsprefix_ = "cdf"
+        if complex_default is None:
+            self.complex_default = []
+        else:
+            self.complex_default = complex_default
+        self.complex_default_nsprefix_ = "cdf"
+        if match is None:
+            self.match = []
+        else:
+            self.match = match
+        self.match_nsprefix_ = "cdf"
+        if lower_bound is None:
+            self.lower_bound = []
+        else:
+            self.lower_bound = lower_bound
+        self.lower_bound_nsprefix_ = "cdf"
+        if upper_bound is None:
+            self.upper_bound = []
+        else:
+            self.upper_bound = upper_bound
+        self.upper_bound_nsprefix_ = "cdf"
+        if choices is None:
+            self.choices = []
+        else:
+            self.choices = choices
+        self.choices_nsprefix_ = "cdf"
+        if source is None:
+            self.source = []
+        else:
+            self.source = source
+        self.source_nsprefix_ = "cdf"
+        self.signature = signature
+        self.signature_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, valueType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if valueType.subclass:
+            return valueType.subclass(*args_, **kwargs_)
+        else:
+            return valueType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_value(self):
+        return self.value
+    def set_value(self, value):
+        self.value = value
+    def add_value(self, value):
+        self.value.append(value)
+    def insert_value_at(self, index, value):
+        self.value.insert(index, value)
+    def replace_value_at(self, index, value):
+        self.value[index] = value
+    def get_complex_value(self):
+        return self.complex_value
+    def set_complex_value(self, complex_value):
+        self.complex_value = complex_value
+    def add_complex_value(self, value):
+        self.complex_value.append(value)
+    def insert_complex_value_at(self, index, value):
+        self.complex_value.insert(index, value)
+    def replace_complex_value_at(self, index, value):
+        self.complex_value[index] = value
+    def get_default(self):
+        return self.default
+    def set_default(self, default):
+        self.default = default
+    def add_default(self, value):
+        self.default.append(value)
+    def insert_default_at(self, index, value):
+        self.default.insert(index, value)
+    def replace_default_at(self, index, value):
+        self.default[index] = value
+    def get_complex_default(self):
+        return self.complex_default
+    def set_complex_default(self, complex_default):
+        self.complex_default = complex_default
+    def add_complex_default(self, value):
+        self.complex_default.append(value)
+    def insert_complex_default_at(self, index, value):
+        self.complex_default.insert(index, value)
+    def replace_complex_default_at(self, index, value):
+        self.complex_default[index] = value
+    def get_match(self):
+        return self.match
+    def set_match(self, match):
+        self.match = match
+    def add_match(self, value):
+        self.match.append(value)
+    def insert_match_at(self, index, value):
+        self.match.insert(index, value)
+    def replace_match_at(self, index, value):
+        self.match[index] = value
+    def get_lower_bound(self):
+        return self.lower_bound
+    def set_lower_bound(self, lower_bound):
+        self.lower_bound = lower_bound
+    def add_lower_bound(self, value):
+        self.lower_bound.append(value)
+    def insert_lower_bound_at(self, index, value):
+        self.lower_bound.insert(index, value)
+    def replace_lower_bound_at(self, index, value):
+        self.lower_bound[index] = value
+    def get_upper_bound(self):
+        return self.upper_bound
+    def set_upper_bound(self, upper_bound):
+        self.upper_bound = upper_bound
+    def add_upper_bound(self, value):
+        self.upper_bound.append(value)
+    def insert_upper_bound_at(self, index, value):
+        self.upper_bound.insert(index, value)
+    def replace_upper_bound_at(self, index, value):
+        self.upper_bound[index] = value
+    def get_choices(self):
+        return self.choices
+    def set_choices(self, choices):
+        self.choices = choices
+    def add_choices(self, value):
+        self.choices.append(value)
+    def insert_choices_at(self, index, value):
+        self.choices.insert(index, value)
+    def replace_choices_at(self, index, value):
+        self.choices[index] = value
+    def get_source(self):
+        return self.source
+    def set_source(self, source):
+        self.source = source
+    def add_source(self, value):
+        self.source.append(value)
+    def insert_source_at(self, index, value):
+        self.source.insert(index, value)
+    def replace_source_at(self, index, value):
+        self.source[index] = value
+    def get_signature(self):
+        return self.signature
+    def set_signature(self, signature):
+        self.signature = signature
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_type(self):
+        return self.type_
+    def set_type(self, type_):
+        self.type_ = type_
+    def get_operator(self):
+        return self.operator
+    def set_operator(self, operator):
+        self.operator = operator
+    def get_interactive(self):
+        return self.interactive
+    def set_interactive(self, interactive):
+        self.interactive = interactive
+    def get_interfaceHint(self):
+        return self.interfaceHint
+    def set_interfaceHint(self, interfaceHint):
+        self.interfaceHint = interfaceHint
+    def validate_valueIdType(self, value):
+        # Validate type cdf:valueIdType, a restriction on xsd:NCName.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            if not self.gds_validate_simple_patterns(
+                    self.validate_valueIdType_patterns_, value):
+                self.gds_collector_.add_message('Value "%s" does not match xsd pattern restrictions: %s' % (encode_str_2_3(value), self.validate_valueIdType_patterns_, ))
+    validate_valueIdType_patterns_ = [['^(xccdf_[^_]+_value_.+)$']]
+    def validate_valueTypeType(self, value):
+        # Validate type cdf:valueTypeType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['number', 'string', 'boolean']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on valueTypeType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_valueOperatorType(self, value):
+        # Validate type cdf:valueOperatorType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['equals', 'not equal', 'greater than', 'less than', 'greater than or equal', 'less than or equal', 'pattern match']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on valueOperatorType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_interfaceHintType(self, value):
+        # Validate type cdf:interfaceHintType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['choice', 'textline', 'text', 'date', 'datetime']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on interfaceHintType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.value or
+            self.complex_value or
+            self.default or
+            self.complex_default or
+            self.match or
+            self.lower_bound or
+            self.upper_bound or
+            self.choices or
+            self.source or
+            self.signature is not None or
+            super(valueType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='valueType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('valueType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'valueType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='valueType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='valueType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='valueType'):
+        super(valueType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='valueType')
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.type_ != "string" and 'type_' not in already_processed:
+            already_processed.add('type_')
+            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
+        if self.operator != "equals" and 'operator' not in already_processed:
+            already_processed.add('operator')
+            outfile.write(' operator=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.operator), input_name='operator')), ))
+        if self.interactive is not None and 'interactive' not in already_processed:
+            already_processed.add('interactive')
+            outfile.write(' interactive="%s"' % self.gds_format_boolean(self.interactive, input_name='interactive'))
+        if self.interfaceHint is not None and 'interfaceHint' not in already_processed:
+            already_processed.add('interfaceHint')
+            outfile.write(' interfaceHint=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.interfaceHint), input_name='interfaceHint')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='valueType', fromsubclass_=False, pretty_print=True):
+        super(valueType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for value_ in self.value:
+            namespaceprefix_ = self.value_nsprefix_ + ':' if (UseCapturedNS_ and self.value_nsprefix_) else ''
+            value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='value', pretty_print=pretty_print)
+        for complex_value_ in self.complex_value:
+            namespaceprefix_ = self.complex_value_nsprefix_ + ':' if (UseCapturedNS_ and self.complex_value_nsprefix_) else ''
+            complex_value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='complex-value', pretty_print=pretty_print)
+        for default_ in self.default:
+            namespaceprefix_ = self.default_nsprefix_ + ':' if (UseCapturedNS_ and self.default_nsprefix_) else ''
+            default_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='default', pretty_print=pretty_print)
+        for complex_default_ in self.complex_default:
+            namespaceprefix_ = self.complex_default_nsprefix_ + ':' if (UseCapturedNS_ and self.complex_default_nsprefix_) else ''
+            complex_default_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='complex-default', pretty_print=pretty_print)
+        for match_ in self.match:
+            namespaceprefix_ = self.match_nsprefix_ + ':' if (UseCapturedNS_ and self.match_nsprefix_) else ''
+            match_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='match', pretty_print=pretty_print)
+        for lower_bound_ in self.lower_bound:
+            namespaceprefix_ = self.lower_bound_nsprefix_ + ':' if (UseCapturedNS_ and self.lower_bound_nsprefix_) else ''
+            lower_bound_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='lower-bound', pretty_print=pretty_print)
+        for upper_bound_ in self.upper_bound:
+            namespaceprefix_ = self.upper_bound_nsprefix_ + ':' if (UseCapturedNS_ and self.upper_bound_nsprefix_) else ''
+            upper_bound_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='upper-bound', pretty_print=pretty_print)
+        for choices_ in self.choices:
+            namespaceprefix_ = self.choices_nsprefix_ + ':' if (UseCapturedNS_ and self.choices_nsprefix_) else ''
+            choices_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='choices', pretty_print=pretty_print)
+        for source_ in self.source:
+            namespaceprefix_ = self.source_nsprefix_ + ':' if (UseCapturedNS_ and self.source_nsprefix_) else ''
+            source_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='source', pretty_print=pretty_print)
+        if self.signature is not None:
+            namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
+            self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+            self.validate_valueIdType(self.id)    # validate type valueIdType
+        value = find_attr_value_('type', node)
+        if value is not None and 'type' not in already_processed:
+            already_processed.add('type')
+            self.type_ = value
+            self.validate_valueTypeType(self.type_)    # validate type valueTypeType
+        value = find_attr_value_('operator', node)
+        if value is not None and 'operator' not in already_processed:
+            already_processed.add('operator')
+            self.operator = value
+            self.validate_valueOperatorType(self.operator)    # validate type valueOperatorType
+        value = find_attr_value_('interactive', node)
+        if value is not None and 'interactive' not in already_processed:
+            already_processed.add('interactive')
+            if value in ('true', '1'):
+                self.interactive = True
+            elif value in ('false', '0'):
+                self.interactive = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('interfaceHint', node)
+        if value is not None and 'interfaceHint' not in already_processed:
+            already_processed.add('interfaceHint')
+            self.interfaceHint = value
+            self.validate_interfaceHintType(self.interfaceHint)    # validate type interfaceHintType
+        super(valueType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'value':
+            obj_ = selStringType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.value.append(obj_)
+            obj_.original_tagname_ = 'value'
+        elif nodeName_ == 'complex-value':
+            obj_ = selComplexValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.complex_value.append(obj_)
+            obj_.original_tagname_ = 'complex-value'
+        elif nodeName_ == 'default':
+            obj_ = selStringType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.default.append(obj_)
+            obj_.original_tagname_ = 'default'
+        elif nodeName_ == 'complex-default':
+            obj_ = selComplexValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.complex_default.append(obj_)
+            obj_.original_tagname_ = 'complex-default'
+        elif nodeName_ == 'match':
+            obj_ = selStringType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.match.append(obj_)
+            obj_.original_tagname_ = 'match'
+        elif nodeName_ == 'lower-bound':
+            obj_ = selNumType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.lower_bound.append(obj_)
+            obj_.original_tagname_ = 'lower-bound'
+        elif nodeName_ == 'upper-bound':
+            obj_ = selNumType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.upper_bound.append(obj_)
+            obj_.original_tagname_ = 'upper-bound'
+        elif nodeName_ == 'choices':
+            obj_ = selChoicesType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.choices.append(obj_)
+            obj_.original_tagname_ = 'choices'
+        elif nodeName_ == 'source':
+            obj_ = uriRefType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.source.append(obj_)
+            obj_.original_tagname_ = 'source'
+        elif nodeName_ == 'signature':
+            obj_ = signatureType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.signature = obj_
+            obj_.original_tagname_ = 'signature'
+        super(valueType, self)._buildChildren(child_, node, nodeName_, True)
+# end class valueType
+
+
+class complexValueType(GeneratedsSuper):
+    """item -- A single item in the list of values.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, item=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if item is None:
+            self.item = []
+        else:
+            self.item = item
+        self.item_nsprefix_ = "cdf"
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, complexValueType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if complexValueType.subclass:
+            return complexValueType.subclass(*args_, **kwargs_)
+        else:
+            return complexValueType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_item(self):
+        return self.item
+    def set_item(self, item):
+        self.item = item
+    def add_item(self, value):
+        self.item.append(value)
+    def insert_item_at(self, index, value):
+        self.item.insert(index, value)
+    def replace_item_at(self, index, value):
+        self.item[index] = value
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+            self.item
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexValueType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('complexValueType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'complexValueType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='complexValueType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='complexValueType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='complexValueType'):
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexValueType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for item_ in self.item:
+            namespaceprefix_ = self.item_nsprefix_ + ':' if (UseCapturedNS_ and self.item_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sitem>%s</%sitem>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(item_), input_name='item')), namespaceprefix_ , eol_))
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'item':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'item')
+            value_ = self.gds_validate_string(value_, node, 'item')
+            self.item.append(value_)
+            self.item_nsprefix_ = child_.prefix
+# end class complexValueType
+
+
+class selComplexValueType(complexValueType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = complexValueType
+    def __init__(self, item=None, selector='', gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("selComplexValueType"), self).__init__(item,  **kwargs_)
+        self.selector = _cast(None, selector)
+        self.selector_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, selComplexValueType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if selComplexValueType.subclass:
+            return selComplexValueType.subclass(*args_, **kwargs_)
+        else:
+            return selComplexValueType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_selector(self):
+        return self.selector
+    def set_selector(self, selector):
+        self.selector = selector
+    def has__content(self):
+        if (
+            super(selComplexValueType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selComplexValueType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('selComplexValueType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'selComplexValueType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selComplexValueType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='selComplexValueType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='selComplexValueType'):
+        super(selComplexValueType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selComplexValueType')
+        if self.selector != "" and 'selector' not in already_processed:
+            already_processed.add('selector')
+            outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selComplexValueType', fromsubclass_=False, pretty_print=True):
+        super(selComplexValueType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('selector', node)
+        if value is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            self.selector = value
+        super(selComplexValueType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(selComplexValueType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class selComplexValueType
+
+
+class selChoicesType(GeneratedsSuper):
+    """choice -- A single choice holding a simple type. (I.e.,
+    number, string, or boolean.)
+    complex-choice -- A single choice holding a list of simple
+    types.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, mustMatch=None, selector='', choice=None, complex_choice=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.mustMatch = _cast(bool, mustMatch)
+        self.mustMatch_nsprefix_ = None
+        self.selector = _cast(None, selector)
+        self.selector_nsprefix_ = None
+        if choice is None:
+            self.choice = []
+        else:
+            self.choice = choice
+        self.choice_nsprefix_ = "cdf"
+        if complex_choice is None:
+            self.complex_choice = []
+        else:
+            self.complex_choice = complex_choice
+        self.complex_choice_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, selChoicesType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if selChoicesType.subclass:
+            return selChoicesType.subclass(*args_, **kwargs_)
+        else:
+            return selChoicesType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_choice(self):
+        return self.choice
+    def set_choice(self, choice):
+        self.choice = choice
+    def add_choice(self, value):
+        self.choice.append(value)
+    def insert_choice_at(self, index, value):
+        self.choice.insert(index, value)
+    def replace_choice_at(self, index, value):
+        self.choice[index] = value
+    def get_complex_choice(self):
+        return self.complex_choice
+    def set_complex_choice(self, complex_choice):
+        self.complex_choice = complex_choice
+    def add_complex_choice(self, value):
+        self.complex_choice.append(value)
+    def insert_complex_choice_at(self, index, value):
+        self.complex_choice.insert(index, value)
+    def replace_complex_choice_at(self, index, value):
+        self.complex_choice[index] = value
+    def get_mustMatch(self):
+        return self.mustMatch
+    def set_mustMatch(self, mustMatch):
+        self.mustMatch = mustMatch
+    def get_selector(self):
+        return self.selector
+    def set_selector(self, selector):
+        self.selector = selector
+    def has__content(self):
+        if (
+            self.choice or
+            self.complex_choice
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selChoicesType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('selChoicesType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'selChoicesType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selChoicesType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='selChoicesType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='selChoicesType'):
+        if self.mustMatch is not None and 'mustMatch' not in already_processed:
+            already_processed.add('mustMatch')
+            outfile.write(' mustMatch="%s"' % self.gds_format_boolean(self.mustMatch, input_name='mustMatch'))
+        if self.selector != "" and 'selector' not in already_processed:
+            already_processed.add('selector')
+            outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selChoicesType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for choice_ in self.choice:
+            namespaceprefix_ = self.choice_nsprefix_ + ':' if (UseCapturedNS_ and self.choice_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%schoice>%s</%schoice>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(choice_), input_name='choice')), namespaceprefix_ , eol_))
+        for complex_choice_ in self.complex_choice:
+            namespaceprefix_ = self.complex_choice_nsprefix_ + ':' if (UseCapturedNS_ and self.complex_choice_nsprefix_) else ''
+            complex_choice_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='complex-choice', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('mustMatch', node)
+        if value is not None and 'mustMatch' not in already_processed:
+            already_processed.add('mustMatch')
+            if value in ('true', '1'):
+                self.mustMatch = True
+            elif value in ('false', '0'):
+                self.mustMatch = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('selector', node)
+        if value is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            self.selector = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'choice':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'choice')
+            value_ = self.gds_validate_string(value_, node, 'choice')
+            self.choice.append(value_)
+            self.choice_nsprefix_ = child_.prefix
+        elif nodeName_ == 'complex-choice':
+            class_obj_ = self.get_class_obj_(child_, complexValueType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.complex_choice.append(obj_)
+            obj_.original_tagname_ = 'complex-choice'
+# end class selChoicesType
+
+
+class selStringType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, selector='', valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.selector = _cast(None, selector)
+        self.selector_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, selStringType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if selStringType.subclass:
+            return selStringType.subclass(*args_, **kwargs_)
+        else:
+            return selStringType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_selector(self):
+        return self.selector
+    def set_selector(self, selector):
+        self.selector = selector
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selStringType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('selStringType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'selStringType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selStringType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='selStringType'):
+        if self.selector != "" and 'selector' not in already_processed:
+            already_processed.add('selector')
+            outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selStringType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('selector', node)
+        if value is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            self.selector = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class selStringType
+
+
+class selNumType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, selector='', valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.selector = _cast(None, selector)
+        self.selector_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, selNumType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if selNumType.subclass:
+            return selNumType.subclass(*args_, **kwargs_)
+        else:
+            return selNumType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_selector(self):
+        return self.selector
+    def set_selector(self, selector):
+        self.selector = selector
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selNumType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('selNumType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'selNumType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selNumType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='selNumType'):
+        if self.selector != "" and 'selector' not in already_processed:
+            already_processed.add('selector')
+            outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selNumType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('selector', node)
+        if value is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            self.selector = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class selNumType
+
+
+class uriRefType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, uri=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.uri = _cast(None, uri)
+        self.uri_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, uriRefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if uriRefType.subclass:
+            return uriRefType.subclass(*args_, **kwargs_)
+        else:
+            return uriRefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_uri(self):
+        return self.uri
+    def set_uri(self, uri):
+        self.uri = uri
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='uriRefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('uriRefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'uriRefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='uriRefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='uriRefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='uriRefType'):
+        if self.uri is not None and 'uri' not in already_processed:
+            already_processed.add('uri')
+            outfile.write(' uri=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.uri), input_name='uri')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='uriRefType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('uri', node)
+        if value is not None and 'uri' not in already_processed:
+            already_processed.add('uri')
+            self.uri = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class uriRefType
+
+
+class profileType(GeneratedsSuper):
+    """status -- Status of the
+    <
+    xccdf:Profile
+    >
+    and date at
+    which it attained that status. Authors may use this element to record the
+    maturity or consensus level of an
+    <
+    xccdf:Profile
+    >
+    . If the
+    <
+    xccdf:status
+    >
+    is not given explicitly, then the
+    <
+    xccdf:Profile
+    >
+    is taken to have the same status as its parent
+    <
+    xccdf:Benchmark
+    >
+    .
+    dc-status -- Holds additional status information using the
+    Dublin Core format.
+    version -- Version information about this
+    <
+    xccdf:Profile
+    >
+    .
+    title -- Title of the
+    <
+    xccdf:Profile
+    >
+    .
+      
+    * description -- Text that describes the
+      <
+      xccdf:Profile
+      >
+      .
+      
+    * reference -- A reference where the user can learn more about
+      the subject of this
+      <
+      xccdf:Profile
+      >
+      .
+    * platform -- A target platform for this
+      <
+      xccdf:Profile
+      >
+      .
+    * select -- Select or deselect
+      <
+      xccdf:Group
+      >
+      and
+      <
+      xccdf:Rule
+      >
+      elements.
+    * set-complex-value -- Set the value of an
+      <
+      xccdf:Value
+      >
+      to
+      a list.
+    * set-value -- Set the value of an
+      <
+      xccdf:Value
+      >
+      to
+      a simple data value.
+    * refine-value -- Customize the properties of an
+      <
+      xccdf:Value
+      >
+      .
+    * refine-rule -- Customize the properties of an
+      <
+      xccdf:Rule
+      >
+      or
+      <
+      xccdf:Group
+      >
+      .
+    * metadata -- Metadata associated with this
+      <
+      xccdf:Profile
+      >
+      .
+    * signature -- A digital signature asserting authorship and
+      allowing verification of the integrity of the
+      <
+      xccdf:Profile
+      >
+      .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, prohibitChanges=False, abstract=False, note_tag=None, extends=None, base=None, Id=None, status=None, dc_status=None, version=None, title=None, description=None, reference=None, platform=None, select=None, set_complex_value=None, set_value=None, refine_value=None, refine_rule=None, metadata=None, signature=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.prohibitChanges = _cast(bool, prohibitChanges)
+        self.prohibitChanges_nsprefix_ = None
+        self.abstract = _cast(bool, abstract)
+        self.abstract_nsprefix_ = None
+        self.note_tag = _cast(None, note_tag)
+        self.note_tag_nsprefix_ = None
+        self.extends = _cast(None, extends)
+        self.extends_nsprefix_ = None
+        self.base = _cast(None, base)
+        self.base_nsprefix_ = None
+        self.Id = _cast(None, Id)
+        self.Id_nsprefix_ = None
+        if status is None:
+            self.status = []
+        else:
+            self.status = status
+        self.status_nsprefix_ = "cdf"
+        if dc_status is None:
+            self.dc_status = []
+        else:
+            self.dc_status = dc_status
+        self.dc_status_nsprefix_ = "cdf"
+        self.version = version
+        self.version_nsprefix_ = "cdf"
+        if title is None:
+            self.title = []
+        else:
+            self.title = title
+        self.title_nsprefix_ = "cdf"
+        if description is None:
+            self.description = []
+        else:
+            self.description = description
+        self.description_nsprefix_ = "cdf"
+        if reference is None:
+            self.reference = []
+        else:
+            self.reference = reference
+        self.reference_nsprefix_ = "cdf"
+        if platform is None:
+            self.platform = []
+        else:
+            self.platform = platform
+        self.platform_nsprefix_ = "cdf"
+        if select is None:
+            self.select = []
+        else:
+            self.select = select
+        self.select_nsprefix_ = "cdf"
+        if set_complex_value is None:
+            self.set_complex_value = []
+        else:
+            self.set_complex_value = set_complex_value
+        self.set_complex_value_nsprefix_ = "cdf"
+        if set_value is None:
+            self.set_value = []
+        else:
+            self.set_value = set_value
+        self.set_value_nsprefix_ = "cdf"
+        if refine_value is None:
+            self.refine_value = []
+        else:
+            self.refine_value = refine_value
+        self.refine_value_nsprefix_ = "cdf"
+        if refine_rule is None:
+            self.refine_rule = []
+        else:
+            self.refine_rule = refine_rule
+        self.refine_rule_nsprefix_ = "cdf"
+        if metadata is None:
+            self.metadata = []
+        else:
+            self.metadata = metadata
+        self.metadata_nsprefix_ = "cdf"
+        self.signature = signature
+        self.signature_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, profileType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if profileType.subclass:
+            return profileType.subclass(*args_, **kwargs_)
+        else:
+            return profileType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_status(self):
+        return self.status
+    def set_status(self, status):
+        self.status = status
+    def add_status(self, value):
+        self.status.append(value)
+    def insert_status_at(self, index, value):
+        self.status.insert(index, value)
+    def replace_status_at(self, index, value):
+        self.status[index] = value
+    def get_dc_status(self):
+        return self.dc_status
+    def set_dc_status(self, dc_status):
+        self.dc_status = dc_status
+    def add_dc_status(self, value):
+        self.dc_status.append(value)
+    def insert_dc_status_at(self, index, value):
+        self.dc_status.insert(index, value)
+    def replace_dc_status_at(self, index, value):
+        self.dc_status[index] = value
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def get_title(self):
+        return self.title
+    def set_title(self, title):
+        self.title = title
+    def add_title(self, value):
+        self.title.append(value)
+    def insert_title_at(self, index, value):
+        self.title.insert(index, value)
+    def replace_title_at(self, index, value):
+        self.title[index] = value
+    def get_description(self):
+        return self.description
+    def set_description(self, description):
+        self.description = description
+    def add_description(self, value):
+        self.description.append(value)
+    def insert_description_at(self, index, value):
+        self.description.insert(index, value)
+    def replace_description_at(self, index, value):
+        self.description[index] = value
+    def get_reference(self):
+        return self.reference
+    def set_reference(self, reference):
+        self.reference = reference
+    def add_reference(self, value):
+        self.reference.append(value)
+    def insert_reference_at(self, index, value):
+        self.reference.insert(index, value)
+    def replace_reference_at(self, index, value):
+        self.reference[index] = value
+    def get_platform(self):
+        return self.platform
+    def set_platform(self, platform):
+        self.platform = platform
+    def add_platform(self, value):
+        self.platform.append(value)
+    def insert_platform_at(self, index, value):
+        self.platform.insert(index, value)
+    def replace_platform_at(self, index, value):
+        self.platform[index] = value
+    def get_select(self):
+        return self.select
+    def set_select(self, select):
+        self.select = select
+    def add_select(self, value):
+        self.select.append(value)
+    def insert_select_at(self, index, value):
+        self.select.insert(index, value)
+    def replace_select_at(self, index, value):
+        self.select[index] = value
+    def get_set_complex_value(self):
+        return self.set_complex_value
+    def set_set_complex_value(self, set_complex_value):
+        self.set_complex_value = set_complex_value
+    def add_set_complex_value(self, value):
+        self.set_complex_value.append(value)
+    def insert_set_complex_value_at(self, index, value):
+        self.set_complex_value.insert(index, value)
+    def replace_set_complex_value_at(self, index, value):
+        self.set_complex_value[index] = value
+    def get_set_value(self):
+        return self.set_value
+    def set_set_value(self, set_value):
+        self.set_value = set_value
+    def add_set_value(self, value):
+        self.set_value.append(value)
+    def insert_set_value_at(self, index, value):
+        self.set_value.insert(index, value)
+    def replace_set_value_at(self, index, value):
+        self.set_value[index] = value
+    def get_refine_value(self):
+        return self.refine_value
+    def set_refine_value(self, refine_value):
+        self.refine_value = refine_value
+    def add_refine_value(self, value):
+        self.refine_value.append(value)
+    def insert_refine_value_at(self, index, value):
+        self.refine_value.insert(index, value)
+    def replace_refine_value_at(self, index, value):
+        self.refine_value[index] = value
+    def get_refine_rule(self):
+        return self.refine_rule
+    def set_refine_rule(self, refine_rule):
+        self.refine_rule = refine_rule
+    def add_refine_rule(self, value):
+        self.refine_rule.append(value)
+    def insert_refine_rule_at(self, index, value):
+        self.refine_rule.insert(index, value)
+    def replace_refine_rule_at(self, index, value):
+        self.refine_rule[index] = value
+    def get_metadata(self):
+        return self.metadata
+    def set_metadata(self, metadata):
+        self.metadata = metadata
+    def add_metadata(self, value):
+        self.metadata.append(value)
+    def insert_metadata_at(self, index, value):
+        self.metadata.insert(index, value)
+    def replace_metadata_at(self, index, value):
+        self.metadata[index] = value
+    def get_signature(self):
+        return self.signature
+    def set_signature(self, signature):
+        self.signature = signature
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_prohibitChanges(self):
+        return self.prohibitChanges
+    def set_prohibitChanges(self, prohibitChanges):
+        self.prohibitChanges = prohibitChanges
+    def get_abstract(self):
+        return self.abstract
+    def set_abstract(self, abstract):
+        self.abstract = abstract
+    def get_note_tag(self):
+        return self.note_tag
+    def set_note_tag(self, note_tag):
+        self.note_tag = note_tag
+    def get_extends(self):
+        return self.extends
+    def set_extends(self, extends):
+        self.extends = extends
+    def get_base(self):
+        return self.base
+    def set_base(self, base):
+        self.base = base
+    def get_Id(self):
+        return self.Id
+    def set_Id(self, Id):
+        self.Id = Id
+    def validate_profileIdType(self, value):
+        # Validate type cdf:profileIdType, a restriction on xsd:NCName.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            if not self.gds_validate_simple_patterns(
+                    self.validate_profileIdType_patterns_, value):
+                self.gds_collector_.add_message('Value "%s" does not match xsd pattern restrictions: %s' % (encode_str_2_3(value), self.validate_profileIdType_patterns_, ))
+    validate_profileIdType_patterns_ = [['^(xccdf_[^_]+_profile_.+)$']]
+    def has__content(self):
+        if (
+            self.status or
+            self.dc_status or
+            self.version is not None or
+            self.title or
+            self.description or
+            self.reference or
+            self.platform or
+            self.select or
+            self.set_complex_value or
+            self.set_value or
+            self.refine_value or
+            self.refine_rule or
+            self.metadata or
+            self.signature is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'profileType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='profileType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profileType'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.prohibitChanges and 'prohibitChanges' not in already_processed:
+            already_processed.add('prohibitChanges')
+            outfile.write(' prohibitChanges="%s"' % self.gds_format_boolean(self.prohibitChanges, input_name='prohibitChanges'))
+        if self.abstract and 'abstract' not in already_processed:
+            already_processed.add('abstract')
+            outfile.write(' abstract="%s"' % self.gds_format_boolean(self.abstract, input_name='abstract'))
+        if self.note_tag is not None and 'note_tag' not in already_processed:
+            already_processed.add('note_tag')
+            outfile.write(' note-tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.note_tag), input_name='note-tag')), ))
+        if self.extends is not None and 'extends' not in already_processed:
+            already_processed.add('extends')
+            outfile.write(' extends=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.extends), input_name='extends')), ))
+        if self.base is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            outfile.write(' xml:base=%s' % (quote_attrib(self.base), ))
+        if self.Id is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for status_ in self.status:
+            namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
+            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+        for dc_status_ in self.dc_status:
+            namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
+            dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
+        if self.version is not None:
+            namespaceprefix_ = self.version_nsprefix_ + ':' if (UseCapturedNS_ and self.version_nsprefix_) else ''
+            self.version.export(outfile, level, namespaceprefix_, namespacedef_='', name_='version', pretty_print=pretty_print)
+        for title_ in self.title:
+            namespaceprefix_ = self.title_nsprefix_ + ':' if (UseCapturedNS_ and self.title_nsprefix_) else ''
+            title_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='title', pretty_print=pretty_print)
+        for description_ in self.description:
+            namespaceprefix_ = self.description_nsprefix_ + ':' if (UseCapturedNS_ and self.description_nsprefix_) else ''
+            description_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='description', pretty_print=pretty_print)
+        for reference_ in self.reference:
+            namespaceprefix_ = self.reference_nsprefix_ + ':' if (UseCapturedNS_ and self.reference_nsprefix_) else ''
+            reference_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='reference', pretty_print=pretty_print)
+        for platform_ in self.platform:
+            namespaceprefix_ = self.platform_nsprefix_ + ':' if (UseCapturedNS_ and self.platform_nsprefix_) else ''
+            platform_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='platform', pretty_print=pretty_print)
+        for select_ in self.select:
+            namespaceprefix_ = self.select_nsprefix_ + ':' if (UseCapturedNS_ and self.select_nsprefix_) else ''
+            select_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='select', pretty_print=pretty_print)
+        for set_complex_value_ in self.set_complex_value:
+            namespaceprefix_ = self.set_complex_value_nsprefix_ + ':' if (UseCapturedNS_ and self.set_complex_value_nsprefix_) else ''
+            set_complex_value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='set-complex-value', pretty_print=pretty_print)
+        for set_value_ in self.set_value:
+            namespaceprefix_ = self.set_value_nsprefix_ + ':' if (UseCapturedNS_ and self.set_value_nsprefix_) else ''
+            set_value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='set-value', pretty_print=pretty_print)
+        for refine_value_ in self.refine_value:
+            namespaceprefix_ = self.refine_value_nsprefix_ + ':' if (UseCapturedNS_ and self.refine_value_nsprefix_) else ''
+            refine_value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='refine-value', pretty_print=pretty_print)
+        for refine_rule_ in self.refine_rule:
+            namespaceprefix_ = self.refine_rule_nsprefix_ + ':' if (UseCapturedNS_ and self.refine_rule_nsprefix_) else ''
+            refine_rule_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='refine-rule', pretty_print=pretty_print)
+        for metadata_ in self.metadata:
+            namespaceprefix_ = self.metadata_nsprefix_ + ':' if (UseCapturedNS_ and self.metadata_nsprefix_) else ''
+            metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
+        if self.signature is not None:
+            namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
+            self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+            self.validate_profileIdType(self.id)    # validate type profileIdType
+        value = find_attr_value_('prohibitChanges', node)
+        if value is not None and 'prohibitChanges' not in already_processed:
+            already_processed.add('prohibitChanges')
+            if value in ('true', '1'):
+                self.prohibitChanges = True
+            elif value in ('false', '0'):
+                self.prohibitChanges = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('abstract', node)
+        if value is not None and 'abstract' not in already_processed:
+            already_processed.add('abstract')
+            if value in ('true', '1'):
+                self.abstract = True
+            elif value in ('false', '0'):
+                self.abstract = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('note-tag', node)
+        if value is not None and 'note-tag' not in already_processed:
+            already_processed.add('note-tag')
+            self.note_tag = value
+        value = find_attr_value_('extends', node)
+        if value is not None and 'extends' not in already_processed:
+            already_processed.add('extends')
+            self.extends = value
+        value = find_attr_value_('base', node)
+        if value is not None and 'base' not in already_processed:
+            already_processed.add('base')
+            self.base = value
+        value = find_attr_value_('Id', node)
+        if value is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            self.Id = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'status':
+            obj_ = status.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.status.append(obj_)
+            obj_.original_tagname_ = 'status'
+        elif nodeName_ == 'dc-status':
+            obj_ = dc_statusType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.dc_status.append(obj_)
+            obj_.original_tagname_ = 'dc-status'
+        elif nodeName_ == 'version':
+            obj_ = versionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.version = obj_
+            obj_.original_tagname_ = 'version'
+        elif nodeName_ == 'title':
+            obj_ = textWithSubType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.title.append(obj_)
+            obj_.original_tagname_ = 'title'
+        elif nodeName_ == 'description':
+            class_obj_ = self.get_class_obj_(child_, htmlTextWithSubType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.description.append(obj_)
+            obj_.original_tagname_ = 'description'
+        elif nodeName_ == 'reference':
+            obj_ = referenceType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.reference.append(obj_)
+            obj_.original_tagname_ = 'reference'
+        elif nodeName_ == 'platform':
+            obj_ = overrideableCPE2idrefType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.platform.append(obj_)
+            obj_.original_tagname_ = 'platform'
+        elif nodeName_ == 'select':
+            obj_ = profileSelectType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.select.append(obj_)
+            obj_.original_tagname_ = 'select'
+        elif nodeName_ == 'set-complex-value':
+            obj_ = profileSetComplexValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.set_complex_value.append(obj_)
+            obj_.original_tagname_ = 'set-complex-value'
+        elif nodeName_ == 'set-value':
+            obj_ = profileSetValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.set_value.append(obj_)
+            obj_.original_tagname_ = 'set-value'
+        elif nodeName_ == 'refine-value':
+            obj_ = profileRefineValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.refine_value.append(obj_)
+            obj_.original_tagname_ = 'refine-value'
+        elif nodeName_ == 'refine-rule':
+            obj_ = profileRefineRuleType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.refine_rule.append(obj_)
+            obj_.original_tagname_ = 'refine-rule'
+        elif nodeName_ == 'metadata':
+            obj_ = metadataType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.metadata.append(obj_)
+            obj_.original_tagname_ = 'metadata'
+        elif nodeName_ == 'signature':
+            obj_ = signatureType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.signature = obj_
+            obj_.original_tagname_ = 'signature'
+# end class profileType
+
+
+class profileSelectType(GeneratedsSuper):
+    """remark -- Explanatory material or other
+    prose.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, selected=None, remark=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+        self.selected = _cast(bool, selected)
+        self.selected_nsprefix_ = None
+        if remark is None:
+            self.remark = []
+        else:
+            self.remark = remark
+        self.remark_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, profileSelectType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if profileSelectType.subclass:
+            return profileSelectType.subclass(*args_, **kwargs_)
+        else:
+            return profileSelectType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_remark(self):
+        return self.remark
+    def set_remark(self, remark):
+        self.remark = remark
+    def add_remark(self, value):
+        self.remark.append(value)
+    def insert_remark_at(self, index, value):
+        self.remark.insert(index, value)
+    def replace_remark_at(self, index, value):
+        self.remark[index] = value
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def get_selected(self):
+        return self.selected
+    def set_selected(self, selected):
+        self.selected = selected
+    def has__content(self):
+        if (
+            self.remark
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSelectType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileSelectType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'profileSelectType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileSelectType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='profileSelectType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profileSelectType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+        if self.selected is not None and 'selected' not in already_processed:
+            already_processed.add('selected')
+            outfile.write(' selected="%s"' % self.gds_format_boolean(self.selected, input_name='selected'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSelectType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for remark_ in self.remark:
+            namespaceprefix_ = self.remark_nsprefix_ + ':' if (UseCapturedNS_ and self.remark_nsprefix_) else ''
+            remark_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='remark', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+        value = find_attr_value_('selected', node)
+        if value is not None and 'selected' not in already_processed:
+            already_processed.add('selected')
+            if value in ('true', '1'):
+                self.selected = True
+            elif value in ('false', '0'):
+                self.selected = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'remark':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.remark.append(obj_)
+            obj_.original_tagname_ = 'remark'
+# end class profileSelectType
+
+
+class profileSetValueType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, profileSetValueType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if profileSetValueType.subclass:
+            return profileSetValueType.subclass(*args_, **kwargs_)
+        else:
+            return profileSetValueType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetValueType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileSetValueType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'profileSetValueType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileSetValueType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profileSetValueType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetValueType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class profileSetValueType
+
+
+class profileSetComplexValueType(complexValueType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = complexValueType
+    def __init__(self, item=None, idref=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("profileSetComplexValueType"), self).__init__(item,  **kwargs_)
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, profileSetComplexValueType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if profileSetComplexValueType.subclass:
+            return profileSetComplexValueType.subclass(*args_, **kwargs_)
+        else:
+            return profileSetComplexValueType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def has__content(self):
+        if (
+            super(profileSetComplexValueType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetComplexValueType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileSetComplexValueType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'profileSetComplexValueType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileSetComplexValueType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='profileSetComplexValueType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profileSetComplexValueType'):
+        super(profileSetComplexValueType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileSetComplexValueType')
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetComplexValueType', fromsubclass_=False, pretty_print=True):
+        super(profileSetComplexValueType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+        super(profileSetComplexValueType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(profileSetComplexValueType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class profileSetComplexValueType
+
+
+class profileRefineValueType(GeneratedsSuper):
+    """remark -- Explanatory material or other
+    prose.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, selector=None, operator=None, remark=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+        self.selector = _cast(None, selector)
+        self.selector_nsprefix_ = None
+        self.operator = _cast(None, operator)
+        self.operator_nsprefix_ = None
+        if remark is None:
+            self.remark = []
+        else:
+            self.remark = remark
+        self.remark_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, profileRefineValueType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if profileRefineValueType.subclass:
+            return profileRefineValueType.subclass(*args_, **kwargs_)
+        else:
+            return profileRefineValueType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_remark(self):
+        return self.remark
+    def set_remark(self, remark):
+        self.remark = remark
+    def add_remark(self, value):
+        self.remark.append(value)
+    def insert_remark_at(self, index, value):
+        self.remark.insert(index, value)
+    def replace_remark_at(self, index, value):
+        self.remark[index] = value
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def get_selector(self):
+        return self.selector
+    def set_selector(self, selector):
+        self.selector = selector
+    def get_operator(self):
+        return self.operator
+    def set_operator(self, operator):
+        self.operator = operator
+    def validate_valueOperatorType(self, value):
+        # Validate type cdf:valueOperatorType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['equals', 'not equal', 'greater than', 'less than', 'greater than or equal', 'less than or equal', 'pattern match']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on valueOperatorType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.remark
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileRefineValueType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileRefineValueType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'profileRefineValueType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileRefineValueType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='profileRefineValueType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profileRefineValueType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+        if self.selector is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
+        if self.operator is not None and 'operator' not in already_processed:
+            already_processed.add('operator')
+            outfile.write(' operator=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.operator), input_name='operator')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileRefineValueType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for remark_ in self.remark:
+            namespaceprefix_ = self.remark_nsprefix_ + ':' if (UseCapturedNS_ and self.remark_nsprefix_) else ''
+            remark_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='remark', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+        value = find_attr_value_('selector', node)
+        if value is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            self.selector = value
+        value = find_attr_value_('operator', node)
+        if value is not None and 'operator' not in already_processed:
+            already_processed.add('operator')
+            self.operator = value
+            self.validate_valueOperatorType(self.operator)    # validate type valueOperatorType
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'remark':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.remark.append(obj_)
+            obj_.original_tagname_ = 'remark'
+# end class profileRefineValueType
+
+
+class profileRefineRuleType(GeneratedsSuper):
+    """remark -- Explanatory material or other
+    prose.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, weight=None, selector=None, severity=None, role=None, remark=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+        self.weight = _cast(float, weight)
+        self.weight_nsprefix_ = None
+        self.selector = _cast(None, selector)
+        self.selector_nsprefix_ = None
+        self.severity = _cast(None, severity)
+        self.severity_nsprefix_ = None
+        self.role = _cast(None, role)
+        self.role_nsprefix_ = None
+        if remark is None:
+            self.remark = []
+        else:
+            self.remark = remark
+        self.remark_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, profileRefineRuleType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if profileRefineRuleType.subclass:
+            return profileRefineRuleType.subclass(*args_, **kwargs_)
+        else:
+            return profileRefineRuleType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_remark(self):
+        return self.remark
+    def set_remark(self, remark):
+        self.remark = remark
+    def add_remark(self, value):
+        self.remark.append(value)
+    def insert_remark_at(self, index, value):
+        self.remark.insert(index, value)
+    def replace_remark_at(self, index, value):
+        self.remark[index] = value
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def get_weight(self):
+        return self.weight
+    def set_weight(self, weight):
+        self.weight = weight
+    def get_selector(self):
+        return self.selector
+    def set_selector(self, selector):
+        self.selector = selector
+    def get_severity(self):
+        return self.severity
+    def set_severity(self, severity):
+        self.severity = severity
+    def get_role(self):
+        return self.role
+    def set_role(self, role):
+        self.role = role
+    def validate_weightType(self, value):
+        # Validate type cdf:weightType, a restriction on xsd:decimal.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, decimal_.Decimal):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (decimal_.Decimal)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0.0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on weightType' % {"value": value, "lineno": lineno} )
+                result = False
+            if len(str(value)) >= 3:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd totalDigits restriction on weightType' % {"value": value, "lineno": lineno} )
+                result = False
+    def validate_severityEnumType(self, value):
+        # Validate type cdf:severityEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['unknown', 'info', 'low', 'medium', 'high']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on severityEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_roleEnumType(self, value):
+        # Validate type cdf:roleEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['full', 'unscored', 'unchecked']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on roleEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.remark
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileRefineRuleType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileRefineRuleType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'profileRefineRuleType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileRefineRuleType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='profileRefineRuleType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='profileRefineRuleType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+        if self.weight is not None and 'weight' not in already_processed:
+            already_processed.add('weight')
+            outfile.write(' weight="%s"' % self.gds_format_decimal(self.weight, input_name='weight'))
+        if self.selector is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
+        if self.severity is not None and 'severity' not in already_processed:
+            already_processed.add('severity')
+            outfile.write(' severity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.severity), input_name='severity')), ))
+        if self.role is not None and 'role' not in already_processed:
+            already_processed.add('role')
+            outfile.write(' role=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.role), input_name='role')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileRefineRuleType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for remark_ in self.remark:
+            namespaceprefix_ = self.remark_nsprefix_ + ':' if (UseCapturedNS_ and self.remark_nsprefix_) else ''
+            remark_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='remark', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+        value = find_attr_value_('weight', node)
+        if value is not None and 'weight' not in already_processed:
+            already_processed.add('weight')
+            value = self.gds_parse_decimal(value, node, 'weight')
+            self.weight = value
+            self.validate_weightType(self.weight)    # validate type weightType
+        value = find_attr_value_('selector', node)
+        if value is not None and 'selector' not in already_processed:
+            already_processed.add('selector')
+            self.selector = value
+        value = find_attr_value_('severity', node)
+        if value is not None and 'severity' not in already_processed:
+            already_processed.add('severity')
+            self.severity = value
+            self.validate_severityEnumType(self.severity)    # validate type severityEnumType
+        value = find_attr_value_('role', node)
+        if value is not None and 'role' not in already_processed:
+            already_processed.add('role')
+            self.role = value
+            self.validate_roleEnumType(self.role)    # validate type roleEnumType
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'remark':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.remark.append(obj_)
+            obj_.original_tagname_ = 'remark'
+# end class profileRefineRuleType
+
+
+class testResultType(GeneratedsSuper):
+    """benchmark -- Reference to the
+    <
+    xccdf:Benchmark
+    >
+    for
+    which the
+    <
+    xccdf:TestResult
+    >
+    records results. This property is
+    required if this
+    <
+    xccdf:TestResult
+    >
+    element is the top-level element
+    and optional otherwise.
+    tailoring-file -- The tailoring file element contains attributes
+    used to identify an
+    <
+    xccdf:Tailoring
+    >
+    element used to guide the
+    assessment reported on in this
+    <
+    xccdf:TestResult
+    >
+    . The tailoring
+    element is required in an
+    <
+    xccdf:TestResult
+    >
+    if and only if an
+    <
+    xccdf:Tailoring
+    >
+    element guided the assessment recorded in the
+    <
+    xccdf:TestResult
+    >
+    or if the
+    <
+    xccdf:Tailoring
+    >
+    element records
+    manual tailoring actions applied to this assessment.
+    title -- Title of the test.
+    remark -- A remark about the test, possibly supplied by
+    the person administering the
+    <
+    xccdf:Benchmark
+    >
+    assessment
+    organization -- The name of the organization or other entity
+    responsible for applying this
+    <
+    xccdf:Benchmark
+    >
+    and generating this
+    result. When multiple
+    <
+    xccdf:organization
+    >
+    elements are used to
+    indicate multiple organization names in a hierarchical organization, the
+    highest-level organization should appear first.
+    identity -- Information about the system identity or user
+    employed during application of the
+    <
+    xccdf:Benchmark
+    >
+    . If used,
+    specifies the name of the authenticated identity.
+    profile -- The
+    <
+    xccdf:profile
+    >
+    element holds the
+    value of the @id attribute value of the
+    <
+    xccdf:Profile
+    >
+    selected to be
+    used in the assessment reported on by this
+    <
+    xccdf:TestResult
+    >
+    . This
+    <
+    xccdf:Profile
+    >
+    might be from the
+    <
+    xccdf:Benchmark
+    >
+    or from an
+    <
+    xccdf:Tailoring
+    >
+    file, if used. This element should appear if and
+    only if an
+    <
+    xccdf:Profile
+    >
+    was selected to guide the
+    assessment.
+    target -- Name or description of the target system whose
+    test results are recorded in the
+    <
+    xccdf:TestResult
+    >
+    element (the
+    system to which an
+    <
+    xccdf:Benchmark
+    >
+    test was applied). Each
+    appearance of the element supplies a name by which the target host or device
+    was identified at the time the test was run. The name may be any string, but
+    applications should include the fully qualified DNS name whenever possible.
+      
+    * target-address -- Network address of the target system to which
+      an
+      <
+      xccdf:Benchmark
+      >
+      test was applied. Typical forms for the address
+      include IP version 4 (IPv4), IP version 6 (IPv6), and Ethernet media access
+      control (MAC).
+    * target-facts -- A list of named facts about the target system
+      or platform.
+    * target-id-ref -- References to external structures with
+      identifying information about the target of this
+      assessment.
+    * platform -- A platform on the target system. There should
+      be one instance of this property for every platform that the target system
+      was found to meet.
+    * set-value -- Specific setting for a single
+      <
+      xccdf:Value
+      >
+      element used during the test.
+    * set-complex-value -- Specific setting for a single
+      <
+      xccdf:Value
+      >
+      element used during the test when the given value is
+      set to a complex type, such as a list.
+    * rule-result -- The result of a single instance of an
+      <
+      xccdf:Rule
+      >
+      application against the target. The
+      <
+      xccdf:TestResult
+      >
+      must include at least one
+      <
+      xccdf:rule-result
+      >
+      record for each
+      <
+      xccdf:Rule
+      >
+      that was selected in the resolved
+      <
+      xccdf:Benchmark
+      >
+      .
+    * score -- An overall score for this
+      <
+      xccdf:Benchmark
+      >
+      test.
+    * metadata -- XML metadata associated with this
+      <
+      xccdf:TestResult
+      >
+      .
+    * signature -- A digital signature asserting authorship and
+      allowing verification of the integrity of the
+      <
+      xccdf:TestResult
+      >
+      .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, start_time=None, end_time=None, test_system=None, version=None, Id=None, benchmark=None, tailoring_file=None, title=None, remark=None, organization=None, identity=None, profile=None, target=None, target_address=None, target_facts=None, target_id_ref=None, anytypeobjs_=None, platform=None, set_value=None, set_complex_value=None, rule_result=None, score=None, metadata=None, signature=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        if isinstance(start_time, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S')
+        else:
+            initvalue_ = start_time
+        self.start_time = initvalue_
+        if isinstance(end_time, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S')
+        else:
+            initvalue_ = end_time
+        self.end_time = initvalue_
+        self.test_system = _cast(None, test_system)
+        self.test_system_nsprefix_ = None
+        self.version = _cast(None, version)
+        self.version_nsprefix_ = None
+        self.Id = _cast(None, Id)
+        self.Id_nsprefix_ = None
+        self.benchmark = benchmark
+        self.benchmark_nsprefix_ = "cdf"
+        self.tailoring_file = tailoring_file
+        self.tailoring_file_nsprefix_ = "cdf"
+        if title is None:
+            self.title = []
+        else:
+            self.title = title
+        self.title_nsprefix_ = "cdf"
+        if remark is None:
+            self.remark = []
+        else:
+            self.remark = remark
+        self.remark_nsprefix_ = "cdf"
+        if organization is None:
+            self.organization = []
+        else:
+            self.organization = organization
+        self.organization_nsprefix_ = "cdf"
+        self.identity = identity
+        self.identity_nsprefix_ = "cdf"
+        self.profile = profile
+        self.profile_nsprefix_ = "cdf"
+        if target is None:
+            self.target = []
+        else:
+            self.target = target
+        self.target_nsprefix_ = "cdf"
+        if target_address is None:
+            self.target_address = []
+        else:
+            self.target_address = target_address
+        self.target_address_nsprefix_ = "cdf"
+        self.target_facts = target_facts
+        self.target_facts_nsprefix_ = "cdf"
+        if target_id_ref is None:
+            self.target_id_ref = []
+        else:
+            self.target_id_ref = target_id_ref
+        self.target_id_ref_nsprefix_ = "cdf"
+        self.anytypeobjs_ = anytypeobjs_
+        if platform is None:
+            self.platform = []
+        else:
+            self.platform = platform
+        self.platform_nsprefix_ = "cdf"
+        if set_value is None:
+            self.set_value = []
+        else:
+            self.set_value = set_value
+        self.set_value_nsprefix_ = "cdf"
+        if set_complex_value is None:
+            self.set_complex_value = []
+        else:
+            self.set_complex_value = set_complex_value
+        self.set_complex_value_nsprefix_ = "cdf"
+        if rule_result is None:
+            self.rule_result = []
+        else:
+            self.rule_result = rule_result
+        self.rule_result_nsprefix_ = "cdf"
+        if score is None:
+            self.score = []
+        else:
+            self.score = score
+        self.score_nsprefix_ = "cdf"
+        if metadata is None:
+            self.metadata = []
+        else:
+            self.metadata = metadata
+        self.metadata_nsprefix_ = "cdf"
+        self.signature = signature
+        self.signature_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, testResultType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if testResultType.subclass:
+            return testResultType.subclass(*args_, **kwargs_)
+        else:
+            return testResultType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_benchmark(self):
+        return self.benchmark
+    def set_benchmark(self, benchmark):
+        self.benchmark = benchmark
+    def get_tailoring_file(self):
+        return self.tailoring_file
+    def set_tailoring_file(self, tailoring_file):
+        self.tailoring_file = tailoring_file
+    def get_title(self):
+        return self.title
+    def set_title(self, title):
+        self.title = title
+    def add_title(self, value):
+        self.title.append(value)
+    def insert_title_at(self, index, value):
+        self.title.insert(index, value)
+    def replace_title_at(self, index, value):
+        self.title[index] = value
+    def get_remark(self):
+        return self.remark
+    def set_remark(self, remark):
+        self.remark = remark
+    def add_remark(self, value):
+        self.remark.append(value)
+    def insert_remark_at(self, index, value):
+        self.remark.insert(index, value)
+    def replace_remark_at(self, index, value):
+        self.remark[index] = value
+    def get_organization(self):
+        return self.organization
+    def set_organization(self, organization):
+        self.organization = organization
+    def add_organization(self, value):
+        self.organization.append(value)
+    def insert_organization_at(self, index, value):
+        self.organization.insert(index, value)
+    def replace_organization_at(self, index, value):
+        self.organization[index] = value
+    def get_identity(self):
+        return self.identity
+    def set_identity(self, identity):
+        self.identity = identity
+    def get_profile(self):
+        return self.profile
+    def set_profile(self, profile):
+        self.profile = profile
+    def get_target(self):
+        return self.target
+    def set_target(self, target):
+        self.target = target
+    def add_target(self, value):
+        self.target.append(value)
+    def insert_target_at(self, index, value):
+        self.target.insert(index, value)
+    def replace_target_at(self, index, value):
+        self.target[index] = value
+    def get_target_address(self):
+        return self.target_address
+    def set_target_address(self, target_address):
+        self.target_address = target_address
+    def add_target_address(self, value):
+        self.target_address.append(value)
+    def insert_target_address_at(self, index, value):
+        self.target_address.insert(index, value)
+    def replace_target_address_at(self, index, value):
+        self.target_address[index] = value
+    def get_target_facts(self):
+        return self.target_facts
+    def set_target_facts(self, target_facts):
+        self.target_facts = target_facts
+    def get_target_id_ref(self):
+        return self.target_id_ref
+    def set_target_id_ref(self, target_id_ref):
+        self.target_id_ref = target_id_ref
+    def add_target_id_ref(self, value):
+        self.target_id_ref.append(value)
+    def insert_target_id_ref_at(self, index, value):
+        self.target_id_ref.insert(index, value)
+    def replace_target_id_ref_at(self, index, value):
+        self.target_id_ref[index] = value
+    def get_anytypeobjs_(self): return self.anytypeobjs_
+    def set_anytypeobjs_(self, anytypeobjs_): self.anytypeobjs_ = anytypeobjs_
+    def get_platform(self):
+        return self.platform
+    def set_platform(self, platform):
+        self.platform = platform
+    def add_platform(self, value):
+        self.platform.append(value)
+    def insert_platform_at(self, index, value):
+        self.platform.insert(index, value)
+    def replace_platform_at(self, index, value):
+        self.platform[index] = value
+    def get_set_value(self):
+        return self.set_value
+    def set_set_value(self, set_value):
+        self.set_value = set_value
+    def add_set_value(self, value):
+        self.set_value.append(value)
+    def insert_set_value_at(self, index, value):
+        self.set_value.insert(index, value)
+    def replace_set_value_at(self, index, value):
+        self.set_value[index] = value
+    def get_set_complex_value(self):
+        return self.set_complex_value
+    def set_set_complex_value(self, set_complex_value):
+        self.set_complex_value = set_complex_value
+    def add_set_complex_value(self, value):
+        self.set_complex_value.append(value)
+    def insert_set_complex_value_at(self, index, value):
+        self.set_complex_value.insert(index, value)
+    def replace_set_complex_value_at(self, index, value):
+        self.set_complex_value[index] = value
+    def get_rule_result(self):
+        return self.rule_result
+    def set_rule_result(self, rule_result):
+        self.rule_result = rule_result
+    def add_rule_result(self, value):
+        self.rule_result.append(value)
+    def insert_rule_result_at(self, index, value):
+        self.rule_result.insert(index, value)
+    def replace_rule_result_at(self, index, value):
+        self.rule_result[index] = value
+    def get_score(self):
+        return self.score
+    def set_score(self, score):
+        self.score = score
+    def add_score(self, value):
+        self.score.append(value)
+    def insert_score_at(self, index, value):
+        self.score.insert(index, value)
+    def replace_score_at(self, index, value):
+        self.score[index] = value
+    def get_metadata(self):
+        return self.metadata
+    def set_metadata(self, metadata):
+        self.metadata = metadata
+    def add_metadata(self, value):
+        self.metadata.append(value)
+    def insert_metadata_at(self, index, value):
+        self.metadata.insert(index, value)
+    def replace_metadata_at(self, index, value):
+        self.metadata[index] = value
+    def get_signature(self):
+        return self.signature
+    def set_signature(self, signature):
+        self.signature = signature
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_start_time(self):
+        return self.start_time
+    def set_start_time(self, start_time):
+        self.start_time = start_time
+    def get_end_time(self):
+        return self.end_time
+    def set_end_time(self, end_time):
+        self.end_time = end_time
+    def get_test_system(self):
+        return self.test_system
+    def set_test_system(self, test_system):
+        self.test_system = test_system
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def get_Id(self):
+        return self.Id
+    def set_Id(self, Id):
+        self.Id = Id
+    def validate_testresultIdType(self, value):
+        # Validate type cdf:testresultIdType, a restriction on xsd:NCName.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            if not self.gds_validate_simple_patterns(
+                    self.validate_testresultIdType_patterns_, value):
+                self.gds_collector_.add_message('Value "%s" does not match xsd pattern restrictions: %s' % (encode_str_2_3(value), self.validate_testresultIdType_patterns_, ))
+    validate_testresultIdType_patterns_ = [['^(xccdf_[^_]+_testresult_.+)$']]
+    def has__content(self):
+        if (
+            self.benchmark is not None or
+            self.tailoring_file is not None or
+            self.title or
+            self.remark or
+            self.organization or
+            self.identity is not None or
+            self.profile is not None or
+            self.target or
+            self.target_address or
+            self.target_facts is not None or
+            self.target_id_ref or
+            self.anytypeobjs_ is not None or
+            self.platform or
+            self.set_value or
+            self.set_complex_value or
+            self.rule_result or
+            self.score or
+            self.metadata or
+            self.signature is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='testResultType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('testResultType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'testResultType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='testResultType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='testResultType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='testResultType'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.start_time is not None and 'start_time' not in already_processed:
+            already_processed.add('start_time')
+            outfile.write(' start-time="%s"' % self.gds_format_datetime(self.start_time, input_name='start-time'))
+        if self.end_time is not None and 'end_time' not in already_processed:
+            already_processed.add('end_time')
+            outfile.write(' end-time="%s"' % self.gds_format_datetime(self.end_time, input_name='end-time'))
+        if self.test_system is not None and 'test_system' not in already_processed:
+            already_processed.add('test_system')
+            outfile.write(' test-system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.test_system), input_name='test-system')), ))
+        if self.version is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            outfile.write(' version=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.version), input_name='version')), ))
+        if self.Id is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='testResultType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.benchmark is not None:
+            namespaceprefix_ = self.benchmark_nsprefix_ + ':' if (UseCapturedNS_ and self.benchmark_nsprefix_) else ''
+            self.benchmark.export(outfile, level, namespaceprefix_, namespacedef_='', name_='benchmark', pretty_print=pretty_print)
+        if self.tailoring_file is not None:
+            namespaceprefix_ = self.tailoring_file_nsprefix_ + ':' if (UseCapturedNS_ and self.tailoring_file_nsprefix_) else ''
+            self.tailoring_file.export(outfile, level, namespaceprefix_, namespacedef_='', name_='tailoring-file', pretty_print=pretty_print)
+        for title_ in self.title:
+            namespaceprefix_ = self.title_nsprefix_ + ':' if (UseCapturedNS_ and self.title_nsprefix_) else ''
+            title_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='title', pretty_print=pretty_print)
+        for remark_ in self.remark:
+            namespaceprefix_ = self.remark_nsprefix_ + ':' if (UseCapturedNS_ and self.remark_nsprefix_) else ''
+            remark_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='remark', pretty_print=pretty_print)
+        for organization_ in self.organization:
+            namespaceprefix_ = self.organization_nsprefix_ + ':' if (UseCapturedNS_ and self.organization_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sorganization>%s</%sorganization>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(organization_), input_name='organization')), namespaceprefix_ , eol_))
+        if self.identity is not None:
+            namespaceprefix_ = self.identity_nsprefix_ + ':' if (UseCapturedNS_ and self.identity_nsprefix_) else ''
+            self.identity.export(outfile, level, namespaceprefix_, namespacedef_='', name_='identity', pretty_print=pretty_print)
+        if self.profile is not None:
+            namespaceprefix_ = self.profile_nsprefix_ + ':' if (UseCapturedNS_ and self.profile_nsprefix_) else ''
+            self.profile.export(outfile, level, namespaceprefix_, namespacedef_='', name_='profile', pretty_print=pretty_print)
+        for target_ in self.target:
+            namespaceprefix_ = self.target_nsprefix_ + ':' if (UseCapturedNS_ and self.target_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%starget>%s</%starget>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(target_), input_name='target')), namespaceprefix_ , eol_))
+        for target_address_ in self.target_address:
+            namespaceprefix_ = self.target_address_nsprefix_ + ':' if (UseCapturedNS_ and self.target_address_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%starget-address>%s</%starget-address>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(target_address_), input_name='target-address')), namespaceprefix_ , eol_))
+        if self.target_facts is not None:
+            namespaceprefix_ = self.target_facts_nsprefix_ + ':' if (UseCapturedNS_ and self.target_facts_nsprefix_) else ''
+            self.target_facts.export(outfile, level, namespaceprefix_, namespacedef_='', name_='target-facts', pretty_print=pretty_print)
+        for target_id_ref_ in self.target_id_ref:
+            namespaceprefix_ = self.target_id_ref_nsprefix_ + ':' if (UseCapturedNS_ and self.target_id_ref_nsprefix_) else ''
+            target_id_ref_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='target-id-ref', pretty_print=pretty_print)
+        for platform_ in self.platform:
+            namespaceprefix_ = self.platform_nsprefix_ + ':' if (UseCapturedNS_ and self.platform_nsprefix_) else ''
+            platform_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='platform', pretty_print=pretty_print)
+        for set_value_ in self.set_value:
+            namespaceprefix_ = self.set_value_nsprefix_ + ':' if (UseCapturedNS_ and self.set_value_nsprefix_) else ''
+            set_value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='set-value', pretty_print=pretty_print)
+        for set_complex_value_ in self.set_complex_value:
+            namespaceprefix_ = self.set_complex_value_nsprefix_ + ':' if (UseCapturedNS_ and self.set_complex_value_nsprefix_) else ''
+            set_complex_value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='set-complex-value', pretty_print=pretty_print)
+        for rule_result_ in self.rule_result:
+            namespaceprefix_ = self.rule_result_nsprefix_ + ':' if (UseCapturedNS_ and self.rule_result_nsprefix_) else ''
+            rule_result_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='rule-result', pretty_print=pretty_print)
+        for score_ in self.score:
+            namespaceprefix_ = self.score_nsprefix_ + ':' if (UseCapturedNS_ and self.score_nsprefix_) else ''
+            score_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='score', pretty_print=pretty_print)
+        for metadata_ in self.metadata:
+            namespaceprefix_ = self.metadata_nsprefix_ + ':' if (UseCapturedNS_ and self.metadata_nsprefix_) else ''
+            metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
+        if self.signature is not None:
+            namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
+            self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
+        if not fromsubclass_:
+            if self.anytypeobjs_ is not None:
+                content_ = self.anytypeobjs_
+                outfile.write(content_)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+            self.validate_testresultIdType(self.id)    # validate type testresultIdType
+        value = find_attr_value_('start-time', node)
+        if value is not None and 'start-time' not in already_processed:
+            already_processed.add('start-time')
+            try:
+                self.start_time = self.gds_parse_datetime(value)
+            except ValueError as exp:
+                raise ValueError('Bad date-time attribute (start-time): %s' % exp)
+        value = find_attr_value_('end-time', node)
+        if value is not None and 'end-time' not in already_processed:
+            already_processed.add('end-time')
+            try:
+                self.end_time = self.gds_parse_datetime(value)
+            except ValueError as exp:
+                raise ValueError('Bad date-time attribute (end-time): %s' % exp)
+        value = find_attr_value_('test-system', node)
+        if value is not None and 'test-system' not in already_processed:
+            already_processed.add('test-system')
+            self.test_system = value
+        value = find_attr_value_('version', node)
+        if value is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            self.version = value
+        value = find_attr_value_('Id', node)
+        if value is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            self.Id = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'benchmark':
+            class_obj_ = self.get_class_obj_(child_, benchmarkReferenceType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.benchmark = obj_
+            obj_.original_tagname_ = 'benchmark'
+        elif nodeName_ == 'tailoring-file':
+            obj_ = tailoringReferenceType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.tailoring_file = obj_
+            obj_.original_tagname_ = 'tailoring-file'
+        elif nodeName_ == 'title':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.title.append(obj_)
+            obj_.original_tagname_ = 'title'
+        elif nodeName_ == 'remark':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.remark.append(obj_)
+            obj_.original_tagname_ = 'remark'
+        elif nodeName_ == 'organization':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'organization')
+            value_ = self.gds_validate_string(value_, node, 'organization')
+            self.organization.append(value_)
+            self.organization_nsprefix_ = child_.prefix
+        elif nodeName_ == 'identity':
+            obj_ = identityType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.identity = obj_
+            obj_.original_tagname_ = 'identity'
+        elif nodeName_ == 'profile':
+            class_obj_ = self.get_class_obj_(child_, idrefType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.profile = obj_
+            obj_.original_tagname_ = 'profile'
+        elif nodeName_ == 'target':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'target')
+            value_ = self.gds_validate_string(value_, node, 'target')
+            self.target.append(value_)
+            self.target_nsprefix_ = child_.prefix
+        elif nodeName_ == 'target-address':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'target_address')
+            value_ = self.gds_validate_string(value_, node, 'target_address')
+            self.target_address.append(value_)
+            self.target_address_nsprefix_ = child_.prefix
+        elif nodeName_ == 'target-facts':
+            obj_ = targetFactsType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.target_facts = obj_
+            obj_.original_tagname_ = 'target-facts'
+        elif nodeName_ == 'target-id-ref':
+            obj_ = targetIdRefType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.target_id_ref.append(obj_)
+            obj_.original_tagname_ = 'target-id-ref'
+        elif nodeName_ == 'platform':
+            class_obj_ = self.get_class_obj_(child_, CPE2idrefType)
+            obj_ = class_obj_.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.platform.append(obj_)
+            obj_.original_tagname_ = 'platform'
+        elif nodeName_ == 'set-value':
+            obj_ = profileSetValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.set_value.append(obj_)
+            obj_.original_tagname_ = 'set-value'
+        elif nodeName_ == 'set-complex-value':
+            obj_ = profileSetComplexValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.set_complex_value.append(obj_)
+            obj_.original_tagname_ = 'set-complex-value'
+        elif nodeName_ == 'rule-result':
+            obj_ = ruleResultType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.rule_result.append(obj_)
+            obj_.original_tagname_ = 'rule-result'
+        elif nodeName_ == 'score':
+            obj_ = scoreType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.score.append(obj_)
+            obj_.original_tagname_ = 'score'
+        elif nodeName_ == 'metadata':
+            obj_ = metadataType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.metadata.append(obj_)
+            obj_.original_tagname_ = 'metadata'
+        elif nodeName_ == 'signature':
+            obj_ = signatureType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.signature = obj_
+            obj_.original_tagname_ = 'signature'
+        else:
+            content_ = self.gds_build_any(child_, 'testResultType')
+            self.set_anytypeobjs_(content_)
+# end class testResultType
+
+
+class benchmarkReferenceType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, href=None, id=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.href = _cast(None, href)
+        self.href_nsprefix_ = None
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, benchmarkReferenceType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if benchmarkReferenceType.subclass:
+            return benchmarkReferenceType.subclass(*args_, **kwargs_)
+        else:
+            return benchmarkReferenceType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_href(self):
+        return self.href
+    def set_href(self, href):
+        self.href = href
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='benchmarkReferenceType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('benchmarkReferenceType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'benchmarkReferenceType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='benchmarkReferenceType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='benchmarkReferenceType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='benchmarkReferenceType'):
+        if self.href is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='benchmarkReferenceType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('href', node)
+        if value is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            self.href = value
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class benchmarkReferenceType
+
+
+class scoreType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, system=None, maximum=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.system = _cast(None, system)
+        self.system_nsprefix_ = None
+        self.maximum = _cast(float, maximum)
+        self.maximum_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, scoreType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if scoreType.subclass:
+            return scoreType.subclass(*args_, **kwargs_)
+        else:
+            return scoreType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_system(self):
+        return self.system
+    def set_system(self, system):
+        self.system = system
+    def get_maximum(self):
+        return self.maximum
+    def set_maximum(self, maximum):
+        self.maximum = maximum
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='scoreType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('scoreType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'scoreType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='scoreType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='scoreType'):
+        if self.system is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
+        if self.maximum is not None and 'maximum' not in already_processed:
+            already_processed.add('maximum')
+            outfile.write(' maximum="%s"' % self.gds_format_decimal(self.maximum, input_name='maximum'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='scoreType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('system', node)
+        if value is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            self.system = value
+        value = find_attr_value_('maximum', node)
+        if value is not None and 'maximum' not in already_processed:
+            already_processed.add('maximum')
+            value = self.gds_parse_decimal(value, node, 'maximum')
+            self.maximum = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class scoreType
+
+
+class targetFactsType(GeneratedsSuper):
+    """fact -- A named fact about the target system or
+    platform.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, fact=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if fact is None:
+            self.fact = []
+        else:
+            self.fact = fact
+        self.fact_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, targetFactsType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if targetFactsType.subclass:
+            return targetFactsType.subclass(*args_, **kwargs_)
+        else:
+            return targetFactsType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_fact(self):
+        return self.fact
+    def set_fact(self, fact):
+        self.fact = fact
+    def add_fact(self, value):
+        self.fact.append(value)
+    def insert_fact_at(self, index, value):
+        self.fact.insert(index, value)
+    def replace_fact_at(self, index, value):
+        self.fact[index] = value
+    def has__content(self):
+        if (
+            self.fact
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetFactsType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('targetFactsType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'targetFactsType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='targetFactsType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='targetFactsType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='targetFactsType'):
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetFactsType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for fact_ in self.fact:
+            namespaceprefix_ = self.fact_nsprefix_ + ':' if (UseCapturedNS_ and self.fact_nsprefix_) else ''
+            fact_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='fact', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        pass
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'fact':
+            obj_ = factType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.fact.append(obj_)
+            obj_.original_tagname_ = 'fact'
+# end class targetFactsType
+
+
+class targetIdRefType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, system=None, href=None, name=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.system = _cast(None, system)
+        self.system_nsprefix_ = None
+        self.href = _cast(None, href)
+        self.href_nsprefix_ = None
+        self.name = _cast(None, name)
+        self.name_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, targetIdRefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if targetIdRefType.subclass:
+            return targetIdRefType.subclass(*args_, **kwargs_)
+        else:
+            return targetIdRefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_system(self):
+        return self.system
+    def set_system(self, system):
+        self.system = system
+    def get_href(self):
+        return self.href
+    def set_href(self, href):
+        self.href = href
+    def get_name(self):
+        return self.name
+    def set_name(self, name):
+        self.name = name
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetIdRefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('targetIdRefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'targetIdRefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='targetIdRefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='targetIdRefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='targetIdRefType'):
+        if self.system is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
+        if self.href is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetIdRefType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('system', node)
+        if value is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            self.system = value
+        value = find_attr_value_('href', node)
+        if value is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            self.href = value
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class targetIdRefType
+
+
+class identityType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, authenticated=None, privileged=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.authenticated = _cast(bool, authenticated)
+        self.authenticated_nsprefix_ = None
+        self.privileged = _cast(bool, privileged)
+        self.privileged_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, identityType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if identityType.subclass:
+            return identityType.subclass(*args_, **kwargs_)
+        else:
+            return identityType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_authenticated(self):
+        return self.authenticated
+    def set_authenticated(self, authenticated):
+        self.authenticated = authenticated
+    def get_privileged(self):
+        return self.privileged
+    def set_privileged(self, privileged):
+        self.privileged = privileged
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identityType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('identityType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'identityType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='identityType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='identityType'):
+        if self.authenticated is not None and 'authenticated' not in already_processed:
+            already_processed.add('authenticated')
+            outfile.write(' authenticated="%s"' % self.gds_format_boolean(self.authenticated, input_name='authenticated'))
+        if self.privileged is not None and 'privileged' not in already_processed:
+            already_processed.add('privileged')
+            outfile.write(' privileged="%s"' % self.gds_format_boolean(self.privileged, input_name='privileged'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identityType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('authenticated', node)
+        if value is not None and 'authenticated' not in already_processed:
+            already_processed.add('authenticated')
+            if value in ('true', '1'):
+                self.authenticated = True
+            elif value in ('false', '0'):
+                self.authenticated = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('privileged', node)
+        if value is not None and 'privileged' not in already_processed:
+            already_processed.add('privileged')
+            if value in ('true', '1'):
+                self.privileged = True
+            elif value in ('false', '0'):
+                self.privileged = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class identityType
+
+
+class factType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, type_='boolean', valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.name = _cast(None, name)
+        self.name_nsprefix_ = None
+        self.type_ = _cast(None, type_)
+        self.type__nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, factType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if factType.subclass:
+            return factType.subclass(*args_, **kwargs_)
+        else:
+            return factType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_name(self):
+        return self.name
+    def set_name(self, name):
+        self.name = name
+    def get_type(self):
+        return self.type_
+    def set_type(self, type_):
+        self.type_ = type_
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_valueTypeType(self, value):
+        # Validate type cdf:valueTypeType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['number', 'string', 'boolean']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on valueTypeType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='factType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('factType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'factType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='factType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='factType'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
+        if self.type_ != "boolean" and 'type_' not in already_processed:
+            already_processed.add('type_')
+            outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='factType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+        value = find_attr_value_('type', node)
+        if value is not None and 'type' not in already_processed:
+            already_processed.add('type')
+            self.type_ = value
+            self.validate_valueTypeType(self.type_)    # validate type valueTypeType
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class factType
+
+
+class tailoringReferenceType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, href=None, id=None, version=None, time=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.href = _cast(None, href)
+        self.href_nsprefix_ = None
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.version = _cast(None, version)
+        self.version_nsprefix_ = None
+        if isinstance(time, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
+        else:
+            initvalue_ = time
+        self.time = initvalue_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, tailoringReferenceType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if tailoringReferenceType.subclass:
+            return tailoringReferenceType.subclass(*args_, **kwargs_)
+        else:
+            return tailoringReferenceType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_href(self):
+        return self.href
+    def set_href(self, href):
+        self.href = href
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def get_time(self):
+        return self.time
+    def set_time(self, time):
+        self.time = time
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringReferenceType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringReferenceType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'tailoringReferenceType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='tailoringReferenceType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='tailoringReferenceType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='tailoringReferenceType'):
+        if self.href is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.version is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            outfile.write(' version=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.version), input_name='version')), ))
+        if self.time is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringReferenceType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('href', node)
+        if value is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            self.href = value
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+        value = find_attr_value_('version', node)
+        if value is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            self.version = value
+        value = find_attr_value_('time', node)
+        if value is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            try:
+                self.time = self.gds_parse_datetime(value)
+            except ValueError as exp:
+                raise ValueError('Bad date-time attribute (time): %s' % exp)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class tailoringReferenceType
+
+
+class ruleResultType(GeneratedsSuper):
+    """result -- Result of applying the referenced
+    <
+    xccdf:Rule
+    >
+    to a target or target component. (E.g., Pass, Fail, etc.)
+      
+    * override -- An XML block explaining how and why an auditor
+      chose to override the result.
+    * ident -- A long-term globally meaningful identifier for
+      the issue, vulnerability, platform, etc. copied from the referenced
+      <
+      xccdf:Rule
+      >
+      .
+    * metadata -- XML metadata associated with this
+      <
+      xccdf:rule-result
+      >
+      .
+    * message -- Diagnostic messages from the checking engine.
+      These elements do not affect scoring; they are present merely to convey
+      diagnostic information from the checking engine.
+    * instance -- Name of the target subsystem or component to
+      which this result applies, for a multiply instantiated
+      <
+      xccdf:Rule
+      >
+      .
+      The element is important for an
+      <
+      xccdf:Rule
+      >
+      that applies to
+      components of the target system, especially when a target might have several
+      such components, and where the @multiple attribute of the
+      <
+      xccdf:Rule
+      >
+      is set to true.
+    * fix -- Fix script for this target platform, if
+      available (would normally appear only for result values of
+      “
+      fail
+      ”
+      ). It is
+      assumed to have been
+      ‘
+      instantiated
+      ’
+      by the testing tool and any
+      substitutions or platform selections already made.
+    * check -- Encapsulated or referenced results to
+      detailed testing output from the checking engine (if
+      any).
+    * complex-check -- A copy of the
+      <
+      xccdf:Rule
+      >
+      element
+      ’
+      s
+      <
+      xccdf:complex-check
+      >
+      element where each component
+      <
+      xccdf:check
+      >
+      element of the
+      <
+      xccdf:complex-check
+      >
+      element
+      is an encapsulated or referenced results to detailed testing output from
+      the checking engine (if any) as described in the
+      <
+      xccdf:rule-result
+      >
+      <
+      xccdf:check
+      >
+      property.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, idref=None, role=None, severity=None, time=None, version=None, weight=None, result=None, override=None, ident=None, metadata=None, message=None, instance=None, fix=None, check=None, complex_check=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.idref = _cast(None, idref)
+        self.idref_nsprefix_ = None
+        self.role = _cast(None, role)
+        self.role_nsprefix_ = None
+        self.severity = _cast(None, severity)
+        self.severity_nsprefix_ = None
+        if isinstance(time, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
+        else:
+            initvalue_ = time
+        self.time = initvalue_
+        self.version = _cast(None, version)
+        self.version_nsprefix_ = None
+        self.weight = _cast(float, weight)
+        self.weight_nsprefix_ = None
+        self.result = result
+        self.validate_resultEnumType(self.result)
+        self.result_nsprefix_ = "cdf"
+        if override is None:
+            self.override = []
+        else:
+            self.override = override
+        self.override_nsprefix_ = "cdf"
+        if ident is None:
+            self.ident = []
+        else:
+            self.ident = ident
+        self.ident_nsprefix_ = "cdf"
+        if metadata is None:
+            self.metadata = []
+        else:
+            self.metadata = metadata
+        self.metadata_nsprefix_ = "cdf"
+        if message is None:
+            self.message = []
+        else:
+            self.message = message
+        self.message_nsprefix_ = "cdf"
+        if instance is None:
+            self.instance = []
+        else:
+            self.instance = instance
+        self.instance_nsprefix_ = "cdf"
+        if fix is None:
+            self.fix = []
+        else:
+            self.fix = fix
+        self.fix_nsprefix_ = "cdf"
+        if check is None:
+            self.check = []
+        else:
+            self.check = check
+        self.check_nsprefix_ = "cdf"
+        self.complex_check = complex_check
+        self.complex_check_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, ruleResultType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if ruleResultType.subclass:
+            return ruleResultType.subclass(*args_, **kwargs_)
+        else:
+            return ruleResultType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_result(self):
+        return self.result
+    def set_result(self, result):
+        self.result = result
+    def get_override(self):
+        return self.override
+    def set_override(self, override):
+        self.override = override
+    def add_override(self, value):
+        self.override.append(value)
+    def insert_override_at(self, index, value):
+        self.override.insert(index, value)
+    def replace_override_at(self, index, value):
+        self.override[index] = value
+    def get_ident(self):
+        return self.ident
+    def set_ident(self, ident):
+        self.ident = ident
+    def add_ident(self, value):
+        self.ident.append(value)
+    def insert_ident_at(self, index, value):
+        self.ident.insert(index, value)
+    def replace_ident_at(self, index, value):
+        self.ident[index] = value
+    def get_metadata(self):
+        return self.metadata
+    def set_metadata(self, metadata):
+        self.metadata = metadata
+    def add_metadata(self, value):
+        self.metadata.append(value)
+    def insert_metadata_at(self, index, value):
+        self.metadata.insert(index, value)
+    def replace_metadata_at(self, index, value):
+        self.metadata[index] = value
+    def get_message(self):
+        return self.message
+    def set_message(self, message):
+        self.message = message
+    def add_message(self, value):
+        self.message.append(value)
+    def insert_message_at(self, index, value):
+        self.message.insert(index, value)
+    def replace_message_at(self, index, value):
+        self.message[index] = value
+    def get_instance(self):
+        return self.instance
+    def set_instance(self, instance):
+        self.instance = instance
+    def add_instance(self, value):
+        self.instance.append(value)
+    def insert_instance_at(self, index, value):
+        self.instance.insert(index, value)
+    def replace_instance_at(self, index, value):
+        self.instance[index] = value
+    def get_fix(self):
+        return self.fix
+    def set_fix(self, fix):
+        self.fix = fix
+    def add_fix(self, value):
+        self.fix.append(value)
+    def insert_fix_at(self, index, value):
+        self.fix.insert(index, value)
+    def replace_fix_at(self, index, value):
+        self.fix[index] = value
+    def get_check(self):
+        return self.check
+    def set_check(self, check):
+        self.check = check
+    def add_check(self, value):
+        self.check.append(value)
+    def insert_check_at(self, index, value):
+        self.check.insert(index, value)
+    def replace_check_at(self, index, value):
+        self.check[index] = value
+    def get_complex_check(self):
+        return self.complex_check
+    def set_complex_check(self, complex_check):
+        self.complex_check = complex_check
+    def get_idref(self):
+        return self.idref
+    def set_idref(self, idref):
+        self.idref = idref
+    def get_role(self):
+        return self.role
+    def set_role(self, role):
+        self.role = role
+    def get_severity(self):
+        return self.severity
+    def set_severity(self, severity):
+        self.severity = severity
+    def get_time(self):
+        return self.time
+    def set_time(self, time):
+        self.time = time
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def get_weight(self):
+        return self.weight
+    def set_weight(self, weight):
+        self.weight = weight
+    def validate_resultEnumType(self, value):
+        result = True
+        # Validate type resultEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['pass', 'fail', 'error', 'unknown', 'notapplicable', 'notchecked', 'notselected', 'informational', 'fixed']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on resultEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+        return result
+    def validate_roleEnumType(self, value):
+        # Validate type cdf:roleEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['full', 'unscored', 'unchecked']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on roleEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_severityEnumType(self, value):
+        # Validate type cdf:severityEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['unknown', 'info', 'low', 'medium', 'high']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on severityEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def validate_weightType(self, value):
+        # Validate type cdf:weightType, a restriction on xsd:decimal.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, decimal_.Decimal):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (decimal_.Decimal)' % {"value": value, "lineno": lineno, })
+                return False
+            if value < 0.0:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd minInclusive restriction on weightType' % {"value": value, "lineno": lineno} )
+                result = False
+            if len(str(value)) >= 3:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd totalDigits restriction on weightType' % {"value": value, "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.result is not None or
+            self.override or
+            self.ident or
+            self.metadata or
+            self.message or
+            self.instance or
+            self.fix or
+            self.check or
+            self.complex_check is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='ruleResultType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('ruleResultType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'ruleResultType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ruleResultType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='ruleResultType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='ruleResultType'):
+        if self.idref is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
+        if self.role is not None and 'role' not in already_processed:
+            already_processed.add('role')
+            outfile.write(' role=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.role), input_name='role')), ))
+        if self.severity is not None and 'severity' not in already_processed:
+            already_processed.add('severity')
+            outfile.write(' severity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.severity), input_name='severity')), ))
+        if self.time is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
+        if self.version is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            outfile.write(' version=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.version), input_name='version')), ))
+        if self.weight is not None and 'weight' not in already_processed:
+            already_processed.add('weight')
+            outfile.write(' weight="%s"' % self.gds_format_decimal(self.weight, input_name='weight'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='ruleResultType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.result is not None:
+            namespaceprefix_ = self.result_nsprefix_ + ':' if (UseCapturedNS_ and self.result_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sresult>%s</%sresult>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.result), input_name='result')), namespaceprefix_ , eol_))
+        for override_ in self.override:
+            namespaceprefix_ = self.override_nsprefix_ + ':' if (UseCapturedNS_ and self.override_nsprefix_) else ''
+            override_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='override', pretty_print=pretty_print)
+        for ident_ in self.ident:
+            namespaceprefix_ = self.ident_nsprefix_ + ':' if (UseCapturedNS_ and self.ident_nsprefix_) else ''
+            ident_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='ident', pretty_print=pretty_print)
+        for metadata_ in self.metadata:
+            namespaceprefix_ = self.metadata_nsprefix_ + ':' if (UseCapturedNS_ and self.metadata_nsprefix_) else ''
+            metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
+        for message_ in self.message:
+            namespaceprefix_ = self.message_nsprefix_ + ':' if (UseCapturedNS_ and self.message_nsprefix_) else ''
+            message_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='message', pretty_print=pretty_print)
+        for instance_ in self.instance:
+            namespaceprefix_ = self.instance_nsprefix_ + ':' if (UseCapturedNS_ and self.instance_nsprefix_) else ''
+            instance_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='instance', pretty_print=pretty_print)
+        for fix_ in self.fix:
+            namespaceprefix_ = self.fix_nsprefix_ + ':' if (UseCapturedNS_ and self.fix_nsprefix_) else ''
+            fix_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='fix', pretty_print=pretty_print)
+        for check_ in self.check:
+            namespaceprefix_ = self.check_nsprefix_ + ':' if (UseCapturedNS_ and self.check_nsprefix_) else ''
+            check_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='check', pretty_print=pretty_print)
+        if self.complex_check is not None:
+            namespaceprefix_ = self.complex_check_nsprefix_ + ':' if (UseCapturedNS_ and self.complex_check_nsprefix_) else ''
+            self.complex_check.export(outfile, level, namespaceprefix_, namespacedef_='', name_='complex-check', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('idref', node)
+        if value is not None and 'idref' not in already_processed:
+            already_processed.add('idref')
+            self.idref = value
+        value = find_attr_value_('role', node)
+        if value is not None and 'role' not in already_processed:
+            already_processed.add('role')
+            self.role = value
+            self.validate_roleEnumType(self.role)    # validate type roleEnumType
+        value = find_attr_value_('severity', node)
+        if value is not None and 'severity' not in already_processed:
+            already_processed.add('severity')
+            self.severity = value
+            self.validate_severityEnumType(self.severity)    # validate type severityEnumType
+        value = find_attr_value_('time', node)
+        if value is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            try:
+                self.time = self.gds_parse_datetime(value)
+            except ValueError as exp:
+                raise ValueError('Bad date-time attribute (time): %s' % exp)
+        value = find_attr_value_('version', node)
+        if value is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            self.version = value
+        value = find_attr_value_('weight', node)
+        if value is not None and 'weight' not in already_processed:
+            already_processed.add('weight')
+            value = self.gds_parse_decimal(value, node, 'weight')
+            self.weight = value
+            self.validate_weightType(self.weight)    # validate type weightType
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'result':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'result')
+            value_ = self.gds_validate_string(value_, node, 'result')
+            self.result = value_
+            self.result_nsprefix_ = child_.prefix
+            # validate type resultEnumType
+            self.validate_resultEnumType(self.result)
+        elif nodeName_ == 'override':
+            obj_ = overrideType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.override.append(obj_)
+            obj_.original_tagname_ = 'override'
+        elif nodeName_ == 'ident':
+            obj_ = identType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.ident.append(obj_)
+            obj_.original_tagname_ = 'ident'
+        elif nodeName_ == 'metadata':
+            obj_ = metadataType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.metadata.append(obj_)
+            obj_.original_tagname_ = 'metadata'
+        elif nodeName_ == 'message':
+            obj_ = messageType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.message.append(obj_)
+            obj_.original_tagname_ = 'message'
+        elif nodeName_ == 'instance':
+            obj_ = instanceResultType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.instance.append(obj_)
+            obj_.original_tagname_ = 'instance'
+        elif nodeName_ == 'fix':
+            obj_ = fixType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.fix.append(obj_)
+            obj_.original_tagname_ = 'fix'
+        elif nodeName_ == 'check':
+            obj_ = checkType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check.append(obj_)
+            obj_.original_tagname_ = 'check'
+        elif nodeName_ == 'complex-check':
+            obj_ = complexCheckType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.complex_check = obj_
+            obj_.original_tagname_ = 'complex-check'
+# end class ruleResultType
+
+
+class instanceResultType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, context='undefined', parentContext=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.context = _cast(None, context)
+        self.context_nsprefix_ = None
+        self.parentContext = _cast(None, parentContext)
+        self.parentContext_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, instanceResultType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if instanceResultType.subclass:
+            return instanceResultType.subclass(*args_, **kwargs_)
+        else:
+            return instanceResultType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_context(self):
+        return self.context
+    def set_context(self, context):
+        self.context = context
+    def get_parentContext(self):
+        return self.parentContext
+    def set_parentContext(self, parentContext):
+        self.parentContext = parentContext
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceResultType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('instanceResultType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'instanceResultType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='instanceResultType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='instanceResultType'):
+        if self.context != "undefined" and 'context' not in already_processed:
+            already_processed.add('context')
+            outfile.write(' context=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.context), input_name='context')), ))
+        if self.parentContext is not None and 'parentContext' not in already_processed:
+            already_processed.add('parentContext')
+            outfile.write(' parentContext=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.parentContext), input_name='parentContext')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceResultType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('context', node)
+        if value is not None and 'context' not in already_processed:
+            already_processed.add('context')
+            self.context = value
+        value = find_attr_value_('parentContext', node)
+        if value is not None and 'parentContext' not in already_processed:
+            already_processed.add('parentContext')
+            self.parentContext = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class instanceResultType
+
+
+class overrideType(GeneratedsSuper):
+    """old-result -- The
+    <
+    xccdf:rule-result
+    >
+    status before
+    this override.
+    new-result -- The new, override
+    <
+    xccdf:rule-result
+    >
+    status.
+    remark -- Rationale or explanation text for why or how
+    the override was applied.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, time=None, authority=None, old_result=None, new_result=None, remark=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if isinstance(time, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
+        else:
+            initvalue_ = time
+        self.time = initvalue_
+        self.authority = _cast(None, authority)
+        self.authority_nsprefix_ = None
+        self.old_result = old_result
+        self.validate_resultEnumType(self.old_result)
+        self.old_result_nsprefix_ = "cdf"
+        self.new_result = new_result
+        self.validate_resultEnumType(self.new_result)
+        self.new_result_nsprefix_ = "cdf"
+        self.remark = remark
+        self.remark_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, overrideType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if overrideType.subclass:
+            return overrideType.subclass(*args_, **kwargs_)
+        else:
+            return overrideType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_old_result(self):
+        return self.old_result
+    def set_old_result(self, old_result):
+        self.old_result = old_result
+    def get_new_result(self):
+        return self.new_result
+    def set_new_result(self, new_result):
+        self.new_result = new_result
+    def get_remark(self):
+        return self.remark
+    def set_remark(self, remark):
+        self.remark = remark
+    def get_time(self):
+        return self.time
+    def set_time(self, time):
+        self.time = time
+    def get_authority(self):
+        return self.authority
+    def set_authority(self, authority):
+        self.authority = authority
+    def validate_resultEnumType(self, value):
+        result = True
+        # Validate type resultEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['pass', 'fail', 'error', 'unknown', 'notapplicable', 'notchecked', 'notselected', 'informational', 'fixed']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on resultEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+        return result
+    def has__content(self):
+        if (
+            self.old_result is not None or
+            self.new_result is not None or
+            self.remark is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('overrideType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'overrideType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='overrideType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='overrideType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='overrideType'):
+        if self.time is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
+        if self.authority is not None and 'authority' not in already_processed:
+            already_processed.add('authority')
+            outfile.write(' authority=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.authority), input_name='authority')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.old_result is not None:
+            namespaceprefix_ = self.old_result_nsprefix_ + ':' if (UseCapturedNS_ and self.old_result_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sold-result>%s</%sold-result>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.old_result), input_name='old-result')), namespaceprefix_ , eol_))
+        if self.new_result is not None:
+            namespaceprefix_ = self.new_result_nsprefix_ + ':' if (UseCapturedNS_ and self.new_result_nsprefix_) else ''
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%snew-result>%s</%snew-result>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.new_result), input_name='new-result')), namespaceprefix_ , eol_))
+        if self.remark is not None:
+            namespaceprefix_ = self.remark_nsprefix_ + ':' if (UseCapturedNS_ and self.remark_nsprefix_) else ''
+            self.remark.export(outfile, level, namespaceprefix_, namespacedef_='', name_='remark', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('time', node)
+        if value is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            try:
+                self.time = self.gds_parse_datetime(value)
+            except ValueError as exp:
+                raise ValueError('Bad date-time attribute (time): %s' % exp)
+        value = find_attr_value_('authority', node)
+        if value is not None and 'authority' not in already_processed:
+            already_processed.add('authority')
+            self.authority = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'old-result':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'old_result')
+            value_ = self.gds_validate_string(value_, node, 'old_result')
+            self.old_result = value_
+            self.old_result_nsprefix_ = child_.prefix
+            # validate type resultEnumType
+            self.validate_resultEnumType(self.old_result)
+        elif nodeName_ == 'new-result':
+            value_ = child_.text
+            value_ = self.gds_parse_string(value_, node, 'new_result')
+            value_ = self.gds_validate_string(value_, node, 'new_result')
+            self.new_result = value_
+            self.new_result_nsprefix_ = child_.prefix
+            # validate type resultEnumType
+            self.validate_resultEnumType(self.new_result)
+        elif nodeName_ == 'remark':
+            obj_ = textType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.remark = obj_
+            obj_.original_tagname_ = 'remark'
+# end class overrideType
+
+
+class messageType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, severity=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.severity = _cast(None, severity)
+        self.severity_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, messageType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if messageType.subclass:
+            return messageType.subclass(*args_, **kwargs_)
+        else:
+            return messageType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_severity(self):
+        return self.severity
+    def set_severity(self, severity):
+        self.severity = severity
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def validate_msgSevEnumType(self, value):
+        # Validate type cdf:msgSevEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['error', 'warning', 'info']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on msgSevEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='messageType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('messageType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'messageType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='messageType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='messageType'):
+        if self.severity is not None and 'severity' not in already_processed:
+            already_processed.add('severity')
+            outfile.write(' severity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.severity), input_name='severity')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='messageType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('severity', node)
+        if value is not None and 'severity' not in already_processed:
+            already_processed.add('severity')
+            self.severity = value
+            self.validate_msgSevEnumType(self.severity)    # validate type msgSevEnumType
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class messageType
+
+
+class tailoringType(GeneratedsSuper):
+    """benchmark -- Identifies the
+    <
+    xccdf:Benchmark
+    >
+    to which
+    this tailoring applies. A
+    <
+    xccdf:Tailoring
+    >
+    document is only
+    applicable to a single
+    <
+    xccdf:Benchmark
+    >
+    . Note, however, that this is
+    a purely informative field.
+    status -- Status of the tailoring and date at which it
+    attained that status. Authors may use this element to record the maturity or
+    consensus level of an
+    <
+    xccdf:Tailoring
+    >
+    element.
+    dc-status -- Holds additional status information using the
+    Dublin Core format.
+    version -- The version of this
+    <
+    xccdf:Tailoring
+    >
+    element, with a required @time attribute that records when the
+    <
+    xccdf:Tailoring
+    >
+    element was created. This timestamp is necessary
+    because, under some circumstances, a copy of an
+    <
+    xccdf:Tailoring
+    >
+    document might be automatically generated. Without the version and
+    timestamp, tracking of these automatically created
+    <
+    xccdf:Tailoring
+    >
+    documents could become problematic.
+    metadata -- XML metadata for the
+    <
+    xccdf:Tailoring
+    >
+    element.
+    Profile -- <
+    xccdf:Profile
+    >
+    elements that reference
+    and customize sets of items in an
+    <
+    xccdf:Benchmark
+    >
+    .
+      
+    * signature -- A digital signature asserting authorship and
+      allowing verification of the integrity of the
+      <
+      xccdf:Tailoring
+      >
+      .
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, id=None, Id=None, benchmark=None, status=None, dc_status=None, version=None, metadata=None, Profile=None, signature=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+        self.Id = _cast(None, Id)
+        self.Id_nsprefix_ = None
+        self.benchmark = benchmark
+        self.benchmark_nsprefix_ = "cdf"
+        if status is None:
+            self.status = []
+        else:
+            self.status = status
+        self.status_nsprefix_ = "cdf"
+        if dc_status is None:
+            self.dc_status = []
+        else:
+            self.dc_status = dc_status
+        self.dc_status_nsprefix_ = "cdf"
+        self.version = version
+        self.version_nsprefix_ = "cdf"
+        if metadata is None:
+            self.metadata = []
+        else:
+            self.metadata = metadata
+        self.metadata_nsprefix_ = "cdf"
+        if Profile is None:
+            self.Profile = []
+        else:
+            self.Profile = Profile
+        self.Profile_nsprefix_ = "cdf"
+        self.signature = signature
+        self.signature_nsprefix_ = "cdf"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, tailoringType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if tailoringType.subclass:
+            return tailoringType.subclass(*args_, **kwargs_)
+        else:
+            return tailoringType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_benchmark(self):
+        return self.benchmark
+    def set_benchmark(self, benchmark):
+        self.benchmark = benchmark
+    def get_status(self):
+        return self.status
+    def set_status(self, status):
+        self.status = status
+    def add_status(self, value):
+        self.status.append(value)
+    def insert_status_at(self, index, value):
+        self.status.insert(index, value)
+    def replace_status_at(self, index, value):
+        self.status[index] = value
+    def get_dc_status(self):
+        return self.dc_status
+    def set_dc_status(self, dc_status):
+        self.dc_status = dc_status
+    def add_dc_status(self, value):
+        self.dc_status.append(value)
+    def insert_dc_status_at(self, index, value):
+        self.dc_status.insert(index, value)
+    def replace_dc_status_at(self, index, value):
+        self.dc_status[index] = value
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def get_metadata(self):
+        return self.metadata
+    def set_metadata(self, metadata):
+        self.metadata = metadata
+    def add_metadata(self, value):
+        self.metadata.append(value)
+    def insert_metadata_at(self, index, value):
+        self.metadata.insert(index, value)
+    def replace_metadata_at(self, index, value):
+        self.metadata[index] = value
+    def get_Profile(self):
+        return self.Profile
+    def set_Profile(self, Profile):
+        self.Profile = Profile
+    def add_Profile(self, value):
+        self.Profile.append(value)
+    def insert_Profile_at(self, index, value):
+        self.Profile.insert(index, value)
+    def replace_Profile_at(self, index, value):
+        self.Profile[index] = value
+    def get_signature(self):
+        return self.signature
+    def set_signature(self, signature):
+        self.signature = signature
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def get_Id(self):
+        return self.Id
+    def set_Id(self, Id):
+        self.Id = Id
+    def validate_tailoringIdType(self, value):
+        # Validate type cdf:tailoringIdType, a restriction on xsd:NCName.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            if not self.gds_validate_simple_patterns(
+                    self.validate_tailoringIdType_patterns_, value):
+                self.gds_collector_.add_message('Value "%s" does not match xsd pattern restrictions: %s' % (encode_str_2_3(value), self.validate_tailoringIdType_patterns_, ))
+    validate_tailoringIdType_patterns_ = [['^(xccdf_[^_]+_tailoring_.+)$']]
+    def has__content(self):
+        if (
+            self.benchmark is not None or
+            self.status or
+            self.dc_status or
+            self.version is not None or
+            self.metadata or
+            self.Profile or
+            self.signature is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'tailoringType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='tailoringType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='tailoringType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='tailoringType'):
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+        if self.Id is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.benchmark is not None:
+            namespaceprefix_ = self.benchmark_nsprefix_ + ':' if (UseCapturedNS_ and self.benchmark_nsprefix_) else ''
+            self.benchmark.export(outfile, level, namespaceprefix_, namespacedef_='', name_='benchmark', pretty_print=pretty_print)
+        for status_ in self.status:
+            namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
+            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+        for dc_status_ in self.dc_status:
+            namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
+            dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
+        if self.version is not None:
+            namespaceprefix_ = self.version_nsprefix_ + ':' if (UseCapturedNS_ and self.version_nsprefix_) else ''
+            self.version.export(outfile, level, namespaceprefix_, namespacedef_='', name_='version', pretty_print=pretty_print)
+        for metadata_ in self.metadata:
+            namespaceprefix_ = self.metadata_nsprefix_ + ':' if (UseCapturedNS_ and self.metadata_nsprefix_) else ''
+            metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
+        for Profile_ in self.Profile:
+            namespaceprefix_ = self.Profile_nsprefix_ + ':' if (UseCapturedNS_ and self.Profile_nsprefix_) else ''
+            Profile_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Profile', pretty_print=pretty_print)
+        if self.signature is not None:
+            namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
+            self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+            self.validate_tailoringIdType(self.id)    # validate type tailoringIdType
+        value = find_attr_value_('Id', node)
+        if value is not None and 'Id' not in already_processed:
+            already_processed.add('Id')
+            self.Id = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'benchmark':
+            obj_ = tailoringBenchmarkReferenceType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.benchmark = obj_
+            obj_.original_tagname_ = 'benchmark'
+        elif nodeName_ == 'status':
+            obj_ = status.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.status.append(obj_)
+            obj_.original_tagname_ = 'status'
+        elif nodeName_ == 'dc-status':
+            obj_ = dc_statusType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.dc_status.append(obj_)
+            obj_.original_tagname_ = 'dc-status'
+        elif nodeName_ == 'version':
+            obj_ = tailoringVersionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.version = obj_
+            obj_.original_tagname_ = 'version'
+        elif nodeName_ == 'metadata':
+            obj_ = metadataType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.metadata.append(obj_)
+            obj_.original_tagname_ = 'metadata'
+        elif nodeName_ == 'Profile':
+            obj_ = profileType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.Profile.append(obj_)
+            obj_.original_tagname_ = 'Profile'
+        elif nodeName_ == 'signature':
+            obj_ = signatureType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.signature = obj_
+            obj_.original_tagname_ = 'signature'
+# end class tailoringType
+
+
+class tailoringBenchmarkReferenceType(benchmarkReferenceType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = benchmarkReferenceType
+    def __init__(self, href=None, id=None, version=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("tailoringBenchmarkReferenceType"), self).__init__(href, id,  **kwargs_)
+        self.version = _cast(None, version)
+        self.version_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, tailoringBenchmarkReferenceType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if tailoringBenchmarkReferenceType.subclass:
+            return tailoringBenchmarkReferenceType.subclass(*args_, **kwargs_)
+        else:
+            return tailoringBenchmarkReferenceType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_version(self):
+        return self.version
+    def set_version(self, version):
+        self.version = version
+    def has__content(self):
+        if (
+            super(tailoringBenchmarkReferenceType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringBenchmarkReferenceType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringBenchmarkReferenceType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'tailoringBenchmarkReferenceType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='tailoringBenchmarkReferenceType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='tailoringBenchmarkReferenceType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='tailoringBenchmarkReferenceType'):
+        super(tailoringBenchmarkReferenceType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='tailoringBenchmarkReferenceType')
+        if self.version is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            outfile.write(' version=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.version), input_name='version')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringBenchmarkReferenceType', fromsubclass_=False, pretty_print=True):
+        super(tailoringBenchmarkReferenceType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('version', node)
+        if value is not None and 'version' not in already_processed:
+            already_processed.add('version')
+            self.version = value
+        super(tailoringBenchmarkReferenceType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(tailoringBenchmarkReferenceType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class tailoringBenchmarkReferenceType
+
+
+class tailoringVersionType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, time=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        if isinstance(time, BaseStrType_):
+            initvalue_ = datetime_.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
+        else:
+            initvalue_ = time
+        self.time = initvalue_
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, tailoringVersionType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if tailoringVersionType.subclass:
+            return tailoringVersionType.subclass(*args_, **kwargs_)
+        else:
+            return tailoringVersionType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_time(self):
+        return self.time
+    def set_time(self, time):
+        self.time = time
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringVersionType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringVersionType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'tailoringVersionType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='tailoringVersionType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='tailoringVersionType'):
+        if self.time is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringVersionType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('time', node)
+        if value is not None and 'time' not in already_processed:
+            already_processed.add('time')
+            try:
+                self.time = self.gds_parse_datetime(value)
+            except ValueError as exp:
+                raise ValueError('Bad date-time attribute (time): %s' % exp)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class tailoringVersionType
+
+
+class platformSpecificationType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, platform=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        if platform is None:
+            self.platform = []
+        else:
+            self.platform = platform
+        self.platform_nsprefix_ = "cpe"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, platformSpecificationType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if platformSpecificationType.subclass:
+            return platformSpecificationType.subclass(*args_, **kwargs_)
+        else:
+            return platformSpecificationType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_platform(self):
+        return self.platform
+    def set_platform(self, platform):
+        self.platform = platform
+    def add_platform(self, value):
+        self.platform.append(value)
+    def insert_platform_at(self, index, value):
+        self.platform.insert(index, value)
+    def replace_platform_at(self, index, value):
+        self.platform[index] = value
+    def has__content(self):
+        if (
+            self.platform
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0" xmlns:cpe="http://cpe.mitre.org/naming/2.0" ', name_='platformSpecificationType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('platformSpecificationType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'platformSpecificationType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='platformSpecificationType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='platformSpecificationType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='platformSpecificationType'):
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0" xmlns:cpe="http://cpe.mitre.org/naming/2.0" ', name_='platformSpecificationType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for platform_ in self.platform:
+            namespaceprefix_ = self.platform_nsprefix_ + ':' if (UseCapturedNS_ and self.platform_nsprefix_) else ''
+            platform_.export(outfile, level, namespaceprefix_='cpe:', namespacedef_='', name_='platform', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        pass
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'platform':
+            obj_ = PlatformType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.platform.append(obj_)
+            obj_.original_tagname_ = 'platform'
+# end class platformSpecificationType
+
+
+class PlatformBaseType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, title=None, remark=None, logical_test=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        if title is None:
+            self.title = []
+        else:
+            self.title = title
+        self.title_nsprefix_ = "cpe"
+        if remark is None:
+            self.remark = []
+        else:
+            self.remark = remark
+        self.remark_nsprefix_ = "cpe"
+        self.logical_test = logical_test
+        self.logical_test_nsprefix_ = "cpe"
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, PlatformBaseType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if PlatformBaseType.subclass:
+            return PlatformBaseType.subclass(*args_, **kwargs_)
+        else:
+            return PlatformBaseType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_title(self):
+        return self.title
+    def set_title(self, title):
+        self.title = title
+    def add_title(self, value):
+        self.title.append(value)
+    def insert_title_at(self, index, value):
+        self.title.insert(index, value)
+    def replace_title_at(self, index, value):
+        self.title[index] = value
+    def get_remark(self):
+        return self.remark
+    def set_remark(self, remark):
+        self.remark = remark
+    def add_remark(self, value):
+        self.remark.append(value)
+    def insert_remark_at(self, index, value):
+        self.remark.insert(index, value)
+    def replace_remark_at(self, index, value):
+        self.remark[index] = value
+    def get_logical_test(self):
+        return self.logical_test
+    def set_logical_test(self, logical_test):
+        self.logical_test = logical_test
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+            self.title or
+            self.remark or
+            self.logical_test is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0" xmlns:cpe="http://cpe.mitre.org/naming/2.0" ', name_='PlatformBaseType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('PlatformBaseType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'PlatformBaseType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PlatformBaseType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='PlatformBaseType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='PlatformBaseType'):
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+        pass
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0" xmlns:cpe="http://cpe.mitre.org/naming/2.0" ', name_='PlatformBaseType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for title_ in self.title:
+            namespaceprefix_ = self.title_nsprefix_ + ':' if (UseCapturedNS_ and self.title_nsprefix_) else ''
+            title_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='title', pretty_print=pretty_print)
+        for remark_ in self.remark:
+            namespaceprefix_ = self.remark_nsprefix_ + ':' if (UseCapturedNS_ and self.remark_nsprefix_) else ''
+            remark_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='remark', pretty_print=pretty_print)
+        if self.logical_test is not None:
+            namespaceprefix_ = self.logical_test_nsprefix_ + ':' if (UseCapturedNS_ and self.logical_test_nsprefix_) else ''
+            self.logical_test.export(outfile, level, namespaceprefix_='cpe:', namespacedef_='', name_='logical-test', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'title':
+            obj_ = TextType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.title.append(obj_)
+            obj_.original_tagname_ = 'title'
+        elif nodeName_ == 'remark':
+            obj_ = TextType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.remark.append(obj_)
+            obj_.original_tagname_ = 'remark'
+        elif nodeName_ == 'logical-test':
+            obj_ = LogicalTestType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.logical_test = obj_
+            obj_.original_tagname_ = 'logical-test'
+# end class PlatformBaseType
+
+
+class PlatformType(PlatformBaseType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = PlatformBaseType
+    def __init__(self, title=None, remark=None, logical_test=None, id=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        super(globals().get("PlatformType"), self).__init__(title, remark, logical_test,  **kwargs_)
+        self.id = _cast(None, id)
+        self.id_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, PlatformType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if PlatformType.subclass:
+            return PlatformType.subclass(*args_, **kwargs_)
+        else:
+            return PlatformType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_id(self):
+        return self.id
+    def set_id(self, id):
+        self.id = id
+    def has__content(self):
+        if (
+            super(PlatformType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='PlatformType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('PlatformType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'PlatformType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PlatformType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='PlatformType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='PlatformType'):
+        super(PlatformType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='PlatformType')
+        if self.id is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='PlatformType', fromsubclass_=False, pretty_print=True):
+        super(PlatformType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('id', node)
+        if value is not None and 'id' not in already_processed:
+            already_processed.add('id')
+            self.id = value
+        super(PlatformType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(PlatformType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class PlatformType
+
+
+class LogicalTestType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, operator=None, negate=None, logical_test=None, fact_ref=None, check_fact_ref=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        self.operator = _cast(None, operator)
+        self.operator_nsprefix_ = None
+        self.negate = _cast(bool, negate)
+        self.negate_nsprefix_ = None
+        if logical_test is None:
+            self.logical_test = []
+        else:
+            self.logical_test = logical_test
+        self.logical_test_nsprefix_ = "cpe"
+        if fact_ref is None:
+            self.fact_ref = []
+        else:
+            self.fact_ref = fact_ref
+        self.fact_ref_nsprefix_ = "cpe"
+        if check_fact_ref is None:
+            self.check_fact_ref = []
+        else:
+            self.check_fact_ref = check_fact_ref
+        self.check_fact_ref_nsprefix_ = "cpe"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, LogicalTestType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if LogicalTestType.subclass:
+            return LogicalTestType.subclass(*args_, **kwargs_)
+        else:
+            return LogicalTestType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_logical_test(self):
+        return self.logical_test
+    def set_logical_test(self, logical_test):
+        self.logical_test = logical_test
+    def add_logical_test(self, value):
+        self.logical_test.append(value)
+    def insert_logical_test_at(self, index, value):
+        self.logical_test.insert(index, value)
+    def replace_logical_test_at(self, index, value):
+        self.logical_test[index] = value
+    def get_fact_ref(self):
+        return self.fact_ref
+    def set_fact_ref(self, fact_ref):
+        self.fact_ref = fact_ref
+    def add_fact_ref(self, value):
+        self.fact_ref.append(value)
+    def insert_fact_ref_at(self, index, value):
+        self.fact_ref.insert(index, value)
+    def replace_fact_ref_at(self, index, value):
+        self.fact_ref[index] = value
+    def get_check_fact_ref(self):
+        return self.check_fact_ref
+    def set_check_fact_ref(self, check_fact_ref):
+        self.check_fact_ref = check_fact_ref
+    def add_check_fact_ref(self, value):
+        self.check_fact_ref.append(value)
+    def insert_check_fact_ref_at(self, index, value):
+        self.check_fact_ref.insert(index, value)
+    def replace_check_fact_ref_at(self, index, value):
+        self.check_fact_ref[index] = value
+    def get_operator(self):
+        return self.operator
+    def set_operator(self, operator):
+        self.operator = operator
+    def get_negate(self):
+        return self.negate
+    def set_negate(self, negate):
+        self.negate = negate
+    def validate_operatorEnumeration(self, value):
+        # Validate type cpe:operatorEnumeration, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['AND', 'OR']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on operatorEnumeration' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            self.logical_test or
+            self.fact_ref or
+            self.check_fact_ref
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0" xmlns:cpe="http://cpe.mitre.org/naming/2.0" ', name_='LogicalTestType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('LogicalTestType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'LogicalTestType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='LogicalTestType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='LogicalTestType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='LogicalTestType'):
+        if self.operator is not None and 'operator' not in already_processed:
+            already_processed.add('operator')
+            outfile.write(' operator=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.operator), input_name='operator')), ))
+        if self.negate is not None and 'negate' not in already_processed:
+            already_processed.add('negate')
+            outfile.write(' negate="%s"' % self.gds_format_boolean(self.negate, input_name='negate'))
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0" xmlns:cpe="http://cpe.mitre.org/naming/2.0" ', name_='LogicalTestType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for logical_test_ in self.logical_test:
+            namespaceprefix_ = self.logical_test_nsprefix_ + ':' if (UseCapturedNS_ and self.logical_test_nsprefix_) else ''
+            logical_test_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='logical-test', pretty_print=pretty_print)
+        for fact_ref_ in self.fact_ref:
+            namespaceprefix_ = self.fact_ref_nsprefix_ + ':' if (UseCapturedNS_ and self.fact_ref_nsprefix_) else ''
+            fact_ref_.export(outfile, level, namespaceprefix_='cpe:', namespacedef_='', name_='fact-ref', pretty_print=pretty_print)
+        for check_fact_ref_ in self.check_fact_ref:
+            namespaceprefix_ = self.check_fact_ref_nsprefix_ + ':' if (UseCapturedNS_ and self.check_fact_ref_nsprefix_) else ''
+            check_fact_ref_.export(outfile, level, namespaceprefix_='cpe:', namespacedef_='', name_='check-fact-ref', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('operator', node)
+        if value is not None and 'operator' not in already_processed:
+            already_processed.add('operator')
+            self.operator = value
+            self.validate_operatorEnumeration(self.operator)    # validate type operatorEnumeration
+        value = find_attr_value_('negate', node)
+        if value is not None and 'negate' not in already_processed:
+            already_processed.add('negate')
+            if value in ('true', '1'):
+                self.negate = True
+            elif value in ('false', '0'):
+                self.negate = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'logical-test':
+            obj_ = LogicalTestType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.logical_test.append(obj_)
+            obj_.original_tagname_ = 'logical-test'
+        elif nodeName_ == 'fact-ref':
+            obj_ = CPEFactRefType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.fact_ref.append(obj_)
+            obj_.original_tagname_ = 'fact-ref'
+        elif nodeName_ == 'check-fact-ref':
+            obj_ = CheckFactRefType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.check_fact_ref.append(obj_)
+            obj_.original_tagname_ = 'check-fact-ref'
+# end class LogicalTestType
+
+
+class FactRefType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, description=None, extensiontype_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        self.description = _cast(None, description)
+        self.description_nsprefix_ = None
+        self.extensiontype_ = extensiontype_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, FactRefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if FactRefType.subclass:
+            return FactRefType.subclass(*args_, **kwargs_)
+        else:
+            return FactRefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_description(self):
+        return self.description
+    def set_description(self, description):
+        self.description = description
+    def get_extensiontype_(self): return self.extensiontype_
+    def set_extensiontype_(self, extensiontype_): self.extensiontype_ = extensiontype_
+    def has__content(self):
+        if (
+
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='FactRefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('FactRefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'FactRefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='FactRefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='FactRefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='FactRefType'):
+        if self.description is not None and 'description' not in already_processed:
+            already_processed.add('description')
+            outfile.write(' description=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.description), input_name='description')), ))
+        if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
+            if ":" not in self.extensiontype_:
+                imported_ns_type_prefix_ = GenerateDSNamespaceTypePrefixes_.get(self.extensiontype_, '')
+                outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
+            else:
+                outfile.write(' xsi:type="%s"' % self.extensiontype_)
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='FactRefType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('description', node)
+        if value is not None and 'description' not in already_processed:
+            already_processed.add('description')
+            self.description = value
+        value = find_attr_value_('xsi:type', node)
+        if value is not None and 'xsi:type' not in already_processed:
+            already_processed.add('xsi:type')
+            self.extensiontype_ = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class FactRefType
+
+
+class CPEFactRefType(FactRefType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = FactRefType
+    def __init__(self, description=None, name=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        super(globals().get("CPEFactRefType"), self).__init__(description,  **kwargs_)
+        self.name = _cast(None, name)
+        self.name_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, CPEFactRefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if CPEFactRefType.subclass:
+            return CPEFactRefType.subclass(*args_, **kwargs_)
+        else:
+            return CPEFactRefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_name(self):
+        return self.name
+    def set_name(self, name):
+        self.name = name
+    def validate_namePattern(self, value):
+        # Validate type cpe:namePattern, a restriction on None.
+        pass
+    def has__content(self):
+        if (
+            super(CPEFactRefType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='CPEFactRefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('CPEFactRefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'CPEFactRefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CPEFactRefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='CPEFactRefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='CPEFactRefType'):
+        super(CPEFactRefType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CPEFactRefType')
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (quote_attrib(self.name), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='CPEFactRefType', fromsubclass_=False, pretty_print=True):
+        super(CPEFactRefType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+            self.validate_namePattern(self.name)    # validate type namePattern
+        super(CPEFactRefType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(CPEFactRefType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class CPEFactRefType
+
+
+class CheckFactRefType(FactRefType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = FactRefType
+    def __init__(self, description=None, system=None, href=None, id_ref=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        super(globals().get("CheckFactRefType"), self).__init__(description,  **kwargs_)
+        self.system = _cast(None, system)
+        self.system_nsprefix_ = None
+        self.href = _cast(None, href)
+        self.href_nsprefix_ = None
+        self.id_ref = _cast(None, id_ref)
+        self.id_ref_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, CheckFactRefType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if CheckFactRefType.subclass:
+            return CheckFactRefType.subclass(*args_, **kwargs_)
+        else:
+            return CheckFactRefType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_system(self):
+        return self.system
+    def set_system(self, system):
+        self.system = system
+    def get_href(self):
+        return self.href
+    def set_href(self, href):
+        self.href = href
+    def get_id_ref(self):
+        return self.id_ref
+    def set_id_ref(self, id_ref):
+        self.id_ref = id_ref
+    def has__content(self):
+        if (
+            super(CheckFactRefType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='CheckFactRefType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('CheckFactRefType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'CheckFactRefType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CheckFactRefType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='CheckFactRefType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='CheckFactRefType'):
+        super(CheckFactRefType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='CheckFactRefType')
+        if self.system is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
+        if self.href is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
+        if self.id_ref is not None and 'id_ref' not in already_processed:
+            already_processed.add('id_ref')
+            outfile.write(' id-ref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id_ref), input_name='id-ref')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='CheckFactRefType', fromsubclass_=False, pretty_print=True):
+        super(CheckFactRefType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('system', node)
+        if value is not None and 'system' not in already_processed:
+            already_processed.add('system')
+            self.system = value
+        value = find_attr_value_('href', node)
+        if value is not None and 'href' not in already_processed:
+            already_processed.add('href')
+            self.href = value
+        value = find_attr_value_('id-ref', node)
+        if value is not None and 'id-ref' not in already_processed:
+            already_processed.add('id-ref')
+            self.id_ref = value
+            self.id_ref = ' '.join(self.id_ref.split())
+        super(CheckFactRefType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(CheckFactRefType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class CheckFactRefType
+
+
+class TextType(GeneratedsSuper):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = None
+    def __init__(self, lang=None, valueOf_=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cpe2"
+        self.lang = _cast(None, lang)
+        self.lang_nsprefix_ = None
+        self.valueOf_ = valueOf_
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, TextType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if TextType.subclass:
+            return TextType.subclass(*args_, **kwargs_)
+        else:
+            return TextType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_lang(self):
+        return self.lang
+    def set_lang(self, lang):
+        self.lang = lang
+    def get_valueOf_(self): return self.valueOf_
+    def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def has__content(self):
+        if (
+            (1 if type(self.valueOf_) in [int,float] else self.valueOf_)
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='TextType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('TextType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'TextType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='TextType')
+        outfile.write('>')
+        self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
+        outfile.write(self.convert_unicode(self.valueOf_))
+        outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe:', name_='TextType'):
+        if self.lang is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe:', namespacedef_='xmlns:cpe2="http://cpe.mitre.org/language/2.0"', name_='TextType', fromsubclass_=False, pretty_print=True):
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        self.valueOf_ = get_all_text_(node)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('lang', node)
+        if value is not None and 'lang' not in already_processed:
+            already_processed.add('lang')
+            self.lang = value
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        pass
+# end class TextType
+
+
+class subType(idrefType):
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = idrefType
+    def __init__(self, idref=None, use='value', gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "cdf"
+        super(globals().get("subType"), self).__init__(idref,  **kwargs_)
+        self.use = _cast(None, use)
+        self.use_nsprefix_ = None
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, subType)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if subType.subclass:
+            return subType.subclass(*args_, **kwargs_)
+        else:
+            return subType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_use(self):
+        return self.use
+    def set_use(self, use):
+        self.use = use
+    def validate_subUseEnumType(self, value):
+        # Validate type cdf:subUseEnumType, a restriction on xsd:string.
+        if value is not None and Validate_simpletypes_ and self.gds_collector_ is not None:
+            if not isinstance(value, str):
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s is not of the correct base simple type (str)' % {"value": value, "lineno": lineno, })
+                return False
+            value = value
+            enumerations = ['value', 'title', 'legacy']
+            if value not in enumerations:
+                lineno = self.gds_get_node_lineno_()
+                self.gds_collector_.add_message('Value "%(value)s"%(lineno)s does not match xsd enumeration restriction on subUseEnumType' % {"value" : encode_str_2_3(value), "lineno": lineno} )
+                result = False
+    def has__content(self):
+        if (
+            super(subType, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='subType', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('subType')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'subType':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='subType')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='subType', pretty_print=pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='subType'):
+        super(subType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='subType')
+        if self.use != "value" and 'use' not in already_processed:
+            already_processed.add('use')
+            outfile.write(' use=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.use), input_name='use')), ))
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='subType', fromsubclass_=False, pretty_print=True):
+        super(subType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        pass
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('use', node)
+        if value is not None and 'use' not in already_processed:
+            already_processed.add('use')
+            self.use = value
+            self.validate_subUseEnumType(self.use)    # validate type subUseEnumType
+        super(subType, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        super(subType, self)._buildChildren(child_, node, nodeName_, True)
+        pass
+# end class subType
+
+
+#
+# End data representation classes.
+#
+
+
+GDSClassesMapping = {
+    'Group': groupType,
+    'Item': itemType,
+    'Profile': profileType,
+    'Rule': ruleType,
+    'Tailoring': tailoringType,
+    'TestResult': testResultType,
+    'Value': valueType,
+    'check-fact-ref': CheckFactRefType,
+    'fact-ref': CPEFactRefType,
+    'logical-test': LogicalTestType,
+    'platform': PlatformType,
+    'platform-configuration': PlatformBaseType,
+    'platform-specification': platformSpecificationType,
+}
+
+
+USAGE_TEXT = """
+Usage: python <Parser>.py [ -s ] <in_xml_file>
+"""
+
+
+def usage():
+    print(USAGE_TEXT)
+    sys.exit(1)
+
+
+def get_root_tag(node):
+    tag = Tag_pattern_.match(node.tag).groups()[-1]
+    prefix_tag = TagNamePrefix + tag
+    rootClass = GDSClassesMapping.get(prefix_tag)
+    if rootClass is None:
+        rootClass = globals().get(prefix_tag)
+    return tag, rootClass
+
+
+def get_required_ns_prefix_defs(rootNode):
+    '''Get all name space prefix definitions required in this XML doc.
+    Return a dictionary of definitions and a char string of definitions.
+    '''
+    nsmap = {
+        prefix: uri
+        for node in rootNode.iter()
+        for (prefix, uri) in node.nsmap.items()
+        if prefix is not None
+    }
+    namespacedefs = ' '.join([
+        'xmlns:{}="{}"'.format(prefix, uri)
+        for prefix, uri in nsmap.items()
+    ])
+    return nsmap, namespacedefs
+
+
+def parse(inFileName, silence=False, print_warnings=True):
+    global CapturedNsmap_
+    gds_collector = GdsCollector_()
+    parser = None
+    doc = parsexml_(inFileName, parser)
+    rootNode = doc.getroot()
+    rootTag, rootClass = get_root_tag(rootNode)
+    if rootClass is None:
+        rootTag = 'Benchmark'
+        rootClass = Benchmark
+    rootObj = rootClass.factory()
+    rootObj.build(rootNode, gds_collector_=gds_collector)
+    CapturedNsmap_, namespacedefs = get_required_ns_prefix_defs(rootNode)
+    if not SaveElementTreeNode:
+        doc = None
+        rootNode = None
+    if not silence:
+        sys.stdout.write('<?xml version="1.0" ?>\n')
+        rootObj.export(
+            sys.stdout, 0, name_=rootTag,
+            namespacedef_=namespacedefs,
+            pretty_print=True)
+    if print_warnings and len(gds_collector.get_messages()) > 0:
+        separator = ('-' * 50) + '\n'
+        sys.stderr.write(separator)
+        sys.stderr.write('----- Warnings -- count: {} -----\n'.format(
+            len(gds_collector.get_messages()), ))
+        gds_collector.write_messages(sys.stderr)
+        sys.stderr.write(separator)
+    return rootObj
+
+
+def parseEtree(inFileName, silence=False, print_warnings=True,
+               mapping=None, reverse_mapping=None, nsmap=None):
+    parser = None
+    doc = parsexml_(inFileName, parser)
+    gds_collector = GdsCollector_()
+    rootNode = doc.getroot()
+    rootTag, rootClass = get_root_tag(rootNode)
+    if rootClass is None:
+        rootTag = 'Benchmark'
+        rootClass = Benchmark
+    rootObj = rootClass.factory()
+    rootObj.build(rootNode, gds_collector_=gds_collector)
+    if mapping is None:
+        mapping = {}
+    if reverse_mapping is None:
+        reverse_mapping = {}
+    rootElement = rootObj.to_etree(
+        None, name_=rootTag, mapping_=mapping,
+        reverse_mapping_=reverse_mapping, nsmap_=nsmap)
+    reverse_node_mapping = rootObj.gds_reverse_node_mapping(mapping)
+    # Enable Python to collect the space used by the DOM.
+    if not SaveElementTreeNode:
+        doc = None
+        rootNode = None
+    if not silence:
+        content = etree_.tostring(
+            rootElement, pretty_print=True,
+            xml_declaration=True, encoding="utf-8")
+        sys.stdout.write(str(content))
+        sys.stdout.write('\n')
+    if print_warnings and len(gds_collector.get_messages()) > 0:
+        separator = ('-' * 50) + '\n'
+        sys.stderr.write(separator)
+        sys.stderr.write('----- Warnings -- count: {} -----\n'.format(
+            len(gds_collector.get_messages()), ))
+        gds_collector.write_messages(sys.stderr)
+        sys.stderr.write(separator)
+    return rootObj, rootElement, mapping, reverse_node_mapping
+
+
+def parseString(inString, silence=False, print_warnings=True):
+    '''Parse a string, create the object tree, and export it.
+
+    Arguments:
+    - inString -- A string.  This XML fragment should not start
+      with an XML declaration containing an encoding.
+    - silence -- A boolean.  If False, export the object.
+    Returns -- The root object in the tree.
+    '''
+    parser = None
+    rootNode= parsexmlstring_(inString, parser)
+    gds_collector = GdsCollector_()
+    rootTag, rootClass = get_root_tag(rootNode)
+    if rootClass is None:
+        rootTag = 'Benchmark'
+        rootClass = Benchmark
+    rootObj = rootClass.factory()
+    rootObj.build(rootNode, gds_collector_=gds_collector)
+    if not SaveElementTreeNode:
+        rootNode = None
+    if not silence:
+        sys.stdout.write('<?xml version="1.0" ?>\n')
+        rootObj.export(
+            sys.stdout, 0, name_=rootTag,
+            namespacedef_='xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"')
+    if print_warnings and len(gds_collector.get_messages()) > 0:
+        separator = ('-' * 50) + '\n'
+        sys.stderr.write(separator)
+        sys.stderr.write('----- Warnings -- count: {} -----\n'.format(
+            len(gds_collector.get_messages()), ))
+        gds_collector.write_messages(sys.stderr)
+        sys.stderr.write(separator)
+    return rootObj
+
+
+def parseLiteral(inFileName, silence=False, print_warnings=True):
+    parser = None
+    doc = parsexml_(inFileName, parser)
+    gds_collector = GdsCollector_()
+    rootNode = doc.getroot()
+    rootTag, rootClass = get_root_tag(rootNode)
+    if rootClass is None:
+        rootTag = 'Benchmark'
+        rootClass = Benchmark
+    rootObj = rootClass.factory()
+    rootObj.build(rootNode, gds_collector_=gds_collector)
+    # Enable Python to collect the space used by the DOM.
+    if not SaveElementTreeNode:
+        doc = None
+        rootNode = None
+    if not silence:
+        sys.stdout.write('#from xccdf_models import *\n\n')
+        sys.stdout.write('import xccdf_models as model_\n\n')
+        sys.stdout.write('rootObj = model_.rootClass(\n')
+        rootObj.exportLiteral(sys.stdout, 0, name_=rootTag)
+        sys.stdout.write(')\n')
+    if print_warnings and len(gds_collector.get_messages()) > 0:
+        separator = ('-' * 50) + '\n'
+        sys.stderr.write(separator)
+        sys.stderr.write('----- Warnings -- count: {} -----\n'.format(
+            len(gds_collector.get_messages()), ))
+        gds_collector.write_messages(sys.stderr)
+        sys.stderr.write(separator)
+    return rootObj
+
+
+def main():
+    args = sys.argv[1:]
+    if len(args) == 1:
+        parse(args[0])
+    else:
+        usage()
+
+
+if __name__ == '__main__':
+    #import pdb; pdb.set_trace()
+    main()
+
+RenameMappings_ = {
+}
+
+#
+# Mapping of namespaces to types defined in them
+# and the file in which each is defined.
+# simpleTypes are marked "ST" and complexTypes "CT".
+NamespaceToDefMappings_ = {'http://checklists.nist.gov/xccdf/1.2': [('statusType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('benchmarkIdType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('ruleIdType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('groupIdType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('valueIdType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('profileIdType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('testresultIdType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('tailoringIdType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('warningCategoryEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('fixStrategyEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('ratingEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('ccOperatorEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('weightType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('valueTypeType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('valueOperatorType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('interfaceHintType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('msgSevEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('resultEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('severityEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('roleEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('subUseEnumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'ST'),
+                                          ('noticeType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('dc_statusType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('plainTextType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('referenceType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('signatureType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('metadataType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('paramType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('versionType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('textType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('htmlTextType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('htmlTextWithSubType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('profileNoteType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('textWithSubType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('subType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('idrefType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('idrefListType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('CPE2idrefType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('overrideableCPE2idrefType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('itemType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('selectableItemType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('groupType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('ruleType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('identType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('warningType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('fixTextType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('fixType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('instanceFixType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('complexCheckType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('checkType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('checkImportType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('checkExportType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('checkContentRefType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('checkContentType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('valueType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('complexValueType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('selComplexValueType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('selChoicesType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('selStringType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('selNumType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('uriRefType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('profileType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('profileSelectType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('profileSetValueType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('profileSetComplexValueType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('profileRefineValueType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('profileRefineRuleType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('testResultType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('benchmarkReferenceType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('scoreType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('targetFactsType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('targetIdRefType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('identityType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('factType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('tailoringReferenceType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('ruleResultType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('instanceResultType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('overrideType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('messageType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('tailoringType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('tailoringBenchmarkReferenceType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT'),
+                                          ('tailoringVersionType',
+                                           '.\\schemas\\xccdf_1.2.xsd',
+                                           'CT')],
+ 'http://cpe.mitre.org/language/2.0': [('operatorEnumeration',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'ST'),
+                                       ('namePattern',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'ST'),
+                                       ('platformSpecificationType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT'),
+                                       ('PlatformBaseType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT'),
+                                       ('PlatformType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT'),
+                                       ('LogicalTestType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT'),
+                                       ('FactRefType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT'),
+                                       ('CPEFactRefType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT'),
+                                       ('CheckFactRefType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT'),
+                                       ('TextType',
+                                        '.\\schemas/cpe-language_2.3.xsd',
+                                        'CT')],
+ 'http://cpe.mitre.org/naming/2.0': [('cpe22Type',
+                                      '.\\schemas/cpe-naming_2.3.xsd',
+                                      'ST'),
+                                     ('cpe23Type',
+                                      '.\\schemas/cpe-naming_2.3.xsd',
+                                      'ST')],
+ 'http://www.w3.org/XML/1998/namespace': []}
+
+__all__ = [
+    "Benchmark",
+    "CPE2idrefType",
+    "CPEFactRefType",
+    "CheckFactRefType",
+    "FactRefType",
+    "LogicalTestType",
+    "PlatformBaseType",
+    "PlatformType",
+    "TextType",
+    "benchmarkReferenceType",
+    "checkContentRefType",
+    "checkContentType",
+    "checkExportType",
+    "checkImportType",
+    "checkType",
+    "complexCheckType",
+    "complexValueType",
+    "dc_statusType",
+    "factType",
+    "fixTextType",
+    "fixType",
+    "groupType",
+    "htmlTextType",
+    "htmlTextWithSubType",
+    "identType",
+    "identityType",
+    "idrefListType",
+    "idrefType",
+    "instanceFixType",
+    "instanceResultType",
+    "itemType",
+    "messageType",
+    "metadataType",
+    "model",
+    "noticeType",
+    "overrideType",
+    "overrideableCPE2idrefType",
+    "paramType",
+    "plainTextType",
+    "platformSpecificationType",
+    "profileNoteType",
+    "profileRefineRuleType",
+    "profileRefineValueType",
+    "profileSelectType",
+    "profileSetComplexValueType",
+    "profileSetValueType",
+    "profileType",
+    "referenceType",
+    "ruleResultType",
+    "ruleType",
+    "scoreType",
+    "selChoicesType",
+    "selComplexValueType",
+    "selNumType",
+    "selStringType",
+    "selectableItemType",
+    "signatureType",
+    "status",
+    "subType",
+    "tailoringBenchmarkReferenceType",
+    "tailoringReferenceType",
+    "tailoringType",
+    "tailoringVersionType",
+    "targetFactsType",
+    "targetIdRefType",
+    "testResultType",
+    "textType",
+    "textWithSubType",
+    "uriRefType",
+    "valueType",
+    "versionType",
+    "warningType"
+]
