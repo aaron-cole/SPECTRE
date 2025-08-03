@@ -29,4 +29,4 @@ Future incorporatations:
   - Maybe more... who knows how far this will go.
 
 ## NOTICE
-We are currently in the ALPHA phase.  I encourage all that try and use it to open an issue or such.
+We are currently in the BETA phase.  I encourage all that try and use it to open an issue or such.
