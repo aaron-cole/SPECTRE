@@ -3,3 +3,5 @@ models/__pycache__/*
 /models/__pycache__
 /models/__pycache__
 *.pyc
+models/__pycache__/oval_helper.cpython-313.pyc
+models/__pycache__/oval_independent_models.cpython-313.pyc
