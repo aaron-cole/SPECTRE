@@ -2687,15 +2687,15 @@ class XccdfEditorApp:
             if op_var.get() not in op_options:
                 op_var.set("") # Clear the selection if it's no longer valid
                 
-            # --- START MODIFICATION ---
             mask_var = tk.StringVar(value=val_obj.get_mask() if val_obj else "")
             ttk.Label(attr_frame, text="Mask:").grid(row=1, column=0, sticky='w', pady=(5,0))
             ttk.Combobox(attr_frame, textvariable=mask_var, values=["true", "false"], state="readonly", width=8).grid(row=1, column=1, sticky='ew', padx=5, pady=(5,0))
 
-            var_ref_var = tk.StringVar(value=val_obj.get_var_ref() if val_obj else "")
+             # Variable Reference (now a dropdown)
+            var_ref_var = tk.StringVar(value=val_obj.get_var_ref() if val_obj and hasattr(val_obj, 'get_var_ref') else "")
             ttk.Label(attr_frame, text="Variable Ref:").grid(row=1, column=2, sticky='w', padx=10, pady=(5,0))
-            ttk.Entry(attr_frame, textvariable=var_ref_var).grid(row=1, column=3, sticky='ew', padx=5, pady=(5,0))
-            # --- END MODIFICATION ---
+            ttk.Combobox(attr_frame, textvariable=var_ref_var, values=self.get_oval_variable_ids(specific_oval_defs=self.current_oval_defs)).grid(row=1, column=3, sticky='ew', padx=5, pady=(5,0))
+
 
             attr_frame.columnconfigure(1, weight=1)
             attr_frame.columnconfigure(3, weight=1)
@@ -2999,19 +2999,24 @@ class XccdfEditorApp:
                 ))
                 self.oval_variables_map[item_id] = var
 
-    def get_oval_variable_ids(self, filter_class=None):
+    def get_oval_variable_ids(self, specific_oval_defs=None):
         """
-        Returns a list of all OVAL variable IDs, optionally filtered by a specific class.
+        Returns a list of all OVAL variable IDs. If specific_oval_defs is provided,
+        it searches only within that object.
         """
-        if not self.datastream_collection or not self.oval_variables_map:
-            return []
+        ids = []
+        target_defs = [specific_oval_defs] if specific_oval_defs else \
+                      [c.oval_definitions for c in self.datastream_collection.get_component() if c.oval_definitions]
         
-        # If a filter is provided, return only IDs of that specific variable type
-        if filter_class:
-            return [var.get_id() for var in self.oval_variables_map.values() if isinstance(var, filter_class)]
-        # Otherwise, return all variable IDs
-        else:
-            return [var.get_id() for var in self.oval_variables_map.values()]
+        if not self.datastream_collection:
+            return ids
+        
+        for oval_defs in target_defs:
+            if oval_defs and oval_defs.get_variables():
+                for var in oval_defs.get_variables().get_variable():
+                    ids.append(var.get_id())
+        
+        return sorted(list(set(ids)))
             
     def _show_generic_variable_details_dialog(self, var_class, var_to_edit=None):
         """A smart dialog that builds an input form for any OVAL variable."""
