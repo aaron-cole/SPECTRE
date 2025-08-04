@@ -386,6 +386,8 @@ class OVAL_Entity_Factory:
                         wrapper_class = oval.EntityObjectAnySimpleType
                     elif prop_name in ['local_address', 'destination']:
                         wrapper_class = oval.EntityObjectIPAddressType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = oval.EntityObjectVariableRefType
                     #Defined Problem Children
                     elif prop_name in ['hash_type', 'engine']:
                         wrapper_class = oval.EntityObjectStringType
@@ -682,6 +684,8 @@ class OVAL_Entity_Factory:
                     #Defined Problem Children
                     elif prop_name in ['hash_type', 'engine']:
                         wrapper_class = oval.EntityObjectStringType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = oval.EntityObjectVariableRefType
                     #Left Overs
                     else:
                         wrapper_class = oval.EntityObjectStringType

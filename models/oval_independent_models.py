@@ -20131,7 +20131,7 @@ class EntityObjectVariableRefType(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = EntityObjectStringType
-    def __init__(self, datatype='string', operation='equals', mask=False, var_ref=None, var_check=None, valueOf_=None, gds_collector_=None, **kwargs_):
+    def __init__(self, datatype='string', operation='equals', mask=False, var_ref=None, var_check=None, valueOf_=None, var_ref_=None, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -20139,6 +20139,8 @@ class EntityObjectVariableRefType(GeneratedsSuper):
         self.ns_prefix_ = "ind-def"
         super(globals().get("EntityObjectVariableRefType"), self).__init__(datatype, operation, mask, var_ref, var_check, valueOf_,  **kwargs_)
         self.valueOf_ = valueOf_
+        self.var_ref_ = var_ref_
+        self.var_ref__ns_prefix = "oval-def"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -20156,6 +20158,10 @@ class EntityObjectVariableRefType(GeneratedsSuper):
         self.ns_prefix_ = ns_prefix
     def get_valueOf_(self): return self.valueOf_
     def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
+    def get_var_ref_(self):
+        self.var_ref_ = var_ref_
+    def set_var_ref_(self, var_ref_):
+        self.var_ref_ = var_ref_
     def validate_EntityObjectStringType(self, value):
         result = True
         # Validate type EntityObjectStringType, a restriction on xsd:string.
@@ -20164,6 +20170,7 @@ class EntityObjectVariableRefType(GeneratedsSuper):
     def has__content(self):
         if (
             (1 if type(self.valueOf_) in [int,float] else self.valueOf_) or
+            self.var_ref_ is not None or
             super(EntityObjectVariableRefType, self).has__content()
         ):
             return True
@@ -20193,7 +20200,14 @@ class EntityObjectVariableRefType(GeneratedsSuper):
         super(EntityObjectVariableRefType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='EntityObjectVariableRefType')
     def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:ind-def="http://oval.mitre.org/XMLSchema/oval-definitions-5#independent"', name_='EntityObjectVariableRefType', fromsubclass_=False, pretty_print=True):
         super(EntityObjectVariableRefType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
-        pass
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''        
+        if self.var_ref_ is not None:
+            namespaceprefix_ = self.var_ref__nsprefix_ + ':' if (UseCapturedNS_ and self.var_ref__nsprefix_) else ''
+            self.var_ref_.export(outfile, level, self.ns_prefix_, name_='var_ref', pretty_print=pretty_print)
+        #pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
         if SaveElementTreeNode:
@@ -21484,7 +21498,7 @@ class variable_object(ObjectType):
     __hash__ = GeneratedsSuper.__hash__
     subclass = None
     superclass = ObjectType
-    def __init__(self, id=None, version=None, comment=None, deprecated=False, Signature=None, notes=None, set_=None, var_ref=None, filter=None, gds_collector_=None, **kwargs_):
+    def __init__(self, id=None, version=None, comment=None, deprecated=False, Signature=None, notes=None, set_=None, var_ref_=None, filter=None, gds_collector_=None, **kwargs_):
         self.gds_collector_ = gds_collector_
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
@@ -21493,8 +21507,8 @@ class variable_object(ObjectType):
         super(globals().get("variable_object"), self).__init__(id, version, comment, deprecated, Signature, notes,  **kwargs_)
         self.set_ = set_
         self.set__nsprefix_ = "oval-def"
-        self.var_ref = var_ref
-        self.var_ref_nsprefix_ = "ind-def"
+        self.var_ref_ = var_ref_
+        self.var_ref__nsprefix_ = "ind-def"
         if filter is None:
             self.filter = []
         else:
@@ -21519,10 +21533,10 @@ class variable_object(ObjectType):
         return self.set_
     def set_set(self, set_):
         self.set_ = set_
-    def get_var_ref(self):
-        return self.var_ref
-    def set_var_ref(self, var_ref):
-        self.var_ref = var_ref
+    def get_var_ref_(self):
+        return self.var_ref_
+    def set_var_ref_(self, var_ref_):
+        self.var_ref_ = var_ref_
     def get_filter(self):
         return self.filter
     def set_filter(self, filter):
@@ -21536,7 +21550,7 @@ class variable_object(ObjectType):
     def has__content(self):
         if (
             self.set_ is not None or
-            self.var_ref is not None or
+            self.var_ref_ is not None or
             self.filter or
             super(variable_object, self).has__content()
         ):
@@ -21577,9 +21591,9 @@ class variable_object(ObjectType):
         if self.set_ is not None:
             namespaceprefix_ = self.set__nsprefix_ + ':' if (UseCapturedNS_ and self.set__nsprefix_) else ''
             self.set_.export(outfile, level, namespaceprefix_='oval-def:', namespacedef_='', name_='set', pretty_print=pretty_print)
-        if self.var_ref is not None:
-            namespaceprefix_ = self.var_ref_nsprefix_ + ':' if (UseCapturedNS_ and self.var_ref_nsprefix_) else ''
-            self.var_ref.export(outfile, level, namespaceprefix_, namespacedef_='', name_='var_ref', pretty_print=pretty_print)
+        if self.var_ref_ is not None:
+            namespaceprefix_ = self.var_ref__nsprefix_ + ':' if (UseCapturedNS_ and self.var_ref__nsprefix_) else ''
+            self.var_ref_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='var_ref', pretty_print=pretty_print)
         for filter_ in self.filter:
             namespaceprefix_ = self.filter_nsprefix_ + ':' if (UseCapturedNS_ and self.filter_nsprefix_) else ''
             filter_.export(outfile, level, namespaceprefix_='oval-def:', namespacedef_='', name_='filter', pretty_print=pretty_print)

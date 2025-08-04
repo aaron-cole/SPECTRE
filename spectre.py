@@ -2636,13 +2636,15 @@ class XccdfEditorApp:
                 ttk.Label(val_frame, text="Value:").pack(side=tk.LEFT)
                 engine_options = ['access',  'db2',  'cache',  'firebird',  'firstsql',  'foxpro',  'informix',  'ingres',  'interbase',  'lightbase',  'maxdb',  'monetdb',  'mimer',  'mysql',  'oracle',  'paradox',  'pervasive',  'postgre',  'sqlbase',  'sqlite',  'sqlserver',  'sybase']
                 ttk.Combobox(val_frame, textvariable=val_var, values=engine_options, state="readonly").pack(side=tk.LEFT, fill=tk.X, expand=True)
+            elif prop_name == 'var_ref_':
+                ttk.Label(val_frame, text="Value:").pack(side=tk.LEFT)
+                var_ids = self.get_oval_variable_ids(specific_oval_defs=self.current_oval_defs)
+                ttk.Combobox(val_frame, textvariable=val_var, values=var_ids, state="readonly").pack(side=tk.LEFT, fill=tk.X, expand=True)
             else:    
                 ttk.Label(val_frame, text="Value:").pack(side=tk.LEFT)
                 ttk.Entry(val_frame, textvariable=val_var).pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-        
+    
             attr_frame = ttk.Frame(prop_container, padding=(0, 5))
-            #attr_frame.pack(fill=tk.X, expand=True)
 
             show_attrs_var = tk.BooleanVar()
             
