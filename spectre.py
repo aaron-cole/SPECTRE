@@ -8,16 +8,68 @@ import io
 import re
 
 # Import the entire models package.
-from models import (
-    datastream_models,
-    xccdf_models,
-    cpe_dictionary_models,
-    oval # Import our unified oval module
-)
-
-from models import oval_helper
+import scap_unified_model as models
 
 class XccdfEditorApp:
+
+    # A map defining the expected datatype for known OVAL properties.
+    OVAL_PROPERTY_DATATYPE_MAP = {
+        #Integers
+        'a_time': 'int', 'chg_allow': 'int', 'chg_lst': 'int', 'chg_req': 'int', 'c_time': 'int', 'exp_date': 'int', 'exp_inact': 'int',
+        'exp_warn': 'int', 'group_id': 'int', 'instance': 'int', 'last_login': 'int', 'local_port': 'int', 'loginuid': 'int', 'mod_time': 'int',
+        'm_time': 'int', 'pid': 'int', 'port': 'int', 'ppid': 'int', 'priority': 'int', 'ruid': 'int', 'session_id': 'int', 'size': 'int',
+        'space_left': 'int', 'space_used': 'int', 'total_space': 'int', 'ttl': 'int', 'user_id': 'int', 
+        
+        #Strings
+        'arch': 'string', 'architecture': 'string', 'attribute_name': 'string', 'canonical_path': 'string', 'command_line': 'string',
+        'connection_string': 'string', 'dependency': 'string', 'device': 'string', 'domain_name': 'string', 'exec_as_user': 'string',
+        'exec_time': 'string', 'extended_name': 'string', 'filename': 'string', 'filepath': 'string', 'flag': 'string', 'fs_type': 'string',
+        'gcos': 'string', 'hardware_addr': 'string', 'hash': 'string', 'high_category': 'string', 'high_sensitivity': 'string', 'home_dir': 'string',
+        'hw_address': 'string', 'interface_name': 'string', 'key': 'string', 'login_shell': 'string', 'low_category': 'string', 
+        'low_sensitivity': 'string', 'machine_class': 'string', 'mod_user': 'string', 'mount_options': 'string', 'mount_point': 'string',
+        'name': 'string', 'no_access': 'string', 'node_name': 'string', 'os_name': 'string', 'os_release': 'string', 'os_version': 'string',
+        'password': 'string', 'path': 'string', 'pattern': 'string', 'processor_type': 'string', 'program_name': 'string', 'property': 'string',
+        'protocol': 'string', 'rawhigh_category': 'string', 'rawhigh_sensitivity': 'string', 'rawlow_category': 'string', 'rawlow_sensitivity': 'string',
+        'revision': 'string', 'role': 'string', 'runlevel': 'string', 'scheduling_class': 'string', 'selinux_domain_label': 'string', 'server': 'string',
+        'server_arguments': 'string', 'server_program': 'string', 'service_name': 'string', 'signature_keyid': 'string', 'socket_type': 'string',
+        'source': 'string', 'sql': 'string', 'start_time': 'string', 'tty': 'string', 'unit': 'string', 'user': 'string', 'username': 'string', 
+        'uuid': 'string', 'xpath': 'string', 
+        
+        
+        'version': 'version',
+        
+        'hash_type': 'string',
+
+        #Booleans
+        'configuration_file': 'boolean', 'current_status': 'boolean', 'dependency_check_passed': 'boolean', 'digest_check_passed': 'boolean',
+        'disabled': 'boolean', 'documentation_file': 'boolean', 'exec_shield': 'boolean', 'gexec': 'boolean', 'ghost_file': 'boolean', 'gread': 'boolean',
+        'gwrite': 'boolean', 'has_extended_acl': 'boolean', 'is_default': 'boolean', 'is_writable': 'boolean', 'kill': 'boolean', 'license_file': 'boolean',
+        'oexec': 'boolean', 'oread': 'boolean', 'owrite': 'boolean', 'pending_status': 'boolean', 'readme_file': 'boolean', 'sgid': 'boolean',
+        'signature_check_passed': 'boolean', 'start': 'boolean', 'sticky': 'boolean', 'suid': 'boolean', 'uexec': 'boolean', 'uread': 'boolean',
+        'uwrite': 'boolean', 'verification_script_successful': 'boolean', 'wait': 'boolean',    
+
+    }
+
+    # A set of complex OVAL properties that should be excluded from the simple property selector.
+    EXCLUDED_OVAL_PROPERTIES = {
+        'set_', 'Signature', 'deprecated', 'notes', 'operator', 'version', 'comment', 
+    }
+
+    # --- A set of OVAL entity class names that are deprecated and should not be shown in the UI.
+    DEPRECATED_OVAL_ENTITIES = {
+        'family_test', 'family_object', 'family_state',
+        'filehash_test', 'filehash_object', 'filehash_state',
+        'sql_test', 'sql_object', 'sql_state',
+        #Oval >5.11.2    'sql57_test', 'sql57_object', 'sql57_state',
+        'ldap_test', 'ldap_object', 'ldap_state',
+        'ldap57_test', 'ldap57_object', 'ldap57_state',
+        'textfilecontent_test', 'textfilecontent_object', 'textfilecontent_state',
+        'environmentvariable_test', 'environmentvariable_object', 'environmentvariable_state',
+        'patch_test', 'patch_object',
+        'process_test', 'process_object', 'process_state',
+        'sccs_test', 'sccs_object', 'sccs_state',
+        'apparmorstatus_test', 'apparmorstatus_object', 'apparmorstatus_state',
+    }
 
 ##--  [ Initialization and Core UI ]---
     def __init__(self, root):
@@ -29,52 +81,80 @@ class XccdfEditorApp:
         self.datastream_collection = None
         self.prefix = None  
         self.current_oval_defs = None
-        self.item_map = {}
-        self.cpe_item_map = {}
-        self.oval_definition_map = {}
-        self.oval_criteria_map = {}
-        self.oval_tests_map = {}
-        self.oval_objects_map = {}
-        self.oval_states_map = {}
-        self.oval_variables_map = {}
         self.right_clicked_item_data = None
         self.platforms_tree = None
         self.logical_test_editor_frame = None
         self.fact_refs_tree = None
         self.selected_platform_obj = None
-        self.oval_factory = oval_helper.OVAL_Entity_Factory()
+        self.is_dirty = False
+        self.oval_schema_location = self._build_oval_schema_location_string()
+        
+        self._reset_state_maps()
         
         # --- create the UI ---
         self.create_widgets()
 
+    def _reset_state_maps(self):
+        """Helper to initialize or reset all state-tracking dictionaries."""
+        self.maps = {
+            'item': {}, 'cpe_item': {}, 'oval_definition': {},
+            'oval_criteria': {}, 'oval_test': {}, 'oval_object': {},
+            'oval_state': {}, 'oval_variable': {}
+        }
+        
+    def _build_oval_schema_location_string(self):
+        """
+        Dynamically builds the full xsi:schemaLocation string for OVAL
+        by inspecting the generated model for component schemas.
+        """
+        locations = [
+            'http://oval.mitre.org/XMLSchema/oval-definitions-5 http://oval.mitre.org/XMLSchema/oval-definitions-5.11.2/oval-definitions-schema.xsd',
+            'http://oval.mitre.org/XMLSchema/oval-common-5 http://oval.mitre.org/XMLSchema/oval-common-5.11.2/oval-common-schema.xsd'
+        ]
+        
+        known_locations = {
+            'independent': 'http://oval.mitre.org/XMLSchema/oval-definitions-5#independent http://oval.mitre.org/XMLSchema/oval-definitions-5.11.2/components/oval-definitions-component-independent.xsd',
+            'unix': 'http://oval.mitre.org/XMLSchema/oval-definitions-5#unix http://oval.mitre.org/XMLSchema/oval-definitions-5.11.2/components/oval-definitions-component-unix.xsd',
+            'linux': 'http://oval.mitre.org/XMLSchema/oval-definitions-5#linux http://oval.mitre.org/XMLSchema/oval-definitions-5.11.2/components/oval-definitions-component-linux.xsd',
+            'solaris': 'http://oval.mitre.org/XMLSchema/oval-definitions-5#solaris http://oval.mitre.org/XMLSchema/oval-definitions-5.11.2/components/oval-definitions-component-solaris.xsd',
+        }
+
+        # Check which component types exist in the unified model
+        for name, location in known_locations.items():
+            if hasattr(models, f"{name}_object"): # Use the 'models' alias here
+                locations.append(location)
+                
+        return ' '.join(locations)
+        
     def create_widgets(self):
         # --- Create Menubar ---
         self.menu = tk.Menu(self.root)
         self.root.config(menu=self.menu)
 
-        # --- File Menu ---
+        # --- File Menu (Main) ---
         self.file_menu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(label="Save Datastream As...", command=self.save_file, state=tk.DISABLED)
+        self.file_menu.add_command(label="New Datastream...", command=self.new_file)
+        self.file_menu.add_command(label="Open Datastream...", command=self.open_file)
+        self.file_menu.add_command(label="Close Datastream", command=self.close_file)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Save Datastream As...", command=self.save_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.root.quit)
 
-        # --- Create Menu ---
-        create_menu = tk.Menu(self.menu, tearoff=0)
-        self.menu.add_cascade(label="Create", menu=create_menu)
-        create_menu.add_command(label="New Datastream", command=self.new_file)
-        create_menu.add_separator()
-        create_menu.add_command(label="New XCCDF Component", command=self.new_xccdf_component, state=tk.DISABLED)
-        create_menu.add_command(label="New CPE Dictionary Component", command=self.new_cpe_dictionary, state=tk.DISABLED)
-        create_menu.add_command(label="New OVAL Check Component", command=lambda: self.new_oval_component("checks"), state=tk.DISABLED)
-        create_menu.add_command(label="New CPE OVAL Component", command=lambda: self.new_oval_component("dictionaries"), state=tk.DISABLED)
-  
-        # --- Import Menu ---
-        import_menu = tk.Menu(self.menu, tearoff=0)
-        self.menu.add_cascade(label="Import", menu=import_menu)
-        import_menu.add_command(label="CPE Dictionary...", command=self.import_cpe_dictionary, state=tk.DISABLED)
-        import_menu.add_command(label="OVAL Check Component...", command=lambda: self._import_oval_file("OVAL Check", "checks"), state=tk.DISABLED)
-        import_menu.add_command(label="CPE OVAL Component...", command=lambda: self._import_oval_file("CPE OVAL", "dictionaries"), state=tk.DISABLED)
+        # --- Create Menu (now a submenu of File) ---
+        self.create_menu = tk.Menu(self.file_menu, tearoff=0)
+        self.file_menu.add_cascade(label="Create Component", menu=self.create_menu)
+        self.create_menu.add_command(label="New XCCDF Component", command=self.new_xccdf_component)
+        self.create_menu.add_command(label="New CPE Dictionary", command=self.new_cpe_dictionary)
+        self.create_menu.add_command(label="New OVAL Check Component", command=lambda: self.new_oval_component("checks"))
+        self.create_menu.add_command(label="New CPE OVAL Component", command=lambda: self.new_oval_component("dictionaries"))
+
+        # --- Import Menu (now a submenu of File) ---
+        self.import_menu = tk.Menu(self.file_menu, tearoff=0)
+        self.file_menu.add_cascade(label="Import Component", menu=self.import_menu)
+        self.import_menu.add_command(label="CPE Dictionary...", command=self.import_cpe_dictionary)
+        # ... (other import commands)
 
         # --- Main layout ---
         paned_window = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
@@ -94,89 +174,130 @@ class XccdfEditorApp:
         self.tree.bind("<<TreeviewSelect>>", self.on_tree_select)
         self.tree.bind("<Button-3>", self.show_context_menu)
         
-        # --- Initialize context menu and welcome message ---
+        # --- Initialize UI State ---
         self.create_context_menu()
-        self.show_welcome_message()        
-                        
-##--  [ Top-Level Menu Commands (File/Import) ]---
+        self.show_welcome_message()
+        self._update_contextual_menus() # Call the new helper       
+
+    def _update_contextual_menus(self):
+        """Enables or disables menu items based on whether a datastream is loaded."""
+        state = tk.NORMAL if self.datastream_collection else tk.DISABLED
+        
+        # File Menu
+        self.file_menu.entryconfig("Close Datastream", state=state)
+        self.file_menu.entryconfig("Save Datastream As...", state=state)
+        self.file_menu.entryconfig("Create Component", state=state)
+        self.file_menu.entryconfig("Import Component", state=state)
+
+       
+##--  [ Top-Level Menu Commands ]---
+    def _mark_as_dirty(self):
+        """Sets the dirty flag and updates the title bar to indicate unsaved changes."""
+        if not self.is_dirty:
+            self.is_dirty = True
+            self.root.title(self.root.title() + " *")
+
+    def _create_linked_component_ref(self, ds, ref_type, comp_id, comp_cref_id, cat_uri, cat_cref_id):
+        """Creates and adds a component-ref with a nested catalog."""
+        # Get the correct list from the datastream (e.g., checklists, dictionaries)
+        list_getter = getattr(ds, f"get_{ref_type}")
+        list_setter = getattr(ds, f"set_{ref_type}")
+        
+        ref_list = list_getter()
+        if ref_list is None:
+            ref_list = models.refListType()
+            list_setter(ref_list)
+            
+        # Create the component-ref and its nested catalog/uri
+        comp_ref = models.component_ref(id=comp_cref_id, href=f"#{comp_id}")
+        catalog_uri = models.uri(name=cat_uri, uri=f"#{cat_cref_id}")
+        comp_ref.set_catalog(models.catalog(uri=[catalog_uri]))
+        
+        ref_list.add_component_ref(comp_ref)
+        
     def new_file(self):
         prefix = simpledialog.askstring("New Datastream", "Enter a unique source prefix (no underscores):", parent=self.root)
-        
         if not prefix or '_' in prefix:
             messagebox.showerror("Invalid Prefix", "The prefix cannot be empty or contain underscores.")
             return
-            
         self.prefix = prefix
         
+        # --- 1. Create the main datastream collection and stream objects ---
         collection_id = f"scap_{self.prefix}_collection_from_SPECTRE.xml"
         datastream_id = f"scap_{self.prefix}_datastream_from_SPECTRE.xml"
 
-        data_stream = datastream_models.data_stream(
+        data_stream = models.data_stream(
             id=datastream_id,
             scap_version="1.3",
-            use_case="OTHER",
-            timestamp=datetime.now()
+            use_case="CONFIGURATION", # Changed back to the correct default
+            timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         )
-        self.datastream_collection = datastream_models.data_stream_collection(
+        self.datastream_collection = models.data_stream_collection(
             id=collection_id,
             schematron_version="1.3",
             data_stream=[data_stream]
         )
+        ds = self.datastream_collection.get_data_stream()[0]
         
-        # --- Create components and get their IDs
+        # --- 2. Create all the base components ---
         cpe_comp_id, cpe_cref_id = self.new_cpe_dictionary()
         xccdf_comp_id, xccdf_cref_id = self.new_xccdf_component()
         oval_check_comp_id, oval_check_cref_id = self.new_oval_component("checks")
         cpe_oval_comp_id, cpe_oval_cref_id = self.new_oval_component("dictionaries")
+
+        # --- 3. Create the linked references using the new helper ---
+        self._create_linked_component_ref(
+            ds, 'checklists', xccdf_comp_id, xccdf_cref_id,
+            f"{self.prefix.replace('.', '-')}-collection-oval.xml", oval_check_cref_id
+        )
+        self._create_linked_component_ref(
+            ds, 'dictionaries', cpe_comp_id, cpe_cref_id,
+            f"{self.prefix.replace('.', '-')}-collection-cpe-oval.xml", cpe_oval_cref_id
+        )
         
-        ds = self.datastream_collection.get_data_stream()[0]
-
-        # --- Manually create the single, linked component-ref for checklists ---
-        if xccdf_comp_id and oval_check_comp_id and xccdf_cref_id: 
-            if ds.get_checklists() is None: ds.set_checklists(datastream_models.refListType())
-            check_ref_id = f"{self.prefix.replace('.', '-')}-collection-oval.xml"
-            checklist_comp_ref = datastream_models.component_ref(id=xccdf_cref_id, href=f"#{xccdf_comp_id}")
-            checklist_catalog_uri = datastream_models.uri(name=check_ref_id, uri_member=f"#{oval_check_cref_id}")
-            checklist_comp_ref.set_catalog(datastream_models.catalog(uri=[checklist_catalog_uri]))
-            ds.get_checklists().add_component_ref(checklist_comp_ref)
-            
-        # --- Manually create the single, linked component-ref for dictionaries
-        if cpe_comp_id and cpe_oval_comp_id:
-            ds = self.datastream_collection.get_data_stream()[0]
-            if ds.get_dictionaries() is None:
-                ds.set_dictionaries(datastream_models.refListType())
-
-            ref_id = f"{self.prefix.replace('.', '-')}-collection-cpe-oval.xml"
-            # --- The component-ref points to the CPE dictionary component
-            comp_ref = datastream_models.component_ref(id=cpe_cref_id, href=f"#{cpe_comp_id}")
-            # --- The catalog within it points to the CPE OVAL component
-            catalog_uri = datastream_models.uri(name=ref_id, uri_member=f"#{cpe_oval_cref_id}")
-            comp_ref.set_catalog(datastream_models.catalog(uri=[catalog_uri]))            
-            ds.get_dictionaries().add_component_ref(comp_ref)
-
-        # --- Populate the <checks> list with simple refs to all OVAL components.
-        if ds.get_checks() is None:
-            ds.set_checks(datastream_models.refListType())
-
-        # --- Create and add the simple ref for the OVAL Check component
+        # --- 4. Populate the <checks> list with simple references ---
+        ds.set_checks(models.refListType())
         if oval_check_comp_id:
-            oval_check_ref_id = f"scap_{self.prefix}_cref_SPECTRE-oval-check.xml"
-            oval_check_ref = self._create_component_ref(
-                oval_check_ref_id, f"#{oval_check_comp_id}", create_catalog=False
-            )
+            oval_check_ref = self._create_component_ref(oval_check_cref_id, f"#{oval_check_comp_id}", create_catalog=False)
             ds.get_checks().add_component_ref(oval_check_ref)
-        
-        # --- Create and add the simple ref for the CPE OVAL component
         if cpe_oval_comp_id:
-            cpe_oval_check_ref_id = f"scap_{self.prefix}_cref_SPECTRE-cpe-oval-check.xml"
-            cpe_oval_check_ref = self._create_component_ref(
-                cpe_oval_check_ref_id, f"#{cpe_oval_comp_id}", create_catalog=False
-            )
-            ds.get_checks().add_component_ref(cpe_oval_check_ref)
+            cpe_oval_ref = self._create_component_ref(cpe_oval_cref_id, f"#{cpe_oval_comp_id}", create_catalog=False)
+            ds.get_checks().add_component_ref(cpe_oval_ref)
 
-        self.populate_treeview() # Refresh the tree once all components are created and linked
-        self.file_menu.entryconfig("Save Datastream As...", state=tk.NORMAL)
+        # --- 5. Finalize UI ---
+        self.populate_treeview()
+        self._update_contextual_menus()
+        self.is_dirty = False
+        self.root.title("SPECTRE")
 
+    def close_file(self):
+        """Closes the current datastream and resets the application state."""
+        if not self.datastream_collection:
+            return # Do nothing if no file is open
+
+        if self.is_dirty:
+            if not messagebox.askyesno("Unsaved Changes", "You have unsaved changes that will be lost. Do you want to close anyway?"):
+                return
+        
+        # Reset all data and state variables
+        self.datastream_collection = None
+        self.prefix = None
+        self.current_oval_defs = None
+        self._reset_state_maps()
+
+        # Clear the UI
+        for i in self.tree.get_children():
+            self.tree.delete(i)
+        
+        for widget in self.detail_frame.winfo_children():
+            widget.destroy()
+        
+        # Reset the UI to its welcome state
+        self.is_dirty = False # Reset flag
+        self.root.title("SPECTRE") # Reset title
+        self.show_welcome_message()
+        self._update_contextual_menus()
+ 
     def save_file(self):
         if not self.datastream_collection:
             messagebox.showwarning("No Data", "There is nothing to save.")
@@ -191,18 +312,19 @@ class XccdfEditorApp:
             return
 
         try:
-            # 2. Export to an in-memory buffer to allow for post-processing.
             xml_buffer = io.StringIO()
 
-            # 3. Define all namespaces and the main schemaLocation for the root element.
+            # 1. Define the schemaLocation for the ROOT element
             root_schema_location = (
                 'http://scap.nist.gov/schema/scap/source/1.2 http://scap.nist.gov/schema/scap/1.2/scap-source-data-stream_1.2.xsd '
                 'http://checklists.nist.gov/xccdf/1.2 http://csrc.nist.gov/publications/nistir/7275/SP800-70-2/xccdf-1.2.xsd '
                 'http://cpe.mitre.org/dictionary/2.0 http://cpe.mitre.org/files/cpe-dictionary_2.3.xsd'
             )
+            
+            # 2. Define ALL namespaces, including the schemaLocation
             ns_definitions = (
                 'xmlns:ds="http://scap.nist.gov/schema/scap/source/1.2" '
-                'xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" '
+                'xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" '
                 'xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0" '
                 'xmlns:cpe-lang="http://cpe.mitre.org/language/2.0" '
                 'xmlns:html="http://www.w3.org/1999/xhtml" '
@@ -215,13 +337,12 @@ class XccdfEditorApp:
                 'xmlns:linux-def="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux" '
                 'xmlns:sol-def="http://oval.mitre.org/XMLSchema/oval-definitions-5#solaris" '
                 'xmlns:xlink="http://www.w3.org/1999/xlink" '
-                'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
                 'xmlns:cat="urn:oasis:names:tc:entity:xmlns:xml:catalog" '
                 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-                #f'xsi:schemaLocation="{root_schema_location}"'
+##                f'xsi:schemaLocation="{root_schema_location}"'
             )
 
-            # 4. Call export with the correct, separated name and prefix arguments.
+            # 3. Export to the in-memory buffer
             self.datastream_collection.export(
                 xml_buffer, 0,
                 pretty_print=True,
@@ -231,14 +352,17 @@ class XccdfEditorApp:
             )
             xml_content = xml_buffer.getvalue()
             
-            # 6. Post-Processing Step B: Inject OVAL's own schemaLocation.
-            oval_schema_location = oval.OVAL_SCHEMA_LOCATION
-            
-            # Find the first <oval-def:oval_definitions> tag and insert the attribute.
-            correct_opening_tag = f'<oval-def:oval_definitions xsi:schemaLocation="{oval_schema_location}">'
+            # 4. Post-Processing: Inject OVAL's own schemaLocation
+            correct_opening_tag = f'<oval-def:oval_definitions xsi:schemaLocation="{self.oval_schema_location}">'
+##            prefixes_to_check = list(set(models.OVAL_PREFIX_MAP.values())) + ['oval-def']
+##            for prefix in prefixes_to_check:
+##                incorrect_opening_tag = f'<{prefix}:oval_definitions>'
+##                if incorrect_opening_tag in xml_content:
+##                    xml_content = xml_content.replace(incorrect_opening_tag, correct_opening_tag, 1)
+##                    break            
             correct_closing_tag = '</oval-def:oval_definitions>'
 
-            # 7. Write the final, corrected string to the file.
+            # 5. Write the final, corrected string to the file
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
                 f.write(xml_content)
@@ -246,125 +370,105 @@ class XccdfEditorApp:
         except Exception as e:
             messagebox.showerror("Save Error", f"Failed to save file: {e}")
 
-            
-    def _import_oval_file(self, component_type_str, ref_list_name):
-        if not self.datastream_collection:
-            messagebox.showwarning("No Datastream", "Please create a new datastream first.")
-            return
-
-        oval_path = filedialog.askopenfilename(
-            title=f"Import {component_type_str} File",
+        self._update_contextual_menus()
+        self.is_dirty = False
+        self.root.title("SPECTRE")
+        
+    def open_file(self):
+        """Opens and parses an existing SCAP datastream collection file."""
+        file_path = filedialog.askopenfilename(
+            title="Open SCAP Datastream Collection",
             filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
         )
-        if not oval_path:
+        if not file_path:
             return
 
         try:
-            parsed_oval_defs = oval.parse(oval_path, silence=True)
+            # --- Use our new, robust manual parser ---
+            #self.datastream_collection = self._manual_parse_datastream(file_path)
+            self.datastream_collection = models.parse(file_path)
             
-            comp_id = f"comp_oval_{uuid.uuid4()}"
-            oval_component = datastream_models.component(
-                id=comp_id,
-                timestamp=datetime.now(),
-                oval_definitions=parsed_oval_defs
-            )
-            
-            self.datastream_collection.add_component(oval_component)
-            comp_ref = self._create_component_ref(f"cref_oval_{uuid.uuid4()}", f"#{comp_id}")
-            ds = self.datastream_collection.get_data_stream()[0]
-            
-            ref_list_obj = getattr(ds, f"get_{ref_list_name}")()
-            if ref_list_obj is None:
-                ref_list_obj = datastream_models.refListType()
-                getattr(ds, f"set_{ref_list_name}")(ref_list_obj)
-            
-            ref_list_obj.add_component_ref(comp_ref)
+            if self.datastream_collection.get_id():
+                parts = self.datastream_collection.get_id().split('_')
+                if len(parts) > 1:
+                    self.prefix = parts[1]
 
             self.populate_treeview()
-            messagebox.showinfo("Success", f"{component_type_str} component added.")
+            self.file_menu.entryconfig("Save Datastream As...", state=tk.NORMAL)
+            messagebox.showinfo("Success", f"Successfully opened {file_path}")
 
         except Exception as e:
-            messagebox.showerror("Import Error", f"Failed to import OVAL file:\n{e}")
+            messagebox.showerror("Open Error", f"Failed to open or parse file:\n{e}")
 
-    def import_cpe_dictionary(self):
-        if not self.datastream_collection:
-            messagebox.showwarning("No Datastream", "Please create a new datastream first.")
-            return
+        self._update_contextual_menus()
+        self.is_dirty = False
+        self.root.title("SPECTRE")
+        
+    def _manual_parse_datastream(self, file_path):
+        """
+        Manually parses a datastream XML file to correctly build the object tree,
+        bypassing the broken generateDS parser for complex components.
+        """
+        from lxml import etree
 
-        # --- Add this check to prevent importing a second dictionary
-        if self.get_cpe_dictionary() is not None:
-            messagebox.showwarning("Exists", "A CPE Dictionary component already exists in this datastream.")
-            return
+        # Define the namespaces to make the XML searches easier
+        ns = {
+            'ds': 'http://scap.nist.gov/schema/scap/source/1.2',
+            'cdf': 'http://checklists.nist.gov/xccdf/1.2',
+            'cpe-dict': 'http://cpe.mitre.org/dictionary/2.0',
+            'oval-def': 'http://oval.mitre.org/XMLSchema/oval-definitions-5'
+        }
 
-        cpe_path = filedialog.askopenfilename(
-            title="Import CPE Dictionary File",
-            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        # Parse the file with a trusted library
+        tree = etree.parse(file_path)
+        root = tree.getroot()
+        
+        # Manually create the main collection object from the root attributes
+        collection = models.data_stream_collection(
+            id=root.attrib.get('id'),
+            schematron_version=root.attrib.get('schematron-version')
         )
-        if not cpe_path:
-            return
 
-        try:
-            parsed_cpe_list = cpe_dictionary_models.parse(cpe_path, silence=True)
-            
-            comp_id = f"comp_cpe_{uuid.uuid4()}"
-            cpe_component = datastream_models.component(
-                id=comp_id,
-                timestamp=datetime.now(),
-                cpe_list=parsed_cpe_list
+        # Manually find and build the data-stream element(s)
+        for ds_node in root.findall('ds:data-stream', ns):
+            # Use the model's parseString to build the simple parts of data-stream
+            ds = models.parseString(etree.tostring(ds_node), silence=True)
+            collection.add_data_stream(ds)
+
+        # Manually find and build each component
+        for comp_node in root.findall('ds:component', ns):
+            # Create a generic component to hold the data
+            component = models.component(
+                id=comp_node.attrib.get('id'),
+                timestamp=comp_node.attrib.get('timestamp')
             )
             
-            self.datastream_collection.add_component(cpe_component)
-            comp_ref = self._create_component_ref(f"cref_cpe_{uuid.uuid4()}", f"#{comp_id}")
-            ds = self.datastream_collection.get_data_stream()[0]
-            if ds.get_dictionaries() is None:
-                ds.set_dictionaries(datastream_models.refListType())
-            ds.get_dictionaries().add_component_ref(comp_ref)
+            # Now, look inside the component to find out what it really is
+            benchmark_node = comp_node.find('cdf:Benchmark', ns)
+            cpe_list_node = comp_node.find('cpe-dict:cpe-list', ns)
+            oval_defs_node = comp_node.find('oval-def:oval_definitions', ns)
 
-            self.populate_treeview()
-            messagebox.showinfo("Success", "CPE Dictionary component added.")
+            if benchmark_node is not None:
+                # Use the XCCDF model's parser to build the Benchmark
+                benchmark_obj = models.parseString(etree.tostring(benchmark_node), silence=True)
+                component.set_Benchmark(benchmark_obj)
+            
+            elif cpe_list_node is not None:
+                cpe_list_obj = models.parseString(etree.tostring(cpe_list_node), silence=True)
+                component.set_cpe_list(cpe_list_obj)
 
-        except Exception as e:
-            messagebox.showerror("Import Error", f"Failed to import CPE dictionary:\n{e}")
+            elif oval_defs_node is not None:
+                # Use our unified OVAL parser to build the oval_definitions
+                # This is the key that makes the OVAL import work correctly
+                oval_defs_obj = models.parseString(etree.tostring(oval_defs_node), silence=True)
+                component.set_oval_definitions(oval_defs_obj)
 
-    def import_oval_component(self):
-        self._import_oval_file("OVAL Check", "checks")
-    
-    def import_cpe_oval(self):
-        self._import_oval_file("CPE OVAL", "dictionaries")
+            collection.add_component(component)
+        
+        return collection
+
 
 ##--  [ Core Component Creators ]---
-    def new_xccdf_component(self):
-        if not self.datastream_collection:
-            messagebox.showwarning("No Datastream", "Please create a new datastream first.")
-            return
-        if self.get_benchmark() is not None:
-            messagebox.showwarning("Exists", "An XCCDF Benchmark component already exists in this datastream.")
-            return
-        
-        benchmark = xccdf_models.Benchmark(id=f"xccdf_benchmark_{uuid.uuid4()}")
-        benchmark.set_title([xccdf_models.textWithSubType(valueOf_='New Security Benchmark')])
-        benchmark.status = [xccdf_models.status(valueOf_='incomplete', date=datetime.now().strftime('%Y-%m-%d'))]
-        benchmark.description = [xccdf_models.htmlTextWithSubType(valueOf_='A new benchmark description.')]
-        benchmark.version = xccdf_models.versionType(valueOf_='1.0.0')
-        benchmark.metadata = [xccdf_models.metadataType()]
-        new_group = xccdf_models.groupType(id="G-1", title=[xccdf_models.textWithSubType(valueOf_='Default Group')])
-        new_group.description = [xccdf_models.htmlTextWithSubType(valueOf_='')]
-        new_rule = xccdf_models.ruleType(id="R-1", severity="unknown", title=[xccdf_models.textWithSubType(valueOf_='Default Rule')])
-        new_rule.description = [xccdf_models.htmlTextWithSubType(valueOf_='')]
-        new_group.Rule.append(new_rule)
-        benchmark.Group.append(new_group)
-        
-        comp_id = f"scap_{self.prefix}_comp_SPECTRE-xccdf.xml"
-        cref_id = f"scap_{self.prefix}_cref_SPECTRE-xccdf.xml"
-        xccdf_component = datastream_models.component(
-            id=comp_id,
-            timestamp=datetime.now(),
-            Benchmark=benchmark
-        )
-        self.datastream_collection.add_component(xccdf_component)
-        
-        return comp_id, cref_id
-
     def new_cpe_dictionary(self):
         if not self.datastream_collection:
             messagebox.showwarning("No Datastream", "Please create a new datastream first.")
@@ -374,142 +478,216 @@ class XccdfEditorApp:
             messagebox.showwarning("Exists", "A CPE Dictionary component already exists in this datastream.")
             return None # Return None on failure
         
-        new_cpe_list = cpe_dictionary_models.ListType()
+        new_cpe_list = models.ListType()
         comp_id = f"scap_{self.prefix}_comp_SPECTRE-cpe-dictionary.xml"
         cref_id = f"scap_{self.prefix}_cref_SPECTRE-cpe-dictionary.xml"
-        cpe_component = datastream_models.component(
+        cpe_component = models.component(
             id=comp_id,
-            timestamp=datetime.now(),
+            timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
             cpe_list=new_cpe_list
         )
         self.datastream_collection.add_component(cpe_component)
         return comp_id, cref_id # Return the new component's ID
 
+    def new_xccdf_component(self):
+        if not self.datastream_collection:
+            messagebox.showwarning("No Datastream", "Please create a new datastream first.")
+            return None, None
+        if self.get_benchmark() is not None:
+            messagebox.showwarning("Exists", "An XCCDF Benchmark component already exists in this datastream.")
+            return None, None
+        
+        benchmark = models.Benchmark(id=f"xccdf_benchmark_{uuid.uuid4()}")
+        benchmark.set_title([models.textWithSubType(valueOf_='New Security Benchmark')])
+        benchmark.status = [models.status(valueOf_='incomplete', date=datetime.now().strftime('%Y-%m-%d'))]
+        benchmark.description = [models.htmlTextWithSubType(valueOf_='A new benchmark description.')]
+        benchmark.version = models.versionType(valueOf_='1.0.0')
+        benchmark.metadata = [models.metadataType()]
+        new_group = models.groupType(id="G-1", title=[models.textWithSubType(valueOf_='Default Group')])
+        new_group.description = [models.htmlTextWithSubType(valueOf_='')]
+        new_rule = models.ruleType(id="R-1", severity="unknown", title=[models.textWithSubType(valueOf_='Default Rule')])
+        new_rule.description = [models.htmlTextWithSubType(valueOf_='')]
+        new_group.Rule.append(new_rule)
+        benchmark.Group.append(new_group)
+        
+        comp_id = f"scap_{self.prefix}_comp_SPECTRE-xccdf.xml"
+        cref_id = f"scap_{self.prefix}_cref_SPECTRE-xccdf.xml"
+        xccdf_component = models.component(
+            id=comp_id,
+            timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+            Benchmark=benchmark
+        )
+        self.datastream_collection.add_component(xccdf_component)
+        
+        return comp_id, cref_id
+
     def new_oval_component(self, ref_list_name):
         if not self.datastream_collection:
             messagebox.showwarning("No Datastream", "Please create a new datastream first.")
-            return None
+            return None, None
 
-        new_oval_defs = oval.oval_definitions()
+        new_oval_defs = models.oval_definitions()
         
         # --- Use conditional logic to generate the correct component ID
         if ref_list_name == "dictionaries":
             comp_id = f"scap_{self.prefix}_comp_SPECTRE-cpe-oval.xml"
             cref_id = f"scap_{self.prefix}_cref_SPECTRE-cpe-oval.xml"
         else: # Assumes "checks"
-            comp_id = f"scap_{self.prefix}_cref_SPECTRE-oval.xml"
+            comp_id = f"scap_{self.prefix}_comp_SPECTRE-oval.xml"
             cref_id = f"scap_{self.prefix}_cref_SPECTRE-oval.xml"
 
-
-        oval_component = datastream_models.component(
+        oval_component = models.component(
             id=comp_id,
-            timestamp=datetime.now(),
+            timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
             oval_definitions=new_oval_defs
         )
         self.datastream_collection.add_component(oval_component)
         
         return comp_id, cref_id # Always return the component ID
 
+
 ##--  [ Main UI Handlers and Population ]---
     def populate_treeview(self):
         for i in self.tree.get_children():
             self.tree.delete(i)
-        self.item_map.clear()
+        
+        self._reset_state_maps()
+        
         if not self.datastream_collection:
             return
         
+        # --- 1. Add the root nodes ---
         dsc_id = self.tree.insert("", "end", text=f"Datastream Collection ({self.datastream_collection.get_id()})", open=True)
-        self.item_map[dsc_id] = self.datastream_collection
+        self.maps['item'][dsc_id] = self.datastream_collection
 
         for ds in self.datastream_collection.get_data_stream():
             ds_id = self.tree.insert(dsc_id, "end", text=f"DataStream ({ds.get_id()})", open=True)
-            self.item_map[ds_id] = ds
+            self.maps['item'][ds_id] = ds
         
+        # --- 2. Add the main "Components" folder ---
         comp_node_id = self.tree.insert(dsc_id, "end", text="Components", open=True)
+        
+        # --- 3. Delegate the complex part to a helper ---
         for comp in self.datastream_collection.get_component():
-            comp_text = f"Component ({comp.get_id()})"
-            if comp.Benchmark:
-                comp_text = f"XCCDF Component ({comp.get_id()})"
-            elif comp.cpe_list:
-                comp_text = f"CPE Dictionary Component ({comp.get_id()})"
-            elif comp.oval_definitions:
-                # Simply check if "cpe-oval" is in the component's ID string
-                if "cpe-oval" in comp.get_id():
-                    comp_text = f"CPE OVAL Component ({comp.get_id()})"
-                else:
-                    comp_text = f"OVAL Check Component ({comp.get_id()})"
+            self._add_component_to_tree(comp_node_id, comp)
 
-            c_id = self.tree.insert(comp_node_id, "end", text=comp_text, open=True)
-            self.item_map[c_id] = comp
+    def _add_component_to_tree(self, parent_id, component_obj):
+        """Helper to add a single component and its children to the treeview."""
+        # --- Determine the correct display name ---
+        comp_text = f"Component ({component_obj.get_id()})"
+        if component_obj.Benchmark:
+            comp_text = f"XCCDF Component ({component_obj.get_id()})"
+        elif component_obj.cpe_list:
+            comp_text = f"CPE Dictionary Component ({component_obj.get_id()})"
+        elif component_obj.oval_definitions:
+            if "cpe-oval" in component_obj.get_id():
+                comp_text = f"CPE OVAL Component ({component_obj.get_id()})"
+            else:
+                comp_text = f"OVAL Check Component ({component_obj.get_id()})"
+
+        # --- Add the component node ---
+        c_id = self.tree.insert(parent_id, "end", text=comp_text, open=True)
+        self.maps['item'][c_id] = component_obj
+        
+        # --- If it's a benchmark, add its specific children ---
+        if component_obj.Benchmark:
+            benchmark_obj = component_obj.Benchmark
+            title_text = benchmark_obj.title[0].get_valueOf_() if benchmark_obj.title else ""
+            b_id = self.tree.insert(c_id, "end", text=f"Benchmark: {title_text}", open=True)
+            self.maps['item'][b_id] = benchmark_obj
             
-            if comp.Benchmark:
-                benchmark_obj = comp.Benchmark
-                title_text = benchmark_obj.title[0].get_valueOf_() if benchmark_obj.title else ""
-                b_id = self.tree.insert(c_id, "end", text=f"Benchmark: {title_text}", open=True)
-                self.item_map[b_id] = benchmark_obj
-                
-                if benchmark_obj.Group:
-                    for group in benchmark_obj.Group:
-                        self._add_group_to_tree(b_id, group)
-                
-                profiles_node_id = self.tree.insert(b_id, "end", text="Profiles", open=False)
-                self.item_map[profiles_node_id] = "PROFILES_STATIC_NODE"
-                if benchmark_obj.Profile:
-                    for profile in benchmark_obj.Profile:
-                        profile_title = profile.title[0].get_valueOf_() if profile.title else profile.get_id()
-                        p_node_id = self.tree.insert(profiles_node_id, "end", text=profile_title)
-                        self.item_map[p_node_id] = profile
-
+            if benchmark_obj.Group:
+                for group in benchmark_obj.Group:
+                    self._add_group_to_tree(b_id, group)
+            
+            profiles_node_id = self.tree.insert(b_id, "end", text="Profiles", open=False)
+            self.maps['item'][profiles_node_id] = "PROFILES_STATIC_NODE"
+            if benchmark_obj.Profile:
+                for profile in benchmark_obj.Profile:
+                    profile_title = profile.title[0].get_valueOf_() if profile.title else profile.get_id()
+                    p_node_id = self.tree.insert(profiles_node_id, "end", text=profile_title)
+                    self.maps['item'][p_node_id] = profile
+                    
     def on_tree_select(self, event):
         selected_id = self.tree.focus()
         if not selected_id:
             return
-        item_data = self.item_map.get(selected_id)
+        item_data = self.maps['item'].get(selected_id)
         self.display_details(item_data)
+
+    def _create_combobox_editor(self, parent, label_text, obj, attr, options, default_value=None):
+        """Creates a labeled Combobox for editing an attribute."""
+        frame = ttk.Frame(parent)
+        frame.pack(fill=tk.X, pady=5)
+        
+        ttk.Label(frame, text=label_text, width=15).pack(side=tk.LEFT, anchor='n')
+        
+        current_value = getattr(obj, f"get_{attr}", lambda: default_value)() or default_value
+        var = tk.StringVar(self.root, value=current_value)
+        
+        combo = ttk.Combobox(frame, textvariable=var, values=options, state="readonly")
+        combo.pack(fill=tk.X, expand=True)
+        
+        # Use a lambda to correctly capture the variables
+        combo.bind("<<ComboboxSelected>>", lambda event, o=obj, a=attr, v=var: getattr(o, f"set_{a}")(v.get()))
         
     def display_details(self, item):
         for widget in self.detail_frame.winfo_children():
             widget.destroy()
-        if not item: return
-
-        if isinstance(item, str) and item == "PROFILES_STATIC_NODE":
-            self.display_profile_list_manager()
+        if not item: 
+            self.show_welcome_message()
+            return
             
-        elif isinstance(item, datastream_models.data_stream_collection):
-            self.create_detail_entry(self.detail_frame, "ID", item, "id")
+        if isinstance(item, models.data_stream_collection):
+            self.create_detail_entry(self.detail_frame, "ID", item, "id", read_only=True)
             self.create_detail_entry(self.detail_frame, "Schematron Version", item, "schematron_version")
+            
+            ttk.Separator(self.detail_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=10)
 
-        elif isinstance(item, datastream_models.component):
+            prefix_frame = ttk.LabelFrame(self.detail_frame, text="Update Datastream Prefix", padding=5)
+            prefix_frame.pack(fill=tk.X, expand=False)
+            
+            ttk.Label(prefix_frame, text="New Prefix:").pack(side=tk.LEFT, padx=5)
+            
+            prefix_var = tk.StringVar(value=self.prefix or "")
+            prefix_entry = ttk.Entry(prefix_frame, textvariable=prefix_var)
+            prefix_entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=5)
+            
+            ttk.Button(prefix_frame, text="Update All IDs", 
+                       command=lambda: self._update_prefix(prefix_var.get())).pack(side=tk.LEFT, padx=5)
+
+        elif isinstance(item, models.data_stream):
+            attr_frame = ttk.Frame(self.detail_frame)
+            attr_frame.pack(fill=tk.X, expand=False)
+            
+            self.create_detail_entry(self.detail_frame, "ID", item, "id", read_only=True)
+            self._create_combobox_editor(self.detail_frame, "SCAP Version", item, "scap_version", ['1.0', '1.1', '1.2', '1.3'], "1.3")
+            self._create_combobox_editor(self.detail_frame, "Use Case", item, "use_case", ['CONFIGURATION', 'VULNERABILITY', 'INVENTORY', 'OTHER'], "OTHER")
+
+            ttk.Separator(self.detail_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=10)
+            
+            refs_frame = ttk.Frame(self.detail_frame)
+            refs_frame.pack(fill=tk.BOTH, expand=True)
+
+            self._create_ref_list_viewer(refs_frame, "Dictionaries", "dictionaries")
+            self._create_ref_list_viewer(refs_frame, "Checklists", "checklists")
+            self._create_ref_list_viewer(refs_frame, "Checks", "checks")
+            
+            ttk.Button(refs_frame, text="Update References", command=self._update_datastream_references).pack(pady=10)
+            
+        elif isinstance(item, models.component):
             if item.cpe_list is not None:
                 self.display_cpe_dictionary_manager(item.cpe_list)
             elif item.oval_definitions is not None:
                 self.display_oval_manager(item.oval_definitions)
+            elif item.Benchmark is not None:
+                # If it's a component with a benchmark, display the benchmark editor
+                self.display_details(item.Benchmark)
             else:
+                # Fallback for empty or unknown components
                 self.create_detail_entry(self.detail_frame, "ID", item, "id")
-
-        elif isinstance(item, datastream_models.data_stream):
-            self.create_detail_entry(self.detail_frame, "ID", item, "id")
-
-            # --- SCAP Version Drop-down ---
-            scap_frame = ttk.Frame(self.detail_frame)
-            scap_frame.pack(fill=tk.X, pady=5)
-            ttk.Label(scap_frame, text="SCAP Version", width=15).pack(side=tk.LEFT)
-            scap_version_options = ['1.0', '1.1', '1.2', '1.3']
-            scap_version_var = tk.StringVar(self.root, value=item.get_scap_version())
-            scap_combo = ttk.Combobox(scap_frame, textvariable=scap_version_var, values=scap_version_options, state="readonly")
-            scap_combo.pack(fill=tk.X, expand=True)
-            scap_combo.bind("<<ComboboxSelected>>", lambda event: item.set_scap_version(scap_version_var.get()))
-
-            # --- Use Case Drop-down ---
-            use_case_frame = ttk.Frame(self.detail_frame)
-            use_case_frame.pack(fill=tk.X, pady=5)
-            ttk.Label(use_case_frame, text="Use Case", width=15).pack(side=tk.LEFT)
-            use_case_options = ['CONFIGURATION', 'VULNERABILITY', 'INVENTORY', 'OTHER']
-            use_case_var = tk.StringVar(self.root, value=item.get_use_case())
-            use_case_combo = ttk.Combobox(use_case_frame, textvariable=use_case_var, values=use_case_options, state="readonly")
-            use_case_combo.pack(fill=tk.X, expand=True)
-            use_case_combo.bind("<<ComboboxSelected>>", lambda event: item.set_use_case(use_case_var.get()))
-        elif isinstance(item, xccdf_models.Benchmark):
+            
+        elif isinstance(item, models.Benchmark):
             notebook = ttk.Notebook(self.detail_frame)
             notebook.pack(fill=tk.BOTH, expand=True, pady=5)
             tab_general = ttk.Frame(notebook, padding=10)
@@ -518,7 +696,8 @@ class XccdfEditorApp:
             notebook.add(tab_platforms, text="Platforms")
             self.create_detail_entry(tab_general, "Benchmark ID", item, "id")
             self.create_text_editor(tab_general, "Title", item, "title")
-            if item.version is None: item.version = xccdf_models.versionType(valueOf_='')
+            
+            if item.version is None: item.version = models.versionType(valueOf_='')
             self.create_detail_entry(tab_general, "Version", item.version, "valueOf_")
             frame = ttk.Frame(tab_general)
             frame.pack(fill=tk.X, pady=5)
@@ -526,12 +705,14 @@ class XccdfEditorApp:
             label.pack(side=tk.LEFT, anchor='n')
             status_options = ['accepted', 'deprecated', 'draft', 'incomplete', 'interim']
             status_var = tk.StringVar(self.root)
+            
             if item.status:
                 status_var.set(item.status[0].get_valueOf_() or 'incomplete')
             status_combo = ttk.Combobox(frame, textvariable=status_var, values=status_options, state="readonly")
             status_combo.pack(fill=tk.X, expand=True)
+            
             def update_status(event):
-                if not item.status: item.status.append(xccdf_models.statusType())
+                if not item.status: item.status.append(models.statusType())
                 item.status[0].set_valueOf_(status_var.get())
             status_combo.bind("<<ComboboxSelected>>", update_status)
             ttk.Label(tab_general, text="Status Date", width=15).pack(anchor='w', pady=(5, 0))
@@ -544,7 +725,7 @@ class XccdfEditorApp:
                 if not date_str: return
                 try:
                     new_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-                    if not item.status: item.status.append(xccdf_models.statusType())
+                    if not item.status: item.status.append(models.statusType())
                     item.status[0].set_date(new_date)
                 except ValueError:
                     print(f"Invalid date format: {date_str}. Please use YYYY-MM-DD.")
@@ -565,7 +746,7 @@ class XccdfEditorApp:
             contrib_var, _ = create_metadata_entry(meta_frame, "Contributor", "contributor")
             source_var, _ = create_metadata_entry(meta_frame, "Source", "source")
             def update_metadata_field(dc_tag, new_value):
-                if item.metadata is None or not item.metadata: item.metadata = [xccdf_models.metadataType()]
+                if item.metadata is None or not item.metadata: item.metadata = [models.metadataType()]
                 meta_content_list = item.metadata[0].get_anytypeobjs_()
                 if meta_content_list is None:
                     meta_content_list = []
@@ -614,11 +795,11 @@ class XccdfEditorApp:
             self.logical_test_editor_frame.pack(fill=tk.BOTH, expand=True, pady=5)
             self.create_benchmark_platform_manager(tab_platforms, item)
         
-        elif isinstance(item, (xccdf_models.groupType, xccdf_models.ruleType)):
+        elif isinstance(item, (models.groupType, models.ruleType)):
             move_frame = ttk.Frame(self.detail_frame)
             move_frame.pack(fill=tk.X, pady=(0, 5))
             ttk.Button(move_frame, text="Move...", command=self.show_move_dialog).pack(side=tk.LEFT)
-            if isinstance(item, xccdf_models.groupType):
+            if isinstance(item, models.groupType):
                 self.create_detail_entry(self.detail_frame, "Group ID", item, "id")
                 self.create_text_editor(self.detail_frame, "Group Title", item, "title")
                 self.create_text_editor(self.detail_frame, "Description", item, "description", height=5)
@@ -645,16 +826,16 @@ class XccdfEditorApp:
                 severity_combo.bind("<<ComboboxSelected>>", lambda e: item.set_severity(severity_var.get()))
                 self.create_detail_entry(tab_general, "Weight", item, "weight")
                 self.create_text_editor(tab_general, "Description", item, "description", height=5)
-                if item.version is None: item.version = xccdf_models.versionType(valueOf_='')
+                if item.version is None: item.version = models.versionType(valueOf_='')
                 self.create_detail_entry(tab_general, "Version", item.version, "valueOf_")
-                if not item.check: item.check = [xccdf_models.checkType(system='http://oval.mitre.org/XMLSchema/oval-definitions-5')]
+                if not item.check: item.check = [models.checkType(system='http://oval.mitre.org/XMLSchema/oval-definitions-5')]
                 check = item.check[0]
                 self.create_detail_entry(tab_checks, "System", check, "system")
-                if not check.check_content_ref: check.check_content_ref = [xccdf_models.checkContentRefType()]
+                if not check.check_content_ref: check.check_content_ref = [models.checkContentRefType()]
                 self.create_detail_entry(tab_checks, "Check Content Ref (href)", check.check_content_ref[0], "href")
-                if not item.fixtext: item.set_fixtext([xccdf_models.fixTextType(valueOf_='')])
+                if not item.fixtext: item.set_fixtext([models.fixTextType(valueOf_='')])
                 self.create_text_editor(tab_remediation, "Fix Text", item.fixtext[0], "valueOf_", height=6)
-                if not item.fix: item.set_fix([xccdf_models.fixType()])
+                if not item.fix: item.set_fix([models.fixType()])
                 fix_obj = item.fix[0]
                 fixtext_obj = item.fixtext[0]
                 fix_id_var = tk.StringVar(value=fix_obj.get_id())
@@ -675,12 +856,73 @@ class XccdfEditorApp:
                 ttk.Entry(ref_frame, textvariable=fix_ref_var, state="readonly").pack(fill=tk.X, expand=True)
                 self.create_item_platform_manager(self.detail_frame, item)
         
-        elif isinstance(item, xccdf_models.profileType):
+        elif isinstance(item, models.profileType):
             self.create_detail_entry(self.detail_frame, "Profile ID", item, "id")
             self.create_text_editor(self.detail_frame, "Title", item, "title")
             self.create_text_editor(self.detail_frame, "Description", item, "description", height=4)
             self.create_profile_selection_editor(item)
- 
+
+        elif isinstance(item, str) and item == "PROFILES_STATIC_NODE":
+            self.display_profile_list_manager()
+        
+        else:
+            # If nothing else matches, show a simple message
+            self.show_welcome_message()
+
+    def _update_prefix(self, new_prefix):
+        """Validates and applies a new prefix to all relevant IDs in the datastream."""
+        if not self.datastream_collection or not self.prefix or not new_prefix:
+            return
+            
+        if '_' in new_prefix:
+            messagebox.showerror("Invalid Prefix", "The prefix cannot contain underscores.")
+            return
+
+        if new_prefix == self.prefix:
+            return # No change needed
+
+        # Ask for confirmation
+        if not messagebox.askyesno("Confirm Prefix Change", 
+                                   f"This will change the prefix '{self.prefix}' to '{new_prefix}' for all "
+                                   f"related IDs. This action cannot be undone.\n\nAre you sure you want to continue?"):
+            return
+
+        old_prefix = self.prefix
+        
+        # --- Update the main collection and stream IDs ---
+        collection_id = self.datastream_collection.get_id().replace(f"scap_{old_prefix}_", f"scap_{new_prefix}_")
+        self.datastream_collection.set_id(collection_id)
+        
+        ds = self.datastream_collection.get_data_stream()[0]
+        ds_id = ds.get_id().replace(f"scap_{old_prefix}_", f"scap_{new_prefix}_")
+        ds.set_id(ds_id)
+
+        # --- Update all component IDs ---
+        for comp in self.datastream_collection.get_component():
+            comp_id = comp.get_id().replace(f"scap_{old_prefix}_", f"scap_{new_prefix}_")
+            comp.set_id(comp_id)
+
+        # --- Update all component reference IDs and URIs ---
+        for ref_list_name in ['dictionaries', 'checklists', 'checks']:
+            ref_list = getattr(ds, f"get_{ref_list_name}")()
+            if ref_list and ref_list.get_component_ref():
+                for ref in ref_list.get_component_ref():
+                    ref_id = ref.get_id().replace(f"scap_{old_prefix}_", f"scap_{new_prefix}_")
+                    ref.set_id(ref_id)
+                    ref.set_href(ref.get_href().replace(f"scap_{old_prefix}_", f"scap_{new_prefix}_"))
+                    
+                    if ref.get_catalog():
+                        for uri in ref.get_catalog().get_uri():
+                            uri.set_name(uri.get_name().replace(old_prefix, new_prefix))
+        
+        # --- Finalize the update ---
+        self.prefix = new_prefix
+        self.populate_treeview() # Refresh the UI to show all the new IDs
+        self.display_details(self.datastream_collection) # Refresh the details view
+        self._mark_as_dirty()
+        messagebox.showinfo("Success", "All prefixes have been updated.")
+        
+## Need to Make Smarter 
     def create_context_menu(self):
         self.context_menu = tk.Menu(self.root, tearoff=0)
         self.context_menu.add_command(label="Add Group", command=self.add_group)
@@ -692,64 +934,78 @@ class XccdfEditorApp:
         item_id = self.tree.identify_row(event.y)
         if not item_id: return
         self.tree.selection_set(item_id)
-        self.right_clicked_item_data = self.item_map.get(item_id)
         
+        self.right_clicked_item_data = self.maps['item'].get(item_id)
+        
+        # This is a great pattern: disable all, then enable only valid options.
         self.context_menu.entryconfig("Add Group", state=tk.DISABLED)
         self.context_menu.entryconfig("Add Rule", state=tk.DISABLED)
         self.context_menu.entryconfig("Delete", state=tk.DISABLED)
 
-        if isinstance(self.right_clicked_item_data, xccdf_models.Benchmark):
+        # The logic for what to enable is well-structured.
+        if isinstance(self.right_clicked_item_data, models.Benchmark):
             self.context_menu.entryconfig("Add Group", state=tk.NORMAL)
-        elif isinstance(self.right_clicked_item_data, xccdf_models.groupType):
+        elif isinstance(self.right_clicked_item_data, models.groupType):
             self.context_menu.entryconfig("Add Group", state=tk.NORMAL)
             self.context_menu.entryconfig("Add Rule", state=tk.NORMAL)
             self.context_menu.entryconfig("Delete", state=tk.NORMAL)
-        elif isinstance(self.right_clicked_item_data, xccdf_models.ruleType):
+        elif isinstance(self.right_clicked_item_data, models.ruleType):
             self.context_menu.entryconfig("Delete", state=tk.NORMAL)
-        elif isinstance(self.right_clicked_item_data, datastream_models.component):
+        elif isinstance(self.right_clicked_item_data, models.component):
+            # A future improvement could be to check if the component is deletable
             self.context_menu.entryconfig("Delete", state=tk.NORMAL)
+            
         self.context_menu.post(event.x_root, event.y_root)
-
+       
     def add_group(self):
-        if not isinstance(self.right_clicked_item_data, (xccdf_models.Benchmark, xccdf_models.groupType)): return
+        if not isinstance(self.right_clicked_item_data, (models.Benchmark, models.groupType)): return
         new_id = f"G-{uuid.uuid4()}"
-        new_group = xccdf_models.groupType(id=new_id)
-        new_group.set_title([xccdf_models.textWithSubType(valueOf_='New Group')])
-        new_group.description = [xccdf_models.htmlTextWithSubType(valueOf_='')]
+        new_group = models.groupType(id=new_id)
+        new_group.set_title([models.textWithSubType(valueOf_='New Group')])
+        new_group.description = [models.htmlTextWithSubType(valueOf_='')]
         self.right_clicked_item_data.Group.append(new_group)
         self.populate_treeview()
+        self._mark_as_dirty()
 
     def add_rule(self):
-        if not isinstance(self.right_clicked_item_data, xccdf_models.groupType): return
+        if not isinstance(self.right_clicked_item_data, models.groupType): return
         new_id = f"R-{uuid.uuid4()}"
-        new_rule = xccdf_models.ruleType(id=new_id, severity="unknown")
-        new_rule.set_title([xccdf_models.textWithSubType(valueOf_='New Rule')])
-        new_rule.description = [xccdf_models.htmlTextWithSubType(valueOf_='')]
+        new_rule = models.ruleType(id=new_id, severity="unknown")
+        new_rule.set_title([models.textWithSubType(valueOf_='New Rule')])
+        new_rule.description = [models.htmlTextWithSubType(valueOf_='')]
         if self.right_clicked_item_data.Rule is None:
             self.right_clicked_item_data.Rule = []
         self.right_clicked_item_data.Rule.append(new_rule)
         self.populate_treeview()
+        self._mark_as_dirty()
 
     def delete_item(self):
         item_to_delete = self.right_clicked_item_data
         if not item_to_delete: return
 
-        if isinstance(item_to_delete, (xccdf_models.groupType, xccdf_models.ruleType)):
-            item_type = "Group" if isinstance(item_to_delete, xccdf_models.groupType) else "Rule"
+        if isinstance(item_to_delete, (models.groupType, models.ruleType)):
+            item_type = "Group" if isinstance(item_to_delete, models.groupType) else "Rule"
             item_id = item_to_delete.get_id()
             if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete this {item_type} ({item_id})?"):
-                parent = self.find_parent(self.datastream_collection, item_to_delete)
+                benchmark = self.get_benchmark()
+                if not benchmark:
+                    messagebox.showerror("Error", "Could not find the Benchmark to delete from.")
+                    return
+                
+                parent = self.find_parent(benchmark, item_to_delete)
                 if parent:
-                    if item_type == "Group":
+                    if isinstance(item_to_delete, models.groupType):
                         parent.Group.remove(item_to_delete)
-                    else:
+                    else: # Is a ruleType
                         parent.Rule.remove(item_to_delete)
+                        
                     self.populate_treeview()
                     self.show_welcome_message()
+                    self._mark_as_dirty() # Mark that a change has occurred
                 else:
                     messagebox.showerror("Error", "Could not find the parent of the item to delete.")
         
-        elif isinstance(item_to_delete, datastream_models.component):
+        elif isinstance(item_to_delete, models.component):
             item_id = item_to_delete.get_id()
             if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete this Component ({item_id})?"):
                 self.datastream_collection.get_component().remove(item_to_delete)
@@ -762,515 +1018,31 @@ class XccdfEditorApp:
                             ref_list_obj.set_component_ref(refs_to_keep)
                 self.populate_treeview()
                 self.show_welcome_message()
+                self._mark_as_dirty()
 
-##--  [  XCCDF-Specific UI & Helpers ]---
-    def create_benchmark_platform_manager(self, parent_frame, item_data):
-        manager_frame = ttk.LabelFrame(parent_frame, text="Applicable Platforms (Benchmark-Level)", padding=5)
-        manager_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        ref_tree = ttk.Treeview(manager_frame, columns=("idref",), show="headings", height=3)
-        ref_tree.heading("idref", text="Platform ID Reference")
-        ref_tree.pack(fill=tk.BOTH, expand=True)
-        def populate_platform_references_list():
-            for i in ref_tree.get_children(): ref_tree.delete(i)
-            if item_data.platform:
-                for p_ref in item_data.platform:
-                    ref_tree.insert("", "end", values=(p_ref.get_idref(),))
-        def add_platform_ref():
-            new_idref = simpledialog.askstring("Add Platform Reference", "Enter new platform reference (ID or CPE):", parent=self.root)
-            if not new_idref: return
-            if item_data.platform and any(p.get_idref() == new_idref for p in item_data.platform):
-                messagebox.showwarning("Duplicate", "That platform reference already exists.")
-                return
-            if item_data.platform is None:
-                item_data.platform = []
-            item_data.platform.append(xccdf_models.overrideableCPE2idrefType(idref=new_idref))
-            populate_platform_references_list()
-        def edit_platform_ref():
-            selected = ref_tree.focus()
-            if not selected: return
-            current_idref = ref_tree.item(selected)['values'][0]
-            new_idref = simpledialog.askstring("Edit Platform Reference", "Enter new platform reference:", initialvalue=current_idref, parent=self.root)
-            if new_idref and new_idref != current_idref:
-                for p_ref in item_data.platform:
-                    if p_ref.get_idref() == current_idref:
-                        p_ref.set_idref(new_idref)
-                        break
-                populate_platform_references_list()
-        def remove_platform_ref():
-            selected = ref_tree.focus()
-            if not selected: return
-            idref_to_remove = ref_tree.item(selected)['values'][0]
-            if item_data.platform:
-                item_data.platform = [p for p in item_data.platform if p.get_idref() != idref_to_remove]
-            populate_platform_references_list()
-        button_frame = ttk.Frame(manager_frame)
-        button_frame.pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Add...", command=add_platform_ref).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame, text="Edit...", command=edit_platform_ref).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame, text="Remove", command=remove_platform_ref).pack(side=tk.LEFT, padx=2)
-        populate_platform_references_list()
-
-    def display_profile_list_manager(self):
-        manager_frame = ttk.LabelFrame(self.detail_frame, text="Manage Profiles", padding=5)
-        manager_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        profile_tree = ttk.Treeview(manager_frame, columns=("id", "title"), show="headings", height=5)
-        profile_tree.heading("id", text="Profile ID")
-        profile_tree.heading("title", text="Title")
-        profile_tree.pack(fill=tk.BOTH, expand=True)
-        
-        benchmark_obj = self.get_benchmark()
-
-        def populate_profile_list():
-            for i in profile_tree.get_children(): profile_tree.delete(i)
-            if benchmark_obj and benchmark_obj.Profile:
-                for p in benchmark_obj.Profile:
-                    title = p.title[0].get_valueOf_() if p.title else ""
-                    profile_tree.insert("", "end", values=(p.get_id(), title))
-        
-        def add_profile():
-            new_id = simpledialog.askstring("Add Profile", "Enter new profile ID:", parent=self.root)
-            if not new_id: return
-            if any(p.get_id() == new_id for p in benchmark_obj.Profile):
-                messagebox.showwarning("Duplicate ID", "A profile with that ID already exists.")
-                return
-            
-            new_profile = xccdf_models.profileType(id=new_id)
-            new_profile.set_title([xccdf_models.textWithSubType(valueOf_="New Profile")])
-            if benchmark_obj.Profile is None:
-                benchmark_obj.Profile = []
-            benchmark_obj.Profile.append(new_profile)
-            self.populate_treeview()
-            populate_profile_list()
-            
-        def remove_profile():
-            selected = profile_tree.focus()
-            if not selected: return
-            id_to_remove = profile_tree.item(selected)['values'][0]
-            
-            if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove profile '{id_to_remove}'?"):
-                benchmark_obj.Profile = [p for p in benchmark_obj.Profile if p.get_id() != id_to_remove]
-                self.populate_treeview()
-                populate_profile_list()
-
-        button_frame = ttk.Frame(manager_frame)
-        button_frame.pack(fill=tk.X, pady=5)
-        ttk.Button(button_frame, text="Add Profile...", command=add_profile).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame, text="Remove Selected", command=remove_profile).pack(side=tk.LEFT, padx=2)
-
-        populate_profile_list()
-
-    def _add_group_to_tree(self, parent_node, group):
-        title_text = group.title[0].get_valueOf_() if group.title else ""
-        group_id_str = group.id or "Group"
-        node_id = self.tree.insert(parent_node, "end", text=f"Group: {title_text} ({group_id_str})", open=True)
-        self.item_map[node_id] = group
-        if group.Group:
-            for subgroup in group.Group:
-                self._add_group_to_tree(node_id, subgroup)
-        if group.Rule:
-            for rule in group.Rule:
-                self._add_rule_to_tree(node_id, rule)
-
-    def _add_rule_to_tree(self, parent_node, rule):
-        title_text = rule.title[0].get_valueOf_() if rule.title else ""
-        node_id = self.tree.insert(parent_node, "end", text=f"Rule: {title_text} ({rule.id})")
-        self.item_map[node_id] = rule
-
-    def populate_fact_refs_tree(self):
-        if not self.fact_refs_tree or not self.selected_platform_obj: return
-        for i in self.fact_refs_tree.get_children(): self.fact_refs_tree.delete(i)
-        logical_test = self.selected_platform_obj.logical_test
-        if logical_test and logical_test.fact_ref:
-            for fact in logical_test.fact_ref:
-                self.fact_refs_tree.insert("", "end", values=(fact.get_name(),))
-
-    def show_move_dialog(self):
-        selected_id = self.tree.focus()
-        if not selected_id: return
-        item_to_move = self.item_map.get(selected_id)
-        if not isinstance(item_to_move, (xccdf_models.groupType, xccdf_models.ruleType)): return
-
-        dialog = tk.Toplevel(self.root)
-        dialog.title("Move Item")
-        dialog.geometry("400x300")
-        dialog.transient(self.root)
-        
-        ttk.Label(dialog, text=f"Select a new parent for '{item_to_move.get_id()}'").pack(pady=10)
-        
-        listbox_frame = ttk.Frame(dialog)
-        listbox_frame.pack(fill=tk.BOTH, expand=True, padx=10)
-        listbox = tk.Listbox(listbox_frame, selectmode=tk.SINGLE)
-        listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar = ttk.Scrollbar(listbox_frame, orient="vertical", command=listbox.yview)
-        scrollbar.pack(side=tk.RIGHT, fill="y")
-        listbox.config(yscrollcommand=scrollbar.set)
-        
-        def get_descendants(item):
-            descendants = {item}
-            if isinstance(item, xccdf_models.groupType) and item.Group:
-                for child_group in item.Group:
-                    descendants.update(get_descendants(child_group))
-            return descendants
-
-        items_to_exclude = get_descendants(item_to_move)
-        
-        possible_parents = []
-        def collect_parents_recursive(parent_candidate):
-            if parent_candidate not in items_to_exclude:
-                possible_parents.append(parent_candidate)
-            
-            if hasattr(parent_candidate, 'Group') and parent_candidate.Group:
-                for subgroup in parent_candidate.Group:
-                    collect_parents_recursive(subgroup)
-        
-        collect_parents_recursive(self.get_benchmark())
-
-        for parent in possible_parents:
-            if isinstance(parent, xccdf_models.Benchmark):
-                title = parent.title[0].get_valueOf_() if parent.title else ""
-                listbox.insert(tk.END, f"Benchmark: {title}")
-            else:
-                title = parent.title[0].get_valueOf_() if parent.title else ""
-                listbox.insert(tk.END, f"  Group: {parent.get_id()} ({title})")
-        
-        def on_ok():
-            selected_indices = listbox.curselection()
-            if not selected_indices:
-                dialog.destroy()
-                return
-            
-            new_parent_obj = possible_parents[selected_indices[0]]
-            old_parent_obj = self.find_parent(self.datastream_collection, item_to_move)
-
-            if new_parent_obj is old_parent_obj:
-                dialog.destroy()
-                return
-
-            if isinstance(item_to_move, xccdf_models.ruleType) and isinstance(new_parent_obj, xccdf_models.Benchmark):
-                messagebox.showerror("Invalid Move", "Rules cannot be moved directly under a Benchmark.")
-                dialog.destroy()
-                return
-
-            if isinstance(item_to_move, xccdf_models.groupType):
-                old_parent_obj.Group.remove(item_to_move)
-            else:
-                old_parent_obj.Rule.remove(item_to_move)
-            
-            if isinstance(item_to_move, xccdf_models.groupType):
-                if new_parent_obj.Group is None: new_parent_obj.Group = []
-                new_parent_obj.Group.append(item_to_move)
-            else:
-                if new_parent_obj.Rule is None: new_parent_obj.Rule = []
-                new_parent_obj.Rule.append(item_to_move)
-
-            self.populate_treeview()
-            dialog.destroy()
-
-        button_frame = ttk.Frame(dialog)
-        button_frame.pack(pady=10)
-        ttk.Button(button_frame, text="OK", command=on_ok).pack(side=tk.LEFT, padx=10)
-        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT)
-
-    def create_text_editor(self, parent_frame, label_text, data_obj, attr_name, height=1):
-        ttk.Label(parent_frame, text=label_text, width=15).pack(anchor='w', pady=(5, 0))
-        text_class = xccdf_models.htmlTextWithSubType
-        if attr_name in ['title', 'rationale', 'fixtext']:
-            text_class = xccdf_models.textWithSubType if attr_name == 'title' else xccdf_models.htmlTextWithSubType
-        text_widget = tk.Text(parent_frame, height=height, wrap="word")
-        text_widget.pack(fill=tk.X, expand=True)
-        text_obj_list = getattr(data_obj, attr_name, [])
-        if text_obj_list:
-            text_widget.insert("1.0", text_obj_list[0].get_valueOf_() or "")
-        def update_text_content(event):
-            current_list = getattr(data_obj, attr_name, [])
-            if not current_list:
-                new_text_obj = text_class()
-                setattr(data_obj, attr_name, [new_text_obj])
-                current_list = [new_text_obj]
-            current_list[0].set_valueOf_(text_widget.get("1.0", "end-1c"))
-            if attr_name == 'title':
-                self.populate_treeview()
-        text_widget.bind("<KeyRelease>", update_text_content)
-
-    def create_profile_selection_editor(self, profile_obj):
-        editor_frame = ttk.LabelFrame(self.detail_frame, text="Profile Selections", padding=5)
-        editor_frame.pack(fill=tk.BOTH, expand=True, pady=5)
-        pw = ttk.PanedWindow(editor_frame, orient=tk.HORIZONTAL)
-        pw.pack(fill=tk.BOTH, expand=True)
-        available_frame = ttk.Frame(pw, padding=2)
-        button_frame = ttk.Frame(pw, padding=5)
-        selected_frame = ttk.Frame(pw, padding=2)
-        pw.add(available_frame, weight=2)
-        pw.add(button_frame, weight=0)
-        pw.add(selected_frame, weight=2)
-        ttk.Label(available_frame, text="Available Items").pack()
-        available_tree = ttk.Treeview(available_frame)
-        available_tree.pack(fill=tk.BOTH, expand=True)
-        ttk.Label(selected_frame, text="Profile Selections").pack()
-        selected_tree = ttk.Treeview(selected_frame, columns=("status",), show="tree headings")
-        selected_tree.heading("status", text="Status")
-        selected_tree.column("status", width=80, anchor='center')
-        selected_tree.pack(fill=tk.BOTH, expand=True)
-        
-        benchmark_obj = self.get_benchmark()
-
-        def get_all_item_ids(groups):
-            ids = {}
-            def recurse(items):
-                for item in items:
-                    if isinstance(item, (xccdf_models.groupType, xccdf_models.ruleType)):
-                        ids[item.get_id()] = item
-                        if isinstance(item, xccdf_models.groupType) and item.Group:
-                            recurse(item.Group)
-                        if isinstance(item, xccdf_models.groupType) and item.Rule:
-                            recurse(item.Rule)
-            recurse(groups)
-            return ids
-        all_benchmark_items = get_all_item_ids(benchmark_obj.Group)
-        
-        def populate_trees():
-            for i in available_tree.get_children(): available_tree.delete(i)
-            for i in selected_tree.get_children(): selected_tree.delete(i)
-            selected_idrefs = {s.get_idref() for s in profile_obj.select}
-            def populate_available_recursively(parent_node, items):
-                for item in items:
-                    if item.get_id() not in selected_idrefs:
-                        title = item.title[0].get_valueOf_() if item.title else ""
-                        node_id = available_tree.insert(parent_node, "end", text=f"{item.get_id()}: {title}", open=False, values=[item.get_id()])
-                        if isinstance(item, xccdf_models.groupType) and item.Group:
-                            populate_available_recursively(node_id, item.Group)
-                        if isinstance(item, xccdf_models.groupType) and item.Rule:
-                             populate_available_recursively(node_id, item.Rule)
-            populate_available_recursively("", benchmark_obj.Group)
-            for selection in profile_obj.select:
-                idref = selection.get_idref()
-                status_str = "[+] Selected" if selection.get_selected() else "[-] Unselected"
-                item_obj = all_benchmark_items.get(idref)
-                title = item_obj.title[0].get_valueOf_() if item_obj and item_obj.title else ""
-                selected_tree.insert("", "end", text=f"{idref}: {title}", values=(status_str,))
-        
-        def move_item(is_selected_bool):
-            selected_id = available_tree.focus()
-            if not selected_id: return
-            idref = available_tree.item(selected_id)['values'][0]
-            if profile_obj.select is None: profile_obj.select = []
-            profile_obj.select.append(xccdf_models.profileSelectType(idref=idref, selected=is_selected_bool))
-            populate_trees()
-        
-        def remove_selection():
-            selected_in_profile = selected_tree.focus()
-            if not selected_in_profile: return
-            full_text = selected_tree.item(selected_in_profile)['text']
-            idref_to_remove = full_text.split(':')[0]
-            if profile_obj.select:
-                profile_obj.select = [s for s in profile_obj.select if s.get_idref() != idref_to_remove]
-            populate_trees()
-        
-        ttk.Button(button_frame, text="Select >>", command=lambda: move_item(True)).pack(pady=5)
-        ttk.Button(button_frame, text="Unselect >>", command=lambda: move_item(False)).pack(pady=5)
-        ttk.Button(button_frame, text="<< Remove", command=remove_selection).pack(pady=20)
-        
-        populate_trees()
-
-    def get_benchmark(self):
-        if self.datastream_collection:
-            try:
-                for comp in self.datastream_collection.get_component():
-                    if comp.Benchmark:
-                        return comp.Benchmark
-            except (IndexError, AttributeError):
-                return None
+    def find_parent(self, start_node, child_to_find):
+        if isinstance(start_node, models.data_stream_collection):
+            benchmark = self.get_benchmark()
+            if benchmark:
+                return self.find_parent(benchmark, child_to_find)
+        if isinstance(start_node, (models.Benchmark, models.groupType)):
+            if hasattr(start_node, 'Group') and start_node.Group and child_to_find in start_node.Group:
+                return start_node
+            if hasattr(start_node, 'Rule') and start_node.Rule and child_to_find in start_node.Rule:
+                return start_node
+                
+            if hasattr(start_node, 'Group') and start_node.Group:
+                for subgroup in start_node.Group:
+                    found_parent = self.find_parent(subgroup, child_to_find)
+                    if found_parent:
+                        return found_parent
         return None
 
-    def create_item_platform_manager(self, parent_frame, item_data):
-        manager_frame = ttk.LabelFrame(parent_frame, text="Applicable Platforms", padding=5)
-        manager_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-        
-        benchmark_obj = self.get_benchmark()
-        platform_ids = set()
-        if benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
-            for p in benchmark_obj.platform_specification.platform:
-                if p.logical_test and p.logical_test.fact_ref:
-                    cpe_name = p.logical_test.fact_ref[0].get_name()
-                    if cpe_name:
-                        platform_ids.add(cpe_name)
-        if benchmark_obj.platform:
-             for p_ref in benchmark_obj.platform:
-                 platform_ids.add(p_ref.get_idref())
-        available_platforms = sorted(list(platform_ids))
-        
-        add_frame = ttk.Frame(manager_frame)
-        add_frame.pack(fill=tk.X, pady=2)
-        platform_combo = ttk.Combobox(add_frame, values=available_platforms, state="readonly")
-        platform_combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
-        list_frame = ttk.Frame(manager_frame)
-        list_frame.pack(fill=tk.BOTH, expand=True, pady=5)
-        platform_listbox = tk.Listbox(list_frame, height=4)
-        platform_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        def populate_platform_references_list():
-            platform_listbox.delete(0, tk.END)
-            if item_data.platform:
-                for p_ref in item_data.platform:
-                    platform_listbox.insert(tk.END, p_ref.get_idref())
-        def add_platform_ref():
-            selected_id = platform_combo.get()
-            if not selected_id: return
-            if item_data.platform and any(p.get_idref() == selected_id for p in item_data.platform):
-                return
-            if item_data.platform is None:
-                item_data.platform = []
-            item_data.platform.append(xccdf_models.overrideableCPE2idrefType(idref=selected_id))
-            populate_platform_references_list()
-        def remove_platform_ref():
-            selected_indices = platform_listbox.curselection()
-            if not selected_indices: return
-            selected_idref = platform_listbox.get(selected_indices[0])
-            if item_data.platform:
-                item_data.platform = [p for p in item_data.platform if p.get_idref() != selected_idref]
-            populate_platform_references_list()
-        ttk.Button(add_frame, text="Add", command=add_platform_ref).pack(side=tk.LEFT, padx=5)
-        ttk.Button(list_frame, text="Remove", command=remove_platform_ref).pack(side=tk.LEFT, padx=5, anchor='n')
-        populate_platform_references_list()
 
-    def on_platform_select(self, event):
-        selected_item = self.platforms_tree.focus()
-        if not selected_item:
-            self.selected_platform_obj = None
-            return
-        platform_id = self.platforms_tree.item(selected_item)['values'][0]
-        benchmark_obj = self.get_benchmark()
-        if benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
-            for p in benchmark_obj.platform_specification.platform:
-                if p.get_id() == platform_id:
-                    self.selected_platform_obj = p
-                    self.display_logical_test_details()
-                    return 
-
-    def display_logical_test_details(self):
-        for widget in self.logical_test_editor_frame.winfo_children():
-            widget.destroy()
-        if not self.selected_platform_obj:
-            return
-        editor_frame = ttk.LabelFrame(self.logical_test_editor_frame, text=f"Logical Test for '{self.selected_platform_obj.get_id()}'", padding=5)
-        editor_frame.pack(fill=tk.BOTH, expand=True)
-        if self.selected_platform_obj.logical_test is None:
-             self.selected_platform_obj.logical_test = xccdf_models.LogicalTestType(operator='AND', negate=False)
-        logical_test = self.selected_platform_obj.logical_test
-        top_frame = ttk.Frame(editor_frame)
-        top_frame.pack(fill=tk.X, pady=2)
-        ttk.Label(top_frame, text="Operator:").pack(side=tk.LEFT)
-        op_var = tk.StringVar(value=logical_test.get_operator())
-        op_combo = ttk.Combobox(top_frame, textvariable=op_var, values=["AND", "OR"], width=5)
-        op_combo.pack(side=tk.LEFT, padx=5)
-        def set_operator(event):
-            logical_test.set_operator(op_var.get())
-        op_combo.bind("<<ComboboxSelected>>", set_operator)
-        negate_var = tk.BooleanVar(value=logical_test.get_negate())
-        negate_check = ttk.Checkbutton(top_frame, text="Negate", variable=negate_var, command=lambda: logical_test.set_negate(negate_var.get()))
-        negate_check.pack(side=tk.LEFT, padx=10)
-        self.fact_refs_tree = ttk.Treeview(editor_frame, columns=("cpe",), show="headings", height=3)
-        self.fact_refs_tree.heading("cpe", text="CPE Name (fact-ref)")
-        self.fact_refs_tree.pack(fill=tk.BOTH, expand=True, pady=5)
-        self.populate_fact_refs_tree()
-        fact_button_frame = ttk.Frame(editor_frame)
-        fact_button_frame.pack(fill=tk.X)
-        ttk.Button(fact_button_frame, text="Add CPE", command=self.add_fact_ref).pack(side=tk.LEFT, padx=2)
-        ttk.Button(fact_button_frame, text="Edit CPE", command=self.edit_fact_ref).pack(side=tk.LEFT, padx=2)
-        ttk.Button(fact_button_frame, text="Remove CPE", command=self.remove_fact_ref).pack(side=tk.LEFT, padx=2)
-
-    def populate_platforms_tree(self):
-        if not self.platforms_tree: return
-        for i in self.platforms_tree.get_children(): self.platforms_tree.delete(i)
-        benchmark_obj = self.get_benchmark()
-        if benchmark_obj and benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
-            for platform in benchmark_obj.platform_specification.platform:
-                self.platforms_tree.insert("", "end", values=(platform.get_id(),))
-
-    def add_platform(self):
-        benchmark_obj = self.get_benchmark()
-        if not benchmark_obj: return
-        new_id = simpledialog.askstring("Add Platform", "Enter new platform ID:", parent=self.root)
-        if new_id:
-            if benchmark_obj.platform_specification is None:
-                benchmark_obj.platform_specification = xccdf_models.platformSpecificationType()
-            if benchmark_obj.platform_specification.platform is None:
-                 benchmark_obj.platform_specification.platform = []
-            new_platform = xccdf_models.PlatformType(id=new_id)
-            benchmark_obj.platform_specification.platform.append(new_platform)
-            self.populate_platforms_tree()
-
-    def edit_platform(self):
-        selected_item = self.platforms_tree.focus()
-        if not selected_item:
-            messagebox.showwarning("No Selection", "Please select a platform to edit.")
-            return
-        current_id = self.platforms_tree.item(selected_item)['values'][0]
-        new_id = simpledialog.askstring("Edit Platform", "Edit platform ID:", initialvalue=current_id, parent=self.root)
-        if new_id and new_id != current_id:
-            benchmark_obj = self.get_benchmark()
-            if benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
-                for platform in benchmark_obj.platform_specification.platform:
-                    if platform.get_id() == current_id:
-                        platform.set_id(new_id)
-                        break
-            self.populate_platforms_tree()
-
-    def remove_platform(self):
-        selected_item = self.platforms_tree.focus()
-        if not selected_item:
-            messagebox.showwarning("No Selection", "Please select a platform to remove.")
-            return
-        id_to_remove = self.platforms_tree.item(selected_item)['values'][0]
-        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove platform '{id_to_remove}'?"):
-            benchmark_obj = self.get_benchmark()
-            if benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
-                benchmark_obj.platform_specification.platform = [p for p in benchmark_obj.platform_specification.platform if p.get_id() != id_to_remove]
-            self.populate_platforms_tree()
-
-    def add_fact_ref(self):
-        if not self.selected_platform_obj: return
-        new_cpe = simpledialog.askstring("Add CPE", "Enter new CPE name:", parent=self.root)
-        if new_cpe:
-            logical_test = self.selected_platform_obj.logical_test
-            if logical_test.fact_ref is None:
-                logical_test.fact_ref = []
-            logical_test.fact_ref.append(xccdf_models.CPEFactRefType(name=new_cpe))
-            self.populate_fact_refs_tree()
-
-    def edit_fact_ref(self):
-        if not self.fact_refs_tree or not self.selected_platform_obj: return
-        selected_item = self.fact_refs_tree.focus()
-        if not selected_item:
-            messagebox.showwarning("No Selection", "Please select a CPE to edit.")
-            return
-        current_cpe = self.fact_refs_tree.item(selected_item)['values'][0]
-        new_cpe = simpledialog.askstring("Edit CPE", "Edit CPE name:", initialvalue=current_cpe, parent=self.root)
-        if new_cpe and new_cpe != current_cpe:
-            logical_test = self.selected_platform_obj.logical_test
-            if logical_test and logical_test.fact_ref:
-                for fact in logical_test.fact_ref:
-                    if fact.get_name() == current_cpe:
-                        fact.set_name(new_cpe)
-                        break
-            self.populate_fact_refs_tree()
-            
-    def remove_fact_ref(self):
-        if not self.fact_refs_tree or not self.selected_platform_obj: return
-        selected_item = self.fact_refs_tree.focus()
-        if not selected_item:
-            messagebox.showwarning("No Selection", "Please select a CPE to remove.")
-            return
-        cpe_to_remove = self.fact_refs_tree.item(selected_item)['values'][0]
-        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove CPE '{cpe_to_remove}'?"):
-            logical_test = self.selected_platform_obj.logical_test
-            if logical_test and logical_test.fact_ref:
-                logical_test.fact_ref = [f for f in logical_test.fact_ref if f.get_name() != cpe_to_remove]
-            self.populate_fact_refs_tree()
- 
 ##--  [  CPE Manager UI & Commands ]---
     def display_cpe_dictionary_manager(self, cpe_list_obj):
         """Creates the UI for managing CPE items within a CPE Dictionary."""
-        self.cpe_item_map = {}
+        self.maps['cpe_item'] = {}
         manager_frame = ttk.LabelFrame(self.detail_frame, text="Manage CPE Items", padding=5)
         manager_frame.pack(fill=tk.BOTH, expand=True, pady=10)
 
@@ -1303,7 +1075,8 @@ class XccdfEditorApp:
         """Clears and repopulates the CPE items treeview."""
         for i in self.cpe_items_tree.get_children():
             self.cpe_items_tree.delete(i)
-        self.cpe_item_map.clear()
+        
+        self.maps['cpe_item'].clear()
         
         if cpe_list_obj and cpe_list_obj.get_cpe_item():
             for cpe_item in cpe_list_obj.get_cpe_item():
@@ -1319,7 +1092,7 @@ class XccdfEditorApp:
                 
                 # --- Add the new oval_def_id to the values tuple
                 item_id = self.cpe_items_tree.insert("", "end", values=(name, title, oval_def_id, check_href))
-                self.cpe_item_map[item_id] = cpe_item
+                self.maps['cpe_item'][item_id] = cpe_item
 
     def _show_cpe_item_dialog(self, item_to_edit=None):
         """Shows a dialog to add or edit a CPE item. Returns a dict of values or None."""
@@ -1339,7 +1112,10 @@ class XccdfEditorApp:
         ttk.Entry(main_frame, textvariable=name_var, width=60).grid(row=0, column=1, sticky="ew", pady=2)
 
         ttk.Label(main_frame, text="Title:").grid(row=1, column=0, sticky="w", pady=2)
-        title_var = tk.StringVar(value=item_to_edit.get_title()[0].get_valueOf_() if item_to_edit and item_to_edit.get_title() else "")
+        title_text = ""
+        if item_to_edit and item_to_edit.get_title():
+            title_text = item_to_edit.get_title()[0].get_valueOf_()        
+        title_var = tk.StringVar(value=title_text)
         ttk.Entry(main_frame, textvariable=title_var).grid(row=1, column=1, sticky="ew", pady=2)
         
         # 1. OVAL Component Selector
@@ -1360,12 +1136,8 @@ class XccdfEditorApp:
             selected_comp_id = component_var.get()
             component_obj = oval_components.get(selected_comp_id)
             if component_obj:
-                oval_defs = component_obj.oval_definitions
-                def_ids = []
-                if oval_defs.get_definitions():
-                    for definition in oval_defs.get_definitions().get_definition():
-                        def_ids.append(definition.get_id())
-                definition_combo['values'] = sorted(def_ids)
+                def_ids = self.get_oval_definition_ids(specific_oval_defs=component_obj.oval_definitions)
+                definition_combo['values'] = def_ids
                 if def_ids:
                     definition_var.set(def_ids[0])
             else:
@@ -1406,26 +1178,23 @@ class XccdfEditorApp:
 
     def add_cpe_item(self, cpe_list_obj):
         """Handles adding a new CPE item."""
-        # --- dialog gets both component and definition IDs
         data = self._show_cpe_item_dialog()
         if data:
-            new_item = cpe_dictionary_models.ItemType(name=data['name'])
-            new_item.add_title(cpe_dictionary_models.TextType(valueOf_=data['title']))
+            new_item = models.ItemType(name=data['name'])
+            new_item.add_title(models.TextType(valueOf_=data['title']))
 
-            # --- Use data keys to build the check element
-            if data.get('check_component_id') and data.get('check_definition_id'):
-                # --- Get the correct name for the href attribute from the catalog
-                href_name = self.get_cpe_oval_catalog_name()
-
-                check = cpe_dictionary_models.CheckType(
+            # Use data keys to build the check element
+            if data.get('check_definition_id'):
+                check = models.CheckType(
                     system="http://oval.mitre.org/XMLSchema/oval-definitions-5",
-                    href=href_name,
-                    valueOf_=data['check_definition_id']
+                    # The href should be the OVAL Definition ID
+                    href=data['check_definition_id']
                 )
                 new_item.add_check(check)
             
             cpe_list_obj.add_cpe_item(new_item)
             self.populate_cpe_tree(cpe_list_obj)
+            self._mark_as_dirty()
 
     def edit_cpe_item(self, cpe_list_obj):
         """Handles editing an existing CPE item."""
@@ -1434,7 +1203,10 @@ class XccdfEditorApp:
             messagebox.showwarning("No Selection", "Please select a CPE item to edit.")
             return
         
-        item_to_edit = self.cpe_item_map[selected_id]
+        item_to_edit = self.maps['cpe_item'].get(selected_id)
+        if not item_to_edit:
+            return
+
         data = self._show_cpe_item_dialog(item_to_edit)
 
         if data:
@@ -1443,23 +1215,25 @@ class XccdfEditorApp:
             if item_to_edit.get_title():
                 item_to_edit.get_title()[0].set_valueOf_(data['title'])
             else:
-                item_to_edit.add_title(cpe_dictionary_models.TextType(valueOf_=data['title']))
+                item_to_edit.add_title(models.TextType(valueOf_=data['title']))
 
-            if data.get('check_component_id') and data.get('check_definition_id'):
-                href_name = self.get_cpe_oval_catalog_name()
+            # REFINED: Simplified logic for updating the check element.
+            if data.get('check_definition_id'):
                 check_obj = item_to_edit.get_check()[0] if item_to_edit.get_check() else None
+                # Create a new check object if one doesn't exist
                 if not check_obj:
-                    check_obj = cpe_dictionary_models.CheckType(system="http://oval.mitre.org/XMLSchema/oval-definitions-5")
+                    check_obj = models.CheckType(system="http://oval.mitre.org/XMLSchema/oval-definitions-5")
                     item_to_edit.add_check(check_obj)
                 
-                check_obj.set_href(href_name)
-                check_obj.set_valueOf_(data['check_definition_id'])
+                # Update the href with the OVAL Definition ID
+                check_obj.set_href(data['check_definition_id'])
             else:
-                # --- Clear the check if the fields were emptied in the dialog
+                # If the definition ID was cleared, remove the check element.
                 item_to_edit.set_check([]) 
             
             self.populate_cpe_tree(cpe_list_obj)
-
+            self._mark_as_dirty()
+            
     def remove_cpe_item(self, cpe_list_obj):
         """Handles removing a selected CPE item."""
         selected_id = self.cpe_items_tree.focus()
@@ -1467,17 +1241,22 @@ class XccdfEditorApp:
             messagebox.showwarning("No Selection", "Please select a CPE item to remove.")
             return
         
-        item_to_remove = self.cpe_item_map[selected_id]
+        item_to_remove = self.maps['cpe_item'].get(selected_id)
+        if not item_to_remove:
+            return
+
         if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete the CPE item '{item_to_remove.get_name()}'?"):
             cpe_list_obj.get_cpe_item().remove(item_to_remove)
             self.populate_cpe_tree(cpe_list_obj)
-
+            self._mark_as_dirty()
+            
     def _create_component_ref(self, ref_id, component_id_href, create_catalog=True):
         """Creates a component-ref object, with an optional catalog."""
-        comp_ref = datastream_models.component_ref(id=ref_id, href=component_id_href)
+        comp_ref = models.component_ref(id=ref_id, href=component_id_href)
         if create_catalog:
-            catalog_uri = datastream_models.uri(name=ref_id, uri=component_id_href)
-            comp_ref.set_catalog(datastream_models.catalog(uri=[catalog_uri]))
+            catalog_uri = models.uri(name=ref_id, uri_member=component_id_href)
+            comp_ref.set_catalog(models.catalog(uri=[catalog_uri]))
+            print(f"catalog_uri: {catalog_uri}")
         return comp_ref
 
     def get_cpe_oval_catalog_name(self):
@@ -1494,26 +1273,715 @@ class XccdfEditorApp:
             return None
         return None
 
+    def _create_ref_list_viewer(self, parent, title, ref_list_name):
+        """Creates a read-only listbox to display component references."""
+        frame = ttk.LabelFrame(parent, text=title, padding=5)
+        frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        
+        listbox = tk.Listbox(frame, height=4)
+        listbox.pack(fill=tk.BOTH, expand=True)
+        
+        ds = self.datastream_collection.get_data_stream()[0]
+        ref_list = getattr(ds, f"get_{ref_list_name}")()
+        if ref_list and ref_list.get_component_ref():
+            for ref in ref_list.get_component_ref():
+                listbox.insert(tk.END, f"  ID: {ref.get_id()}")
+                listbox.insert(tk.END, f"  HREF: {ref.get_href()}")
+                if ref.get_catalog():
+                    for uri in ref.get_catalog().get_uri():
+                        listbox.insert(tk.END, f"    Catalog URI: {uri.get_uri()}")
+                        listbox.insert(tk.END, f"    Catalog Name: {uri.get_name()}")
+        
+        # Make the listbox read-only
+        listbox.config(state=tk.DISABLED)
+
+    def _update_datastream_references(self):
+        """
+        Scans all components and rebuilds the dictionaries, checklists, and checks
+        references in the main data-stream.
+        """
+        if not self.datastream_collection: return
+        ds = self.datastream_collection.get_data_stream()[0]
+
+        # Clear existing references
+        ds.set_dictionaries(models.refListType())
+        ds.set_checklists(models.refListType())
+        ds.set_checks(models.refListType())
+
+        # Find all component IDs and create a lookup map
+        xccdf_comp, cpe_dict_comp, cpe_oval_comp, oval_check_comp = None, None, None, None
+        for comp in self.datastream_collection.get_component():
+            if comp.Benchmark: xccdf_comp = comp
+            elif comp.cpe_list: cpe_dict_comp = comp
+            elif "cpe-oval" in comp.get_id(): cpe_oval_comp = comp
+            else: oval_check_comp = comp
+
+        # Rebuild dictionaries reference
+        if cpe_dict_comp and cpe_oval_comp:
+            comp_ref = models.component_ref(id=f"scap_{self.prefix}_cref_SPECTRE-cpe-dictionary.xml", href=f"#{cpe_dict_comp.get_id()}")
+            cat_uri = models.uri(name=f"{self.prefix}-collection-cpe-oval.xml", uri=f"#{cpe_oval_comp.get_id()}")
+            comp_ref.set_catalog(models.catalog(uri=[cat_uri]))
+            ds.get_dictionaries().add_component_ref(comp_ref)
+
+        # Rebuild checklists reference
+        if xccdf_comp and oval_check_comp:
+            comp_ref = models.component_ref(id=f"scap_{self.prefix}_cref_SPECTRE-xccdf.xml", href=f"#{xccdf_comp.get_id()}")
+            cat_uri = models.uri(name=f"{self.prefix}-collection-oval.xml", uri=f"#{oval_check_comp.get_id()}")
+            comp_ref.set_catalog(models.catalog(uri=[cat_uri]))
+            ds.get_checklists().add_component_ref(comp_ref)
+            
+        # Rebuild checks references
+        if oval_check_comp:
+            ds.get_checks().add_component_ref(models.component_ref(id=f"scap_{self.prefix}_cref_SPECTRE-oval-check.xml", href=f"#{oval_check_comp.get_id()}"))
+        if cpe_oval_comp:
+            ds.get_checks().add_component_ref(models.component_ref(id=f"scap_{self.prefix}_cref_SPECTRE-cpe-oval-check.xml", href=f"#{cpe_oval_comp.get_id()}"))
+
+        self._mark_as_dirty()
+        messagebox.showinfo("Success", "Datastream references have been updated.")
+        # Refresh the details view to show the changes
+        self.display_details(ds)
+        
+
+##--  [  XCCDF-Specific UI & Helpers ]---
+    def create_benchmark_platform_manager(self, parent_frame, item_data):
+        manager_frame = ttk.LabelFrame(parent_frame, text="Applicable Platforms (Benchmark-Level)", padding=5)
+        manager_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        ref_tree = ttk.Treeview(manager_frame, columns=("idref",), show="headings", height=3)
+        ref_tree.heading("idref", text="Platform ID Reference")
+        ref_tree.pack(fill=tk.BOTH, expand=True)
+        
+        def populate_platform_references_list():
+            for i in ref_tree.get_children(): ref_tree.delete(i)
+            if item_data.platform:
+                for p_ref in item_data.platform:
+                    ref_tree.insert("", "end", values=(p_ref.get_idref(),))
+        
+        def add_platform_ref():
+            new_idref = simpledialog.askstring("Add Platform Reference", "Enter new platform reference (ID or CPE):", parent=self.root)
+            if not new_idref: return
+            if item_data.platform and any(p.get_idref() == new_idref for p in item_data.platform):
+                messagebox.showwarning("Duplicate", "That platform reference already exists.")
+                return
+            if item_data.platform is None:
+                item_data.platform = []
+            
+            item_data.platform.append(models.overrideableCPE2idrefType(idref=new_idref))
+            populate_platform_references_list()
+            self._mark_as_dirty()
+            
+        def edit_platform_ref():
+            selected = ref_tree.focus()
+            if not selected: return
+            current_idref = ref_tree.item(selected)['values'][0]
+            new_idref = simpledialog.askstring("Edit Platform Reference", "Enter new platform reference:", initialvalue=current_idref, parent=self.root)
+            if new_idref and new_idref != current_idref:
+                for p_ref in item_data.platform:
+                    if p_ref.get_idref() == current_idref:
+                        p_ref.set_idref(new_idref)
+                        break
+                populate_platform_references_list()
+                self._mark_as_dirty()
+
+        def remove_platform_ref():
+            selected = ref_tree.focus()
+            if not selected: return
+            idref_to_remove = ref_tree.item(selected)['values'][0]
+            if item_data.platform:
+                item_data.platform = [p for p in item_data.platform if p.get_idref() != idref_to_remove]
+            populate_platform_references_list()
+            self._mark_as_dirty()
+            
+        button_frame = ttk.Frame(manager_frame)
+        button_frame.pack(fill=tk.X, pady=5)
+        ttk.Button(button_frame, text="Add...", command=add_platform_ref).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="Edit...", command=edit_platform_ref).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="Remove", command=remove_platform_ref).pack(side=tk.LEFT, padx=2)
+        populate_platform_references_list()
+
+## make the UI feel faster by just repopulating the local profile list and finding a way to update the main tree more selectively.
+    def display_profile_list_manager(self):
+        manager_frame = ttk.LabelFrame(self.detail_frame, text="Manage Profiles", padding=5)
+        manager_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        profile_tree = ttk.Treeview(manager_frame, columns=("id", "title"), show="headings", height=5)
+        profile_tree.heading("id", text="Profile ID")
+        profile_tree.heading("title", text="Title")
+        profile_tree.pack(fill=tk.BOTH, expand=True)
+        
+        benchmark_obj = self.get_benchmark()
+        if not benchmark_obj: # Safety check
+            return
+
+        def populate_profile_list():
+            for i in profile_tree.get_children(): profile_tree.delete(i)
+            if benchmark_obj and benchmark_obj.Profile:
+                for p in benchmark_obj.Profile:
+                    title = p.title[0].get_valueOf_() if p.title else ""
+                    profile_tree.insert("", "end", values=(p.get_id(), title))
+        
+        def add_profile():
+            new_id = simpledialog.askstring("Add Profile", "Enter new profile ID:", parent=self.root)
+            if not new_id: return
+            if benchmark_obj.Profile and any(p.get_id() == new_id for p in benchmark_obj.Profile):
+                messagebox.showwarning("Duplicate ID", "A profile with that ID already exists.")
+                return
+            
+            new_profile = models.profileType(id=new_id)
+            new_profile.set_title([models.textWithSubType(valueOf_="New Profile")])
+            if benchmark_obj.Profile is None:
+                benchmark_obj.Profile = []
+                
+            benchmark_obj.Profile.append(new_profile)
+            self.populate_treeview() # Refreshes the main tree
+            populate_profile_list()  # Refreshes this local tree
+            self._mark_as_dirty()   # Mark the change
+            
+        def remove_profile():
+            selected = profile_tree.focus()
+            if not selected: return
+            id_to_remove = profile_tree.item(selected)['values'][0]
+            
+            if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove profile '{id_to_remove}'?"):
+                if benchmark_obj.Profile:
+                    benchmark_obj.Profile = [p for p in benchmark_obj.Profile if p.get_id() != id_to_remove]
+                    self.populate_treeview() # Refreshes the main tree
+                    populate_profile_list()  # Refreshes this local tree
+                    self._mark_as_dirty()   # Mark the change
+
+        button_frame = ttk.Frame(manager_frame)
+        button_frame.pack(fill=tk.X, pady=5)
+        ttk.Button(button_frame, text="Add Profile...", command=add_profile).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="Remove Selected", command=remove_profile).pack(side=tk.LEFT, padx=2)
+
+        populate_profile_list()
+
+    def _add_group_to_tree(self, parent_node, group):
+        title_text = group.title[0].get_valueOf_() if group.title else ""
+        group_id_str = group.id or "Group"
+        
+        node_id = self.tree.insert(parent_node, "end", text=f"Group: {title_text} ({group_id_str})", open=True)
+        
+        self.maps['item'][node_id] = group
+        
+        if group.Group:
+            for subgroup in group.Group:
+                self._add_group_to_tree(node_id, subgroup)
+        if group.Rule:
+            for rule in group.Rule:
+                self._add_rule_to_tree(node_id, rule)
+
+    def _add_rule_to_tree(self, parent_node, rule):
+        title_text = rule.title[0].get_valueOf_() if rule.title else ""
+        node_id = self.tree.insert(parent_node, "end", text=f"Rule: {title_text} ({rule.id})")
+        self.maps['item'][node_id] = rule
+
+    def populate_fact_refs_tree(self):
+        if not self.fact_refs_tree or not self.selected_platform_obj: return
+        for i in self.fact_refs_tree.get_children(): self.fact_refs_tree.delete(i)
+        logical_test = self.selected_platform_obj.logical_test
+        if logical_test and logical_test.fact_ref:
+            for fact in logical_test.fact_ref:
+                self.fact_refs_tree.insert("", "end", values=(fact.get_name(),))
+
+    def show_move_dialog(self):
+        selected_id = self.tree.focus()
+        if not selected_id: return
+        item_to_move = self.maps['item'].get(selected_id)
+        if not isinstance(item_to_move, (models.groupType, models.ruleType)): return
+
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Move Item")
+        dialog.geometry("400x300")
+        dialog.transient(self.root)
+        
+        ttk.Label(dialog, text=f"Select a new parent for '{item_to_move.get_id()}'").pack(pady=10)
+        
+        listbox_frame = ttk.Frame(dialog)
+        listbox_frame.pack(fill=tk.BOTH, expand=True, padx=10)
+        listbox = tk.Listbox(listbox_frame, selectmode=tk.SINGLE)
+        listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar = ttk.Scrollbar(listbox_frame, orient="vertical", command=listbox.yview)
+        scrollbar.pack(side=tk.RIGHT, fill="y")
+        listbox.config(yscrollcommand=scrollbar.set)
+        
+        def get_descendants(item):
+            descendants = {item}
+            if isinstance(item, models.groupType) and item.Group:
+                for child_group in item.Group:
+                    descendants.update(get_descendants(child_group))
+            return descendants
+
+        items_to_exclude = get_descendants(item_to_move)
+        
+        possible_parents = []
+        def collect_parents_recursive(parent_candidate):
+            if parent_candidate not in items_to_exclude:
+                possible_parents.append(parent_candidate)
+            
+            if hasattr(parent_candidate, 'Group') and parent_candidate.Group:
+                for subgroup in parent_candidate.Group:
+                    collect_parents_recursive(subgroup)
+        
+        collect_parents_recursive(self.get_benchmark())
+
+        for parent in possible_parents:
+            if isinstance(parent, models.Benchmark):
+                title = parent.title[0].get_valueOf_() if parent.title else ""
+                listbox.insert(tk.END, f"Benchmark: {title}")
+            else:
+                title = parent.title[0].get_valueOf_() if parent.title else ""
+                listbox.insert(tk.END, f"  Group: {parent.get_id()} ({title})")
+        
+        def on_ok():
+            selected_indices = listbox.curselection()
+            if not selected_indices:
+                dialog.destroy()
+                return
+            
+            new_parent_obj = possible_parents[selected_indices[0]]
+            old_parent_obj = self.find_parent(self.datastream_collection, item_to_move)
+
+            if new_parent_obj is old_parent_obj:
+                dialog.destroy()
+                return
+
+            if isinstance(item_to_move, models.ruleType) and isinstance(new_parent_obj, models.Benchmark):
+                messagebox.showerror("Invalid Move", "Rules cannot be moved directly under a Benchmark.")
+                dialog.destroy()
+                return
+
+            if isinstance(item_to_move, models.groupType):
+                old_parent_obj.Group.remove(item_to_move)
+            else:
+                old_parent_obj.Rule.remove(item_to_move)
+            
+            if isinstance(item_to_move, models.groupType):
+                if new_parent_obj.Group is None: new_parent_obj.Group = []
+                new_parent_obj.Group.append(item_to_move)
+            else:
+                if new_parent_obj.Rule is None: new_parent_obj.Rule = []
+                new_parent_obj.Rule.append(item_to_move)
+
+            self.populate_treeview()
+            self._mark_as_dirty()
+            dialog.destroy()
+
+        button_frame = ttk.Frame(dialog)
+        button_frame.pack(pady=10)
+        ttk.Button(button_frame, text="OK", command=on_ok).pack(side=tk.LEFT, padx=10)
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT)
+
+    def create_text_editor(self, parent_frame, label_text, data_obj, attr_name, height=1):
+        ttk.Label(parent_frame, text=label_text, width=15).pack(anchor='w', pady=(5, 0))
+        text_class = models.htmlTextWithSubType
+        if attr_name in ['title', 'rationale', 'fixtext']:
+            text_class = models.textWithSubType if attr_name == 'title' else models.htmlTextWithSubType
+        text_widget = tk.Text(parent_frame, height=height, wrap="word")
+        text_widget.pack(fill=tk.X, expand=True)
+        
+        text_obj_list = getattr(data_obj, attr_name, [])
+        if text_obj_list:
+            text_widget.insert("1.0", text_obj_list[0].get_valueOf_() or "")
+        
+        def update_text_content(event):
+            current_list = getattr(data_obj, attr_name, [])
+            if not current_list:
+                new_text_obj = text_class()
+                setattr(data_obj, attr_name, [new_text_obj])
+                current_list = [new_text_obj]
+                
+            current_list[0].set_valueOf_(text_widget.get("1.0", "end-1c"))
+            self._mark_as_dirty()
+            
+            if attr_name == 'title':
+                self.populate_treeview()
+        
+        text_widget.bind("<KeyRelease>", update_text_content)
+
+    def create_profile_selection_editor(self, profile_obj):
+        editor_frame = ttk.LabelFrame(self.detail_frame, text="Profile Selections", padding=5)
+        editor_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        pw = ttk.PanedWindow(editor_frame, orient=tk.HORIZONTAL)
+        pw.pack(fill=tk.BOTH, expand=True)
+        available_frame = ttk.Frame(pw, padding=2)
+        button_frame = ttk.Frame(pw, padding=5)
+        selected_frame = ttk.Frame(pw, padding=2)
+        pw.add(available_frame, weight=2)
+        pw.add(button_frame, weight=0)
+        pw.add(selected_frame, weight=2)
+        ttk.Label(available_frame, text="Available Items").pack()
+        available_tree = ttk.Treeview(available_frame, values=["id"]) # Store ID in values
+        available_tree.pack(fill=tk.BOTH, expand=True)
+        ttk.Label(selected_frame, text="Profile Selections").pack()
+        selected_tree = ttk.Treeview(selected_frame, columns=("status",), show="tree headings")
+        selected_tree.heading("status", text="Status")
+        selected_tree.column("status", width=80, anchor='center')
+        selected_tree.pack(fill=tk.BOTH, expand=True)
+        
+        benchmark_obj = self.get_benchmark()
+        if not benchmark_obj: return
+
+        def get_all_item_ids(groups):
+            ids = {}
+            def recurse(items):
+                for item in items:
+                    if isinstance(item, (models.groupType, models.ruleType)):
+                        ids[item.get_id()] = item
+                        if isinstance(item, models.groupType) and item.Group:
+                            recurse(item.Group)
+                        if isinstance(item, models.groupType) and item.Rule:
+                            recurse(item.Rule)
+            if groups:
+                recurse(groups)
+            return ids
+        all_benchmark_items = get_all_item_ids(benchmark_obj.Group)
+        
+        def populate_trees():
+            for i in available_tree.get_children(): available_tree.delete(i)
+            for i in selected_tree.get_children(): selected_tree.delete(i)
+            
+            if profile_obj.select is None: profile_obj.select = []
+            
+            selected_idrefs = {s.get_idref() for s in profile_obj.select}
+            
+            def populate_available_recursively(parent_node, items):
+                for item in items:
+                    if item.get_id() not in selected_idrefs:
+                        title = item.title[0].get_valueOf_() if item.title else ""
+                        node_id = available_tree.insert(parent_node, "end", text=f"{item.get_id()}: {title}", open=False, values=[item.get_id()])
+                        if isinstance(item, models.groupType) and item.Group:
+                            populate_available_recursively(node_id, item.Group)
+                        if isinstance(item, models.groupType) and item.Rule:
+                            populate_available_recursively(node_id, item.Rule)
+
+            if benchmark_obj.Group:
+                populate_available_recursively("", benchmark_obj.Group)
+
+            for selection in profile_obj.select:
+                idref = selection.get_idref()
+                status_str = "[+] Selected" if selection.get_selected() else "[-] Unselected"
+                item_obj = all_benchmark_items.get(idref)
+                title = item_obj.title[0].get_valueOf_() if item_obj and item_obj.title else ""
+                selected_tree.insert("", "end", text=f"{idref}: {title}", values=(status_str, idref))
+        
+        def move_item(is_selected_bool):
+            selected_id = available_tree.focus()
+            if not selected_id: return
+            idref = available_tree.item(selected_id)['values'][0]
+            
+            profile_obj.select.append(models.profileSelectType(idref=idref, selected=is_selected_bool))
+            populate_trees()
+            self._mark_as_dirty()
+        
+        def remove_selection():
+            selected_in_profile = selected_tree.focus()
+            if not selected_in_profile: return
+            idref_to_remove = selected_tree.item(selected_in_profile)['values'][1]
+            
+            profile_obj.select = [s for s in profile_obj.select if s.get_idref() != idref_to_remove]
+            populate_trees()
+            self._mark_as_dirty()
+        
+        ttk.Button(button_frame, text="Select >>", command=lambda: move_item(True)).pack(pady=5)
+        ttk.Button(button_frame, text="Unselect >>", command=lambda: move_item(False)).pack(pady=5)
+        ttk.Button(button_frame, text="<< Remove", command=remove_selection).pack(pady=20)
+        
+        populate_trees()
+        
+    def get_benchmark(self):
+        """
+        Finds and returns the first XCCDF Benchmark component in the datastream.
+        Returns None if no datastream or benchmark is found.
+        """
+        if self.datastream_collection and self.datastream_collection.get_component():
+            for comp in self.datastream_collection.get_component():
+                # The hasattr check is a bit safer than direct access
+                if hasattr(comp, 'Benchmark') and comp.Benchmark is not None:
+                    return comp.Benchmark
+        return None
+
+    def create_item_platform_manager(self, parent_frame, item_data):
+        manager_frame = ttk.LabelFrame(parent_frame, text="Applicable Platforms", padding=5)
+        manager_frame.pack(fill=tk.BOTH, expand=True, pady=10)
+        
+        benchmark_obj = self.get_benchmark()
+        if not benchmark_obj: return
+
+        platform_ids = set()
+        if hasattr(benchmark_obj, 'platform_specification') and benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
+            for p in benchmark_obj.platform_specification.platform:
+                if p.logical_test and p.logical_test.fact_ref:
+                    # Safely get the CPE name
+                    cpe_name = p.logical_test.fact_ref[0].get_name()
+                    if cpe_name:
+                        platform_ids.add(cpe_name)
+        if hasattr(benchmark_obj, 'platform') and benchmark_obj.platform:
+            for p_ref in benchmark_obj.platform:
+                platform_ids.add(p_ref.get_idref())
+        available_platforms = sorted(list(platform_ids))
+        
+        add_frame = ttk.Frame(manager_frame)
+        add_frame.pack(fill=tk.X, pady=2)
+        platform_combo = ttk.Combobox(add_frame, values=available_platforms, state="readonly")
+        platform_combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
+        list_frame = ttk.Frame(manager_frame)
+        list_frame.pack(fill=tk.BOTH, expand=True, pady=5)
+        platform_listbox = tk.Listbox(list_frame, height=4)
+        platform_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        def populate_platform_references_list():
+            platform_listbox.delete(0, tk.END)
+            if item_data.platform:
+                for p_ref in item_data.platform:
+                    platform_listbox.insert(tk.END, p_ref.get_idref())
+
+        def add_platform_ref():
+            selected_id = platform_combo.get()
+            if not selected_id: return
+            if item_data.platform and any(p.get_idref() == selected_id for p in item_data.platform):
+                return # Silently ignore duplicates
+            if item_data.platform is None:
+                item_data.platform = []
+            
+            item_data.platform.append(models.overrideableCPE2idrefType(idref=selected_id))
+            populate_platform_references_list()
+            self._mark_as_dirty() # Mark change
+
+        def remove_platform_ref():
+            selected_indices = platform_listbox.curselection()
+            if not selected_indices: return
+            selected_idref = platform_listbox.get(selected_indices[0])
+            if item_data.platform:
+                item_data.platform = [p for p in item_data.platform if p.get_idref() != selected_idref]
+                populate_platform_references_list()
+                self._mark_as_dirty() # Mark change
+
+        ttk.Button(add_frame, text="Add", command=add_platform_ref).pack(side=tk.LEFT, padx=5)
+        ttk.Button(list_frame, text="Remove", command=remove_platform_ref).pack(side=tk.LEFT, padx=5, anchor='n')
+        
+        populate_platform_references_list()
+        
+    def on_platform_select(self, event):
+        selected_item_id = self.platforms_tree.focus()
+
+        # Clear the current selection first
+        self.selected_platform_obj = None
+
+        if selected_item_id:
+            platform_id = self.platforms_tree.item(selected_item_id)['values'][0]
+            benchmark_obj = self.get_benchmark()
+
+            if benchmark_obj and benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
+                self.selected_platform_obj = next(
+                    (p for p in benchmark_obj.platform_specification.platform if p.get_id() == platform_id), 
+                    None
+                )
+        
+        self.display_logical_test_details()
+
+    def display_logical_test_details(self):
+        for widget in self.logical_test_editor_frame.winfo_children():
+            widget.destroy()
+            
+        if not self.selected_platform_obj:
+            return
+
+        editor_frame = ttk.LabelFrame(self.logical_test_editor_frame, text=f"Logical Test for '{self.selected_platform_obj.get_id()}'", padding=5)
+        editor_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # This is a great safety check to ensure the logical_test object exists.
+        if self.selected_platform_obj.logical_test is None:
+            self.selected_platform_obj.logical_test = models.LogicalTestType(operator='AND', negate=False)
+        logical_test = self.selected_platform_obj.logical_test
+
+        top_frame = ttk.Frame(editor_frame)
+        top_frame.pack(fill=tk.X, pady=2)
+        
+        ttk.Label(top_frame, text="Operator:").pack(side=tk.LEFT)
+        op_var = tk.StringVar(value=logical_test.get_operator())
+        op_combo = ttk.Combobox(top_frame, textvariable=op_var, values=["AND", "OR"], width=5)
+        op_combo.pack(side=tk.LEFT, padx=5)
+        # REFINEMENT: Use a lambda for a more concise binding.
+        op_combo.bind("<<ComboboxSelected>>", 
+                      lambda e: (logical_test.set_operator(op_var.get()), self._mark_as_dirty()))
+
+        negate_var = tk.BooleanVar(value=logical_test.get_negate())
+        # REFINEMENT: Combine the command and the dirty marker in the lambda.
+        negate_check = ttk.Checkbutton(top_frame, text="Negate", variable=negate_var, 
+                                       command=lambda: (logical_test.set_negate(negate_var.get()), self._mark_as_dirty()))
+        negate_check.pack(side=tk.LEFT, padx=10)
+        
+        # This UI setup for fact references is excellent.
+        self.fact_refs_tree = ttk.Treeview(editor_frame, columns=("cpe",), show="headings", height=3)
+        self.fact_refs_tree.heading("cpe", text="CPE Name (fact-ref)")
+        self.fact_refs_tree.pack(fill=tk.BOTH, expand=True, pady=5)
+        self.populate_fact_refs_tree()
+
+        fact_button_frame = ttk.Frame(editor_frame)
+        fact_button_frame.pack(fill=tk.X)
+        ttk.Button(fact_button_frame, text="Add CPE", command=self.add_fact_ref).pack(side=tk.LEFT, padx=2)
+        ttk.Button(fact_button_frame, text="Edit CPE", command=self.edit_fact_ref).pack(side=tk.LEFT, padx=2)
+        ttk.Button(fact_button_frame, text="Remove CPE", command=self.remove_fact_ref).pack(side=tk.LEFT, padx=2)
+        
+    def populate_platforms_tree(self):
+        if not self.platforms_tree: return
+        for i in self.platforms_tree.get_children(): self.platforms_tree.delete(i)
+        benchmark_obj = self.get_benchmark()
+        if benchmark_obj and benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
+            for platform in benchmark_obj.platform_specification.platform:
+                self.platforms_tree.insert("", "end", values=(platform.get_id(),))
+
+    def add_platform(self):
+        benchmark_obj = self.get_benchmark()
+        if not benchmark_obj: return
+
+        new_id = simpledialog.askstring("Add Platform", "Enter new platform ID:", parent=self.root)
+        if not new_id:
+            return
+
+        if benchmark_obj.platform_specification is None:
+            benchmark_obj.platform_specification = models.platformSpecificationType()
+        if benchmark_obj.platform_specification.platform is None:
+            benchmark_obj.platform_specification.platform = []
+            
+        if any(p.get_id() == new_id for p in benchmark_obj.platform_specification.platform):
+            messagebox.showwarning("Duplicate ID", f"A platform with the ID '{new_id}' already exists.")
+            return
+
+        new_platform = models.PlatformType(id=new_id)
+        benchmark_obj.platform_specification.platform.append(new_platform)
+        
+        self.populate_platforms_tree()
+        self._mark_as_dirty() # Mark the change
+
+    def edit_platform(self):
+        selected_item = self.platforms_tree.focus()
+        if not selected_item:
+            messagebox.showwarning("No Selection", "Please select a platform to edit.")
+            return
+            
+        current_id = self.platforms_tree.item(selected_item)['values'][0]
+        new_id = simpledialog.askstring("Edit Platform", "Edit platform ID:", initialvalue=current_id, parent=self.root)
+
+        if new_id and new_id != current_id:
+            benchmark_obj = self.get_benchmark()
+            if benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
+                
+                if any(p.get_id() == new_id for p in benchmark_obj.platform_specification.platform):
+                    messagebox.showwarning("Duplicate ID", f"A platform with the ID '{new_id}' already exists.")
+                    return
+                
+                for platform in benchmark_obj.platform_specification.platform:
+                    if platform.get_id() == current_id:
+                        platform.set_id(new_id)
+                        break
+                        
+                self.populate_platforms_tree()
+                self._mark_as_dirty() # Mark the change
+                
+    def remove_platform(self):
+        selected_item = self.platforms_tree.focus()
+        if not selected_item:
+            messagebox.showwarning("No Selection", "Please select a platform to remove.")
+            return
+        id_to_remove = self.platforms_tree.item(selected_item)['values'][0]
+        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove platform '{id_to_remove}'?"):
+            benchmark_obj = self.get_benchmark()
+            if benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
+                benchmark_obj.platform_specification.platform = [p for p in benchmark_obj.platform_specification.platform if p.get_id() != id_to_remove]
+            self.populate_platforms_tree()
+
+    def remove_platform(self):
+        selected_item = self.platforms_tree.focus()
+        if not selected_item:
+            messagebox.showwarning("No Selection", "Please select a platform to remove.")
+            return
+            
+        id_to_remove = self.platforms_tree.item(selected_item)['values'][0]
+        
+        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove platform '{id_to_remove}'?"):
+            benchmark_obj = self.get_benchmark()
+            if benchmark_obj and benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
+                
+                initial_count = len(benchmark_obj.platform_specification.platform)
+                benchmark_obj.platform_specification.platform = [
+                    p for p in benchmark_obj.platform_specification.platform if p.get_id() != id_to_remove
+                ]
+                
+                # Check if a change was actually made
+                if len(benchmark_obj.platform_specification.platform) < initial_count:
+                    self.populate_platforms_tree()
+                    self._mark_as_dirty() # Mark the change
+
+    def edit_fact_ref(self):
+        if not self.fact_refs_tree or not self.selected_platform_obj: return
+        
+        selected_item = self.fact_refs_tree.focus()
+        if not selected_item:
+            messagebox.showwarning("No Selection", "Please select a CPE to edit.")
+            return
+            
+        current_cpe = self.fact_refs_tree.item(selected_item)['values'][0]
+        new_cpe = simpledialog.askstring("Edit CPE", "Edit CPE name:", initialvalue=current_cpe, parent=self.root)
+
+        # Proceed only if the CPE name is new and not empty
+        if new_cpe and new_cpe != current_cpe:
+            logical_test = self.selected_platform_obj.logical_test
+            if logical_test and logical_test.fact_ref:
+                
+                if any(fact.get_name() == new_cpe for fact in logical_test.fact_ref):
+                    messagebox.showwarning("Duplicate", f"The CPE name '{new_cpe}' already exists in this logical test.")
+                    return
+                
+                for fact in logical_test.fact_ref:
+                    if fact.get_name() == current_cpe:
+                        fact.set_name(new_cpe)
+                        break
+                        
+                self.populate_fact_refs_tree()
+                self._mark_as_dirty() # Mark the change
+                
+    def remove_fact_ref(self):
+        if not self.fact_refs_tree or not self.selected_platform_obj: return
+        
+        selected_item = self.fact_refs_tree.focus()
+        if not selected_item:
+            messagebox.showwarning("No Selection", "Please select a CPE to remove.")
+            return
+            
+        cpe_to_remove = self.fact_refs_tree.item(selected_item)['values'][0]
+        
+        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove CPE '{cpe_to_remove}'?"):
+            logical_test = self.selected_platform_obj.logical_test
+            if logical_test and logical_test.fact_ref:
+                
+                initial_count = len(logical_test.fact_ref)
+                logical_test.fact_ref = [f for f in logical_test.fact_ref if f.get_name() != cpe_to_remove]
+                
+                # Check if a change was actually made
+                if len(logical_test.fact_ref) < initial_count:
+                    self.populate_fact_refs_tree()
+                    self._mark_as_dirty() # Mark the change
+
 
 ##--  [  OVAL Manager UI & Commands ]---
     def display_oval_manager(self, oval_defs_obj):
         """Creates the tabbed UI for managing OVAL components."""
-        self.current_oval_defs = oval_defs_obj 
-        self.oval_definition_map = {}
-        self.oval_criteria_map = {}
-        self.oval_tests_map = {}
-        self.oval_objects_map = {}
-        self.oval_states_map = {}
+        self.current_oval_defs = oval_defs_obj
         
+        # Ensure the generator object exists
         generator = oval_defs_obj.get_generator()
         if generator is None:
-            sv = oval.SchemaVersionType(valueOf_="5.11")
-            generator = oval.GeneratorType(product_name="SPECTRE", product_version="1.0", schema_version=[sv], timestamp=datetime.now())
+            sv = models.SchemaVersionType(valueOf_="5.11")
+            generator = models.GeneratorType(
+                product_name="SPECTRE", product_version="1.0", 
+                schema_version=[sv], timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+            )
             oval_defs_obj.set_generator(generator)
         else:
             generator.set_product_name("SPECTRE")
-                
-                
+            
         notebook = ttk.Notebook(self.detail_frame)
         notebook.pack(fill=tk.BOTH, expand=True, pady=10, padx=5)
 
@@ -1584,70 +2052,50 @@ class XccdfEditorApp:
 
         self.oval_defs_tree.bind("<<TreeviewSelect>>", self.on_oval_definition_select)
 
-        # --- Tests Tab ---
-        tests_frame = ttk.Frame(notebook)
-        notebook.add(tests_frame, text="Tests")
-        self.oval_tests_tree = ttk.Treeview(tests_frame, columns=("id", "type", "comment"), show="headings")
-        self.oval_tests_tree.heading("id", text="ID"); self.oval_tests_tree.heading("type", text="Test Type"); self.oval_tests_tree.heading("comment", text="Comment")
-        self.oval_tests_tree.column("id", width=250); self.oval_tests_tree.column("type", width=150)
-        self.oval_tests_tree.pack(fill=tk.BOTH, expand=True, pady=5)
-        self.populate_oval_tests_tree(oval_defs_obj)
-        test_button_frame = ttk.Frame(tests_frame)
-        test_button_frame.pack(fill=tk.X, pady=5)
-        ttk.Button(test_button_frame, text="Add Test...", command=lambda: self.add_oval_entity(oval_defs_obj, 'test')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(test_button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, 'test')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(test_button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, 'test')).pack(side=tk.LEFT, padx=2)
+        self._create_oval_tab(notebook, oval_defs_obj, 'test')
+        self._create_oval_tab(notebook, oval_defs_obj, 'object')
+        self._create_oval_tab(notebook, oval_defs_obj, 'state')
+        self._create_oval_tab(notebook, oval_defs_obj, 'variable')
+
+    def _create_oval_tab(self, notebook, oval_defs_obj, entity_type):
+        """Creates a standardized tab with a treeview and buttons for an OVAL entity."""
+        entity_type_plural = f"{entity_type}s"
+        entity_type_capitalized = entity_type.capitalize()
+
+        frame = ttk.Frame(notebook)
+        notebook.add(frame, text=f"{entity_type_capitalized}s")
         
-        # --- Objects Tab ---
-        objects_frame = ttk.Frame(notebook)
-        notebook.add(objects_frame, text="Objects")
-        self.oval_objects_tree = ttk.Treeview(objects_frame, columns=("id", "type", "comment"), show="headings")
-        self.oval_objects_tree.heading("id", text="ID"); self.oval_objects_tree.heading("type", text="Object Type"); self.oval_objects_tree.heading("comment", text="Comment")
-        self.oval_objects_tree.column("id", width=250); self.oval_objects_tree.column("type", width=150)
-        self.oval_objects_tree.pack(fill=tk.BOTH, expand=True, pady=5)
-        self.populate_oval_objects_tree(oval_defs_obj)
-        obj_button_frame = ttk.Frame(objects_frame)
-        obj_button_frame.pack(fill=tk.X, pady=5)
-        ttk.Button(obj_button_frame, text="Add Object...", command=lambda: self.add_oval_entity(oval_defs_obj, 'object')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(obj_button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, 'object')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(obj_button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, 'object')).pack(side=tk.LEFT, padx=2)
-
-        # --- States Tab ---
-        states_frame = ttk.Frame(notebook)
-        notebook.add(states_frame, text="States")
-        self.oval_states_tree = ttk.Treeview(states_frame, columns=("id", "type", "comment"), show="headings")
-        self.oval_states_tree.heading("id", text="ID")
-        self.oval_states_tree.heading("type", text="State Type")
-        self.oval_states_tree.heading("comment", text="Comment")
-        self.oval_states_tree.column("id", width=250)
-        self.oval_states_tree.column("type", width=150)
-        self.oval_states_tree.pack(fill=tk.BOTH, expand=True, pady=5)
-        self.populate_oval_states_tree(oval_defs_obj)
-
-        st_button_frame = ttk.Frame(states_frame)
-        st_button_frame.pack(fill=tk.X, pady=5)
-        ttk.Button(st_button_frame, text="Add State...", command=lambda: self.add_oval_entity(oval_defs_obj, 'state')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(st_button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, 'state')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(st_button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, 'state')).pack(side=tk.LEFT, padx=2)
-
-        # --- Variables Tab ---
-        variables_frame = ttk.Frame(notebook)
-        notebook.add(variables_frame, text="Variables")
+        # Treeview Setup
+        tree_frame = ttk.Frame(frame)
+        tree_frame.pack(fill=tk.BOTH, expand=True, pady=5)
         
-        self.oval_variables_tree = ttk.Treeview(variables_frame, columns=("id", "type", "comment"), show="headings")
-        self.oval_variables_tree.heading("id", text="ID")
-        self.oval_variables_tree.heading("type", text="Variable Type")
-        self.oval_variables_tree.heading("comment", text="Comment")
-        self.oval_variables_tree.column("id", width=250)
-        self.oval_variables_tree.column("type", width=150)
-        self.oval_variables_tree.pack(fill=tk.BOTH, expand=True, pady=5)
-        self.populate_oval_variables_tree(oval_defs_obj) # We will create this method next
+        tree = ttk.Treeview(tree_frame, columns=("id", "type", "comment"), show="headings")
+        tree.heading("id", text="ID")
+        tree.heading("type", text=f"{entity_type_capitalized} Type")
+        tree.heading("comment", text="Comment")
+        tree.column("id", width=250)
+        tree.column("type", width=150)
+        
+        # Attach a scrollbar
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=tree.yview)
+        tree.config(yscrollcommand=scrollbar.set)
+        
+        tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, pady=5)
+        scrollbar.pack(side=tk.LEFT, fill=tk.Y, pady=5)
 
-        var_button_frame = ttk.Frame(variables_frame)
-        var_button_frame.pack(fill=tk.X, pady=5)
-        ttk.Button(var_button_frame, text="Add Variable...", command=lambda: self.add_oval_entity(oval_defs_obj, 'variable')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(var_button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, 'variable')).pack(side=tk.LEFT, padx=2)
-        ttk.Button(var_button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, 'variable')).pack(side=tk.LEFT, padx=2)
+        # Store the tree in the instance using a dynamic attribute name
+        setattr(self, f"oval_{entity_type_plural}_tree", tree)
+        
+        # Populate the tree by calling the correct populate function
+        populate_func = getattr(self, f"populate_oval_{entity_type_plural}_tree")
+        populate_func(oval_defs_obj)
+
+        # Button Setup
+        button_frame = ttk.Frame(frame)
+        button_frame.pack(fill=tk.X, pady=5, side=tk.BOTTOM)
+        ttk.Button(button_frame, text=f"Add {entity_type_capitalized}...", command=lambda: self.add_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
         
     def _update_oval_generator(self, generator_obj, version_var, schema_version_var, *args):
         """Callback to update the generator object when an entry is changed."""
@@ -1657,24 +2105,30 @@ class XccdfEditorApp:
         if generator_obj.get_schema_version():
             generator_obj.get_schema_version()[0].set_valueOf_(schema_version_var.get())
         else: # Or create it if it doesn't exist
-            sv = oval.SchemaVersionType(valueOf_=schema_version_var.get())
+            sv = models.SchemaVersionType(valueOf_=schema_version_var.get())
             generator_obj.set_schema_version([sv])
 
         # --- Update the timestamp automatically
-        generator_obj.set_timestamp(datetime.now())
-       
+        generator_obj.set_timestamp(datetime.now().strftime('%Y-%m-%dT%H:%M:%S'))
+        self._mark_as_dirty()
+
+      
 ##--  [  OVAL Definitions ]---
     def populate_oval_definitions_tree(self, oval_defs_obj):
         """Clears and repopulates the OVAL definitions treeview."""
         for i in self.oval_defs_tree.get_children():
             self.oval_defs_tree.delete(i)
-        self.oval_definition_map.clear()
+        
+        self.maps['oval_definition'].clear()
         
         definitions_container = oval_defs_obj.get_definitions()
         if definitions_container and definitions_container.get_definition():
             for definition in definitions_container.get_definition():
                 meta = definition.get_metadata()
-                title = meta.get_title() if meta and meta.get_title() else ""
+                
+                title = ""
+                if meta and meta.get_title():
+                    title = meta.get_title().get_valueOf_()
                 
                 item_id = self.oval_defs_tree.insert("", "end", values=(
                     definition.get_id(),
@@ -1682,7 +2136,8 @@ class XccdfEditorApp:
                     definition.get_class(),
                     title
                 ))
-                self.oval_definition_map[item_id] = definition
+                
+                self.maps['oval_definition'][item_id] = definition
 
     def _show_oval_definition_dialog(self, definition_to_edit=None):
         """Shows a dialog to add or edit an OVAL definition."""
@@ -1713,7 +2168,10 @@ class XccdfEditorApp:
         meta = definition_to_edit.get_metadata() if definition_to_edit else None
         
         ttk.Label(main_frame, text="Title:").grid(row=3, column=0, sticky="w", pady=2)
-        title_var = tk.StringVar(value=meta.get_title() if meta and meta.get_title() else "")
+        title_text = ""
+        if meta and meta.get_title():
+            title_text = meta.get_title().get_valueOf_()
+        title_var = tk.StringVar(value=title_text)
         ttk.Entry(main_frame, textvariable=title_var).grid(row=3, column=1, sticky="ew", pady=2)
         
         ttk.Label(main_frame, text="Description:").grid(row=4, column=0, sticky="nw", pady=2)
@@ -1740,27 +2198,31 @@ class XccdfEditorApp:
         self._center_dialog(dialog)
         dialog.wait_window()
         return results if 'id' in results else None
-
+        
     def add_oval_definition(self, oval_defs_obj):
         """Handles adding a new OVAL definition."""
         data = self._show_oval_definition_dialog()
         if data:
             if not oval_defs_obj.get_definitions():
-                oval_defs_obj.set_definitions(oval.DefinitionsType())
+                oval_defs_obj.set_definitions(models.DefinitionsType())
             
-            new_def = oval.DefinitionType(
+            new_metadata = models.MetadataType(
+                title=models.TitleType(valueOf_=data['title']),
+                description=models.DescriptionType(valueOf_=data['description'])
+            )
+
+            new_def = models.DefinitionType(
                 id=data['id'],
                 version=data['version'],
-                class_=data['class'],
-                metadata=oval.MetadataType(
-                    title=data['title'],
-                    description=data['description']
-                ),
-                criteria=oval.CriteriaType()
+                class_member=data['class'], # Note: 'class' is a reserved keyword in Python
+                metadata=new_metadata,
+                criteria=models.CriteriaType()
             )
+            
             oval_defs_obj.get_definitions().add_definition(new_def)
             self.populate_oval_definitions_tree(oval_defs_obj)
-    
+            self._mark_as_dirty() # Mark the change
+            
     def edit_oval_definition(self, oval_defs_obj):
         """Handles editing an existing OVAL definition."""
         selected_id = self.oval_defs_tree.focus()
@@ -1768,24 +2230,28 @@ class XccdfEditorApp:
             messagebox.showwarning("No Selection", "Please select a definition to edit.")
             return
         
-        def_to_edit = self.oval_definition_map[selected_id]
+        def_to_edit = self.maps['oval_definition'].get(selected_id)
+        if not def_to_edit:
+            return
+
         data = self._show_oval_definition_dialog(def_to_edit)
         
         if data:
             def_to_edit.set_id(data['id'])
             def_to_edit.set_version(data['version'])
-            def_to_edit.set_class(data['class'])
+            def_to_edit.set_class_member(data['class']) # Using the correct 'class_member'
             
             meta = def_to_edit.get_metadata()
             if not meta:
-                meta = oval.MetadataType()
+                meta = models.MetadataType()
                 def_to_edit.set_metadata(meta)
             
-            meta.set_title(data['title'])
-            meta.set_description(data['description'])
+            meta.set_title(models.TitleType(valueOf_=data['title']))
+            meta.set_description(models.DescriptionType(valueOf_=data['description']))
             
             self.populate_oval_definitions_tree(oval_defs_obj)
-
+            self._mark_as_dirty() # Mark that a change has been made
+            
     def remove_oval_definition(self, oval_defs_obj):
         """Handles removing a selected OVAL definition."""
         selected_id = self.oval_defs_tree.focus()
@@ -1793,78 +2259,80 @@ class XccdfEditorApp:
             messagebox.showwarning("No Selection", "Please select a definition to remove.")
             return
 
-        def_to_remove = self.oval_definition_map[selected_id]
-        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete the definition '{def_to_remove.get_id()}'?"):
-            oval_defs_obj.get_definitions().get_definition().remove(def_to_remove)
-            self.populate_oval_definitions_tree(oval_defs_obj)
+        def_to_remove = self.maps['oval_definition'].get(selected_id)
+        if not def_to_remove:
+            return
 
+        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete the definition '{def_to_remove.get_id()}'?"):
+            if oval_defs_obj.get_definitions() and oval_defs_obj.get_definitions().get_definition():
+                oval_defs_obj.get_definitions().get_definition().remove(def_to_remove)
+                self.populate_oval_definitions_tree(oval_defs_obj)
+                self._mark_as_dirty() # Mark that a change has been made
+                
     def on_oval_definition_select(self, event):
         """Callback for when a definition is selected in the OVAL manager."""
         for i in self.oval_criteria_tree.get_children():
             self.oval_criteria_tree.delete(i)
-        self.oval_criteria_map.clear()
+        
+        self.maps['oval_criteria'].clear()
         
         selected_id = self.oval_defs_tree.focus()
         if not selected_id:
             return
             
-        definition_obj = self.oval_definition_map.get(selected_id)
+        definition_obj = self.maps['oval_definition'].get(selected_id)
         if definition_obj and definition_obj.get_criteria():
             self._populate_oval_criteria_tree("", definition_obj.get_criteria())
 
     def get_oval_test_ids(self):
         """Returns a list of all OVAL test IDs."""
-        if not self.datastream_collection or not self.oval_tests_map:
+        if not self.datastream_collection or not self.maps['oval_test']:
             return []
-        return [test.get_id() for test in self.oval_tests_map.values()]
-      
+        return [test.get_id() for test in self.maps['oval_test'].values()]
+
+        
 ##--  [  OVAL Criteria ]---
     def _populate_oval_criteria_tree(self, parent_id, criteria_node):
         """Recursively populates the criteria treeview."""
         if criteria_node is None:
             return
 
-        node_text = ""
-        node_obj = None
-        
-        # --- Add (Negated) to the display text if the negate attribute is true
         negate_text = " (Negated)" if criteria_node.get_negate() else ""
 
-        if isinstance(criteria_node, oval.CriteriaType):
+        if isinstance(criteria_node, models.CriteriaType):
             node_text = f"Criteria (Operator: {criteria_node.get_operator()}){negate_text}"
-            node_obj = criteria_node
             
             new_parent_id = self.oval_criteria_tree.insert(parent_id, "end", text=node_text, open=True)
-            self.oval_criteria_map[new_parent_id] = node_obj
+            
+            self.maps['oval_criteria'][new_parent_id] = criteria_node
             
             for child_criteria in criteria_node.get_criteria():
                 self._populate_oval_criteria_tree(new_parent_id, child_criteria)
             for child_criterion in criteria_node.get_criterion():
                 self._populate_oval_criteria_tree(new_parent_id, child_criterion)
-            # --- Add loop for extend_definition
             for child_ext_def in criteria_node.get_extend_definition():
                 self._populate_oval_criteria_tree(new_parent_id, child_ext_def)
 
-        elif isinstance(criteria_node, oval.CriterionType):
+        elif isinstance(criteria_node, models.CriterionType):
             node_text = f"Criterion (Test Ref: {criteria_node.get_test_ref()}){negate_text}"
-            node_obj = criteria_node
             new_node_id = self.oval_criteria_tree.insert(parent_id, "end", text=node_text)
-            self.oval_criteria_map[new_node_id] = node_obj
+            
+            self.maps['oval_criteria'][new_node_id] = criteria_node
 
-        elif isinstance(criteria_node, oval.ExtendDefinitionType):
+        elif isinstance(criteria_node, models.ExtendDefinitionType):
             node_text = f"Extend Definition (Def Ref: {criteria_node.get_definition_ref()}){negate_text}"
-            node_obj = criteria_node
             new_node_id = self.oval_criteria_tree.insert(parent_id, "end", text=node_text)
-            self.oval_criteria_map[new_node_id] = node_obj
-
+            
+            self.maps['oval_criteria'][new_node_id] = criteria_node
+            
     def _show_criteria_node_dialog(self, node_to_edit=None, node_type=None):
         """Shows a dialog to add/edit a criteria, criterion, or extend_definition. Returns a dict or None."""
         dialog = tk.Toplevel(self.root)
         dialog.transient(self.root)
 
-        is_criteria = (node_type == 'criteria') or isinstance(node_to_edit, oval.CriteriaType)
-        is_criterion = (node_type == 'criterion') or isinstance(node_to_edit, oval.CriterionType)
-        is_extend_def = (node_type == 'extend_definition') or isinstance(node_to_edit, oval.ExtendDefinitionType)
+        is_criteria = (node_type == 'criteria') or isinstance(node_to_edit, models.CriteriaType)
+        is_criterion = (node_type == 'criterion') or isinstance(node_to_edit, models.CriterionType)
+        is_extend_def = (node_type == 'extend_definition') or isinstance(node_to_edit, models.ExtendDefinitionType)
 
         title = "Edit " if node_to_edit else "Add "
         if is_criteria: title += "Criteria"
@@ -1877,12 +2345,13 @@ class XccdfEditorApp:
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         row = 0
+        op_var, ref_var, negate_var = None, None, None
+
         if is_criteria:
             ttk.Label(main_frame, text="Operator:").grid(row=row, column=0, sticky="w", pady=5)
             op_options = ['AND', 'OR', 'XOR', 'ONE']
             op_var = tk.StringVar(value=node_to_edit.get_operator() if node_to_edit else "AND")
             ttk.Combobox(main_frame, textvariable=op_var, values=op_options, state="readonly").grid(row=row, column=1, sticky="ew", pady=5)
-            results['var'] = op_var
             row += 1
         elif is_criterion:
             ttk.Label(main_frame, text="Test Reference ID:").grid(row=row, column=0, sticky="w", pady=5)
@@ -1892,18 +2361,13 @@ class XccdfEditorApp:
             test_ids = self.get_oval_test_ids()
             test_combo = ttk.Combobox(ref_frame, textvariable=ref_var, values=test_ids)
             test_combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
-            results['var'] = ref_var
             
-            # --- Helper function to handle creating a new test
             def _create_new_test():
                 new_test = self.add_oval_entity(self.current_oval_defs, 'test')
                 if new_test:
-                    # --- Refresh the dropdown list
                     test_combo['values'] = self.get_oval_test_ids()
-                    # --- Select the newly created test's ID
                     ref_var.set(new_test.get_id())
 
-            # --- The new button
             ttk.Button(ref_frame, text="New Test...", command=_create_new_test).pack(side=tk.LEFT, padx=(5,0))
             row += 1
         elif is_extend_def:
@@ -1911,10 +2375,8 @@ class XccdfEditorApp:
             ref_var = tk.StringVar(value=node_to_edit.get_definition_ref() if node_to_edit else "")
             def_ids = self.get_oval_definition_ids(specific_oval_defs=self.current_oval_defs)
             ttk.Combobox(main_frame, textvariable=ref_var, values=def_ids).grid(row=row, column=1, sticky="ew", pady=5)
-            results['var'] = ref_var
             row += 1
 
-        # --- Add Negate checkbox for all types
         negate_var = tk.BooleanVar(value=node_to_edit.get_negate() if node_to_edit else False)
         ttk.Checkbutton(main_frame, text="Negate Result", variable=negate_var).grid(row=row, column=1, sticky="w", pady=5)
 
@@ -1923,17 +2385,17 @@ class XccdfEditorApp:
         def on_ok():
             results['negate'] = negate_var.get()
             if is_criteria:
-                results['operator'] = results['var'].get()
+                results['operator'] = op_var.get()
             elif is_criterion:
-                if not results['var'].get():
+                if not ref_var.get():
                     messagebox.showwarning("Input Error", "Test Reference ID cannot be empty.", parent=dialog)
                     return
-                results['test_ref'] = results['var'].get()
+                results['test_ref'] = ref_var.get()
             elif is_extend_def:
-                if not results['var'].get():
+                if not ref_var.get():
                     messagebox.showwarning("Input Error", "Definition Reference ID cannot be empty.", parent=dialog)
                     return
-                results['definition_ref'] = results['var'].get()
+                results['definition_ref'] = ref_var.get()
             dialog.destroy()
 
         button_frame = ttk.Frame(dialog, padding=10)
@@ -1944,69 +2406,44 @@ class XccdfEditorApp:
         self._center_dialog(dialog)
         dialog.wait_window()
         return results if len(results) > 1 else None
-
+        
     def add_oval_criteria(self):
         """Adds a new nested <criteria> element."""
-        selected_id = self.oval_criteria_tree.focus()
-        if not selected_id:
-            messagebox.showwarning("No Selection", "Please select a parent <criteria> node to add to.")
-            return
-            
-        parent_obj = self.oval_criteria_map.get(selected_id)
-        if not isinstance(parent_obj, oval.CriteriaType):
-            messagebox.showwarning("Invalid Parent", "You can only add new elements to a 'Criteria' node.")
-            return
-
-        data = self._show_criteria_node_dialog(node_type='criteria')
-        if data:
-            new_criteria = oval.CriteriaType(
-                operator=data['operator'],
-                negate=data['negate']
-            )
-            parent_obj.add_criteria(new_criteria)
-            self.on_oval_definition_select(None)
+        self._add_criteria_child('criteria', models.CriteriaType)
 
     def add_oval_criterion(self):
         """Adds a new <criterion> element."""
-        selected_id = self.oval_criteria_tree.focus()
-        if not selected_id:
-            messagebox.showwarning("No Selection", "Please select a parent <criteria> node to add to.")
-            return
-
-        parent_obj = self.oval_criteria_map.get(selected_id)
-        if not isinstance(parent_obj, oval.CriteriaType):
-            messagebox.showwarning("Invalid Parent", "You can only add new elements to a 'Criteria' node.")
-            return
-
-        data = self._show_criteria_node_dialog(node_type='criterion')
-        if data:
-           new_criterion = oval.CriterionType(
-                test_ref=data['test_ref'],
-                negate=data['negate']
-           )
-           parent_obj.add_criterion(new_criterion)
-           self.on_oval_definition_select(None)
+        self._add_criteria_child('criterion', models.CriterionType)
 
     def add_oval_extended_definition(self):
         """Adds a new <extend_definition> element."""
+        self._add_criteria_child('extend_definition', models.ExtendDefinitionType)
+
+    def _add_criteria_child(self, node_type, child_class):
+        """A generic helper to add any type of child to a criteria node."""
         selected_id = self.oval_criteria_tree.focus()
         if not selected_id:
             messagebox.showwarning("No Selection", "Please select a parent <criteria> node to add to.")
             return
 
-        parent_obj = self.oval_criteria_map.get(selected_id)
-        if not isinstance(parent_obj, oval.CriteriaType):
+        parent_obj = self.maps['oval_criteria'].get(selected_id)
+        if not isinstance(parent_obj, models.CriteriaType):
             messagebox.showwarning("Invalid Parent", "You can only add new elements to a 'Criteria' node.")
             return
 
-        data = self._show_criteria_node_dialog(node_type='extend_definition')
+        data = self._show_criteria_node_dialog(node_type=node_type)
         if data:
-            new_ext_def = oval.ExtendDefinitionType(
-                definition_ref=data['definition_ref'],
-                negate=data['negate']
-            )
-            parent_obj.add_extend_definition(new_ext_def)
-            self.on_oval_definition_select(None)
+            # Create an instance of the specific child class
+            new_child = child_class(**data)
+            
+            # Use getattr to call the correct 'add' method (e.g., add_criteria, add_criterion)
+            add_method_name = f"add_{node_type}"
+            if hasattr(parent_obj, add_method_name):
+                add_method = getattr(parent_obj, add_method_name)
+                add_method(new_child)
+            
+            self.on_oval_definition_select(None) # Refresh the view
+            self._mark_as_dirty() # Mark the change
             
     def edit_oval_criteria_item(self):
         """Edits the selected criteria, criterion, or extend_definition node."""
@@ -2015,24 +2452,28 @@ class XccdfEditorApp:
             messagebox.showwarning("No Selection", "Please select an item to edit.")
             return
             
-        node_to_edit = self.oval_criteria_map.get(selected_id)
+        node_to_edit = self.maps['oval_criteria'].get(selected_id)
+        if not node_to_edit:
+            return
+
         data = self._show_criteria_node_dialog(node_to_edit=node_to_edit)
         
         if data:
-            # --- Set negate attribute for all types
+            # Set negate attribute for all types
             if 'negate' in data:
                 node_to_edit.set_negate(data['negate'])
 
-            # --- Set type-specific attributes
-            if isinstance(node_to_edit, oval.CriteriaType) and 'operator' in data:
+            # Set type-specific attributes
+            if isinstance(node_to_edit, models.CriteriaType) and 'operator' in data:
                 node_to_edit.set_operator(data['operator'])
-            elif isinstance(node_to_edit, oval.CriterionType) and 'test_ref' in data:
+            elif isinstance(node_to_edit, models.CriterionType) and 'test_ref' in data:
                 node_to_edit.set_test_ref(data['test_ref'])
-            elif isinstance(node_to_edit, oval.ExtendDefinitionType) and 'definition_ref' in data:
+            elif isinstance(node_to_edit, models.ExtendDefinitionType) and 'definition_ref' in data:
                 node_to_edit.set_definition_ref(data['definition_ref'])
             
-            self.on_oval_definition_select(None)
-
+            self.on_oval_definition_select(None) # Refresh the view
+            self._mark_as_dirty() # Mark the change
+            
     def remove_oval_criteria_item(self):
         """Removes the selected item from the criteria tree and the data model."""
         selected_id = self.oval_criteria_tree.focus()
@@ -2045,50 +2486,54 @@ class XccdfEditorApp:
             messagebox.showerror("Error", "Cannot remove the root criteria element.")
             return
 
-        parent_obj = self.oval_criteria_map.get(parent_id)
-        selected_obj = self.oval_criteria_map.get(selected_id)
+        parent_obj = self.maps['oval_criteria'].get(parent_id)
+        selected_obj = self.maps['oval_criteria'].get(selected_id)
 
         if not parent_obj or not selected_obj:
             return
 
-        if isinstance(selected_obj, oval.CriteriaType):
+        if isinstance(selected_obj, models.CriteriaType):
             parent_obj.get_criteria().remove(selected_obj)
-        elif isinstance(selected_obj, oval.CriterionType):
+        elif isinstance(selected_obj, models.CriterionType):
             parent_obj.get_criterion().remove(selected_obj)
-        # --- Add case for extend_definition
-        elif isinstance(selected_obj, oval.ExtendDefinitionType):
+        elif isinstance(selected_obj, models.ExtendDefinitionType):
             parent_obj.get_extend_definition().remove(selected_obj)
         
-        self.on_oval_definition_select(None)
+        self.on_oval_definition_select(None) # Refresh the view
+        self._mark_as_dirty() # Mark the change
 
+      
 ##--  [  OVAL Entity's ]---
     def add_oval_entity(self, oval_defs_obj, entity_type_str, selected_class=None):
         """Generic function to add any type of OVAL entity."""
-        # If a class isn't provided, show the selector dialog
         if not selected_class:
-            base_class_map = {'test': oval.TestType, 'object': oval.ObjectType, 'state': oval.StateType, 'variable': oval.VariableType}
-            title_map = {'test': "Select Test Type", 'object': "Select Object Type", 'state': "Select State Type", 'variable': "Select Variable Type"}
+            base_class_map = {
+                'test': models.TestType, 'object': models.ObjectType, 
+                'state': models.StateType, 'variable': models.VariableType
+            }
+            title_map = {
+                'test': "Select Test Type", 'object': "Select Object Type", 
+                'state': "Select State Type", 'variable': "Select Variable Type"
+            }
             selected_class = self._select_oval_entity_type_dialog(base_class_map[entity_type_str], title_map[entity_type_str])
         
         if not selected_class:
             return None
 
         data = None
-        # --- Call the correct dialog based on the entity type
         if entity_type_str == 'test':
             data = self._show_generic_test_details_dialog(selected_class)
-        elif entity_type_str == 'object':
-            selected_properties = self._select_object_properties_dialog(selected_class)
-            if not selected_properties:
-                return None
-            data = self._show_generic_object_details_dialog(selected_class, selected_properties)
-#            print(f"Selected Class: {selected_class}")
-        elif entity_type_str == 'state': 
+        elif entity_type_str in ['object', 'state']: # Refined: object and state share this logic
             selected_properties = self._select_object_properties_dialog(selected_class)
             if not selected_properties: return None
-            data = self._show_generic_state_details_dialog(selected_class, selected_properties)
+            
+            if entity_type_str == 'object':
+                data = self._show_generic_object_details_dialog(selected_class, selected_properties)
+            else: # It's a state
+                data = self._show_generic_state_details_dialog(selected_class, selected_properties)
+
         elif entity_type_str == 'variable':
-            data = self._show_generic_variable_details_dialog(selected_class)        
+            data = self._show_generic_variable_details_dialog(selected_class)
         else:
             messagebox.showinfo("Not Implemented", f"The UI for adding a '{entity_type_str}' is not fully implemented yet.")
             return None
@@ -2096,60 +2541,59 @@ class XccdfEditorApp:
         if not data:
             return None
 
-        # --- DELEGATE CREATION TO THE FACTORY ---
-        new_entity = self.oval_factory.create_entity(selected_class, data, entity_type_str)
+        new_entity = self._create_oval_entity(selected_class, data, entity_type_str)
         if not new_entity: return None
         
-        # --- Add the entity to the correct container in the datastream
+        # Add the entity to the correct container in the datastream
         container = getattr(oval_defs_obj, f"get_{entity_type_str}s")()
         if not container:
-            container_class = getattr(oval, f"{entity_type_str.capitalize()}sType")
+            container_class = getattr(models, f"{entity_type_str.capitalize()}sType")
             container = container_class()
             getattr(oval_defs_obj, f"set_{entity_type_str}s")(container)
         
         getattr(container, f"add_{entity_type_str}")(new_entity)
         
-        # --- Refresh the UI
+        # Refresh the UI
         populate_tree_func = getattr(self, f"populate_oval_{entity_type_str}s_tree")
         populate_tree_func(oval_defs_obj)
+        self._mark_as_dirty()
         return new_entity
         
     def edit_oval_entity(self, oval_defs_obj, entity_type_str):
         """Dispatcher to edit the selected OVAL entity based on its type."""
         tree = getattr(self, f"oval_{entity_type_str}s_tree")
-        entity_map = getattr(self, f"oval_{entity_type_str}s_map")
+        entity_map = self.maps[f"oval_{entity_type_str}"]
         
         selected_id = tree.focus()
         if not selected_id:
             messagebox.showwarning("No Selection", f"Please select an {entity_type_str} to edit.")
             return
 
-        entity_to_edit = entity_map[selected_id]
+        entity_to_edit = entity_map.get(selected_id)
+        if not entity_to_edit:
+            return
         entity_class = type(entity_to_edit)
         
         data = None
         if entity_type_str == 'test':
-            # --- Tests use a simpler, one-step dialog
             data = self._show_generic_test_details_dialog(entity_class, entity_to_edit)
-        elif (entity_type_str == 'object' or entity_type_str == 'state'):
-
-            # --- For editing an object, we find all its possible properties to show in the dialog.
+        elif entity_type_str in ['object', 'state']:
             properties_map = {}
             sig = inspect.signature(entity_class.__init__)
             for param in sig.parameters.values():
                 if param.name not in ['self', 'id', 'gds_collector_', 'kwargs_'] and \
-                   param.name not in oval_helper.DEPRECATED_OVAL_ENTITIES and \
-                   param.name not in oval_helper.EXCLUDED_OVAL_PROPERTIES:
-                
-                    datatype = oval_helper.OVAL_PROPERTY_DATATYPE_MAP.get(param.name, 'string')
+                   param.name not in self.DEPRECATED_OVAL_ENTITIES and \
+                   param.name not in self.EXCLUDED_OVAL_PROPERTIES:
+                    
+                    datatype = self.OVAL_PROPERTY_DATATYPE_MAP.get(param.name, 'string')
                     properties_map[param.name] = {'type': datatype}
             
             if entity_type_str == 'object':
                 data = self._show_generic_object_details_dialog(entity_class, properties_map, entity_to_edit)
-            else:
+            else: # It's a state
                 data = self._show_generic_state_details_dialog(entity_class, properties_map, entity_to_edit)
         elif entity_type_str == 'variable':
-            data = self._show_generic_variable_details_dialog(type(entity_to_edit), entity_to_edit)        
+            data = self._show_generic_variable_details_dialog(entity_class, entity_to_edit)
         else:
             messagebox.showinfo("Not Implemented", f"The editor for an OVAL {entity_type_str} is not implemented yet.")
             return
@@ -2157,70 +2601,74 @@ class XccdfEditorApp:
         if not data:
             return
 
-        # --- Delegate the update logic to the factory ---
-        self.oval_factory.update_entity(entity_to_edit, data, entity_type_str)
+        self._update_oval_entity(entity_to_edit, data, entity_type_str)
 
-        # --- Refresh the UI
+        # Refresh the UI and mark the change
         populate_tree_func = getattr(self, f"populate_oval_{entity_type_str}s_tree")
         populate_tree_func(oval_defs_obj)
-
+        self._mark_as_dirty()
+        
     def remove_oval_entity(self, oval_defs_obj, entity_type_str):
         """Generic function to remove any selected OVAL entity."""
         tree = getattr(self, f"oval_{entity_type_str}s_tree")
-        entity_map = getattr(self, f"oval_{entity_type_str}s_map")
+        
+        entity_map = self.maps[f"oval_{entity_type_str}"]
 
         selected_id = tree.focus()
         if not selected_id: return
-        entity_to_remove = entity_map[selected_id]
+        
+        entity_to_remove = entity_map.get(selected_id)
+        if not entity_to_remove: return
 
         if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete this {entity_type_str}?\n\n{entity_to_remove.get_id()}"):
             container = getattr(oval_defs_obj, f"get_{entity_type_str}s")()
             if container:
-                list_getter = getattr(container, f"get_{entity_type_str}")()
-                list_getter.remove(entity_to_remove)
-                populate_tree_func = getattr(self, f"populate_oval_{entity_type_str}s_tree")
-                populate_tree_func(oval_defs_obj)
-
+                entity_list = getattr(container, f"get_{entity_type_str}")()
+                if entity_to_remove in entity_list:
+                    entity_list.remove(entity_to_remove)
+                    
+                    populate_tree_func = getattr(self, f"populate_oval_{entity_type_str}s_tree")
+                    populate_tree_func(oval_defs_obj)
+                    self._mark_as_dirty() # Mark the change
+                   
     def _get_available_entity_types(self, base_class_name):
         """
-        Dynamically finds all OVAL entity classes by inspecting each component
-        model file directly and checking the class name.
+        Dynamically finds all OVAL entity classes by inspecting the unified model.
         """
-        import inspect
-        from models import oval_independent_models, oval_linux_models, oval_unix_models, oval_solaris_models
-
-        # --- Determine the required suffix from the base class name (e.g., 'TestType' -> '_test')
+        # Determine the required suffix from the base class name (e.g., 'TestType' -> '_test')
         suffix = "_" + base_class_name.replace('Type', '').lower()
         entity_families = {}
-        
-        if suffix == '_variable':
-            from models import oval_core_models
-            module_map = {
-               'Core' : oval_core_models
-            }
-        else:
-            module_map = {
-                'Independent': oval_independent_models,
-                'Linux': oval_linux_models,
-                'Unix': oval_unix_models,
-                'Solaris': oval_solaris_models
-            }
 
-        for family_name, module in module_map.items():
-            family_entities = {}
-            for name, obj in inspect.getmembers(module):
-                # --- The new, more reliable check: just look at the name of the class
-                if inspect.isclass(obj) and name.endswith(suffix):
-                    if name in oval_helper.DEPRECATED_OVAL_ENTITIES:
-                        continue
-                    friendly_name = name.replace('_', ' ').capitalize()
-                    family_entities[friendly_name] = obj
-            
-            if family_entities:
-                entity_families[family_name] = family_entities
+        # A map to group the entities by their original schema family
+        family_map = {
+            'independent': "Independent",
+            'linux': "Linux",
+            'unix': "Unix",
+            'solaris': "Solaris",
+        }
+        
+        for name, obj in inspect.getmembers(models):
+            # Check if it's a class with the correct suffix (e.g., '_test')
+            if inspect.isclass(obj) and name.endswith(suffix):
+                if name in self.DEPRECATED_OVAL_ENTITIES:
+                    continue
+                
+                # Determine the family by checking the class's module source
+                module_name = obj.__module__
+                family_name = "Core" # Default for variables
+                for key, friendly_name in family_map.items():
+                    if key in module_name:
+                        family_name = friendly_name
+                        break
+
+                if family_name not in entity_families:
+                    entity_families[family_name] = {}
+                
+                friendly_name = name.replace('_', ' ').capitalize()
+                entity_families[family_name][friendly_name] = obj
                 
         return entity_families
-
+        
     def _select_oval_entity_type_dialog(self, base_class, title):
         """Shows a dialog to select any type of OVAL entity."""
         dialog = tk.Toplevel(self.root)
@@ -2278,43 +2726,65 @@ class XccdfEditorApp:
         dialog.wait_window()
         return selected_class # This now correctly returns the class object
 
+
 ##--  [  OVAL Tests ]---
     def populate_oval_tests_tree(self, oval_defs_obj):
         """Clears and repopulates the OVAL tests treeview."""
         for i in self.oval_tests_tree.get_children():
             self.oval_tests_tree.delete(i)
-        self.oval_tests_map.clear()
+        
+        self.maps['oval_test'].clear()
         
         tests_container = oval_defs_obj.get_tests()
         if tests_container and tests_container.get_test():
             for test in tests_container.get_test():
-                test_type_name = test.__class__.__name__ # e.g., "FileTest"
+                test_type_name = test.__class__.__name__
+
+                comment_text = test.get_comment() or ""
+                
                 item_id = self.oval_tests_tree.insert("", "end", values=(
                     test.get_id(),
                     test_type_name,
-                    test.get_comment()
+                    comment_text
                 ))
-                self.oval_tests_map[item_id] = test
+                
+                self.maps['oval_test'][item_id] = test
 
     def _show_generic_test_details_dialog(self, test_class, test_to_edit=None):
-        """Shows a generic dialog to add or edit the details of any OVAL test."""
+        """A smart dialog that filters object/state refs based on the test type."""
         dialog = tk.Toplevel(self.root)
         dialog.transient(self.root)
         is_edit = test_to_edit is not None
         dialog.title(f"{'Edit' if is_edit else 'Add'} OVAL {test_class.__name__}")
-
-        # 1. Deduce the expected object and state class names from the test's name
+        
         base_name = test_class.__name__.replace('_test', '')
         expected_obj_name = f"{base_name}_object"
         expected_state_name = f"{base_name}_state"
         
-        # 2. Get the actual class objects from the oval module
-        expected_obj_class = getattr(oval, expected_obj_name, None)
-        expected_state_class = getattr(oval, expected_state_name, None)
+        expected_obj_class = getattr(models, expected_obj_name, None)
+        expected_state_class = getattr(models, expected_state_name, None)
         
         results = {}
         main_frame = ttk.Frame(dialog, padding=10)
         main_frame.pack(fill=tk.BOTH, expand=True)
+
+        def _create_ref_editor(parent, row, label, get_ids_func, add_entity_func, initial_value, filter_class):
+            ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", pady=2)
+            ref_frame = ttk.Frame(parent)
+            ref_frame.grid(row=row, column=1, sticky="ew")
+            
+            ref_var = tk.StringVar(value=initial_value)
+            combo = ttk.Combobox(ref_frame, textvariable=ref_var, values=get_ids_func(filter_class=filter_class))
+            combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+            def _create_new():
+                new_entity = add_entity_func(self.current_oval_defs, entity_type_str=label.split(' ')[0].lower(), selected_class=filter_class)
+                if new_entity:
+                    combo['values'] = get_ids_func(filter_class=filter_class)
+                    ref_var.set(new_entity.get_id())
+
+            ttk.Button(ref_frame, text="New...", command=_create_new).pack(side=tk.LEFT, padx=(5,0))
+            return ref_var
 
         # --- ID ---
         initial_id = test_to_edit.get_id() if is_edit else f"oval:{self.prefix}:tst:{random.randint(1000, 9999)}"
@@ -2355,32 +2825,11 @@ class XccdfEditorApp:
         object_combo = ttk.Combobox(obj_ref_frame, textvariable=object_ref_var, values=self.get_oval_object_ids(filter_class=expected_obj_class))
         object_combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-        def _create_new_object():
-            # 4. Call add_oval_entity, passing in the correct class to skip the selector
-            new_object = self.add_oval_entity(self.current_oval_defs, 'object', selected_class=expected_obj_class)
-            if new_object:
-                object_combo['values'] = self.get_oval_object_ids(filter_class=expected_obj_class)
-                object_ref_var.set(new_object.get_id())
-
-        ttk.Button(obj_ref_frame, text="New...", command=_create_new_object).pack(side=tk.LEFT, padx=(5,0))
-
-        # --- State Reference with "New" button (applies the same logic) ---
-        ttk.Label(main_frame, text="State Ref ID:").grid(row=6, column=0, sticky="w", pady=2)
-        state_ref_frame = ttk.Frame(main_frame)
-        state_ref_frame.grid(row=6, column=1, sticky="ew")
+        obj_ref_val = test_to_edit.get_object().get_object_ref() if is_edit and test_to_edit.get_object() else ""
+        object_ref_var = _create_ref_editor(main_frame, 5, "Object Ref:", self.get_oval_object_ids, self.add_oval_entity, obj_ref_val, expected_obj_class)
 
         st_ref_val = test_to_edit.get_state()[0].get_state_ref() if is_edit and test_to_edit.get_state() else ""
-        state_ref_var = tk.StringVar(value=st_ref_val)
-        state_combo = ttk.Combobox(state_ref_frame, textvariable=state_ref_var, values=self.get_oval_state_ids(filter_class=expected_state_class))
-        state_combo.pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-        def _create_new_state():
-            new_state = self.add_oval_entity(self.current_oval_defs, 'state', selected_class=expected_state_class)
-            if new_state:
-                state_combo['values'] = self.get_oval_state_ids(filter_class=expected_state_class)
-                state_ref_var.set(new_state.get_id())
-        
-        ttk.Button(state_ref_frame, text="New...", command=_create_new_state).pack(side=tk.LEFT, padx=(5,0))
+        state_ref_var = _create_ref_editor(main_frame, 6, "State Ref:", self.get_oval_state_ids, self.add_oval_entity, st_ref_val, expected_state_class)
         
         main_frame.columnconfigure(1, weight=1)
 
@@ -2405,41 +2854,50 @@ class XccdfEditorApp:
 
     def get_oval_object_ids(self, filter_class=None):
         """Returns a list of all OVAL object IDs, optionally filtered by a specific class."""
-        if not self.datastream_collection or not self.oval_objects_map:
+        if not self.datastream_collection or not self.maps['oval_object']:
             return []
         
+        object_map = self.maps['oval_object']
+        
         if filter_class:
-            return [obj.get_id() for obj in self.oval_objects_map.values() if isinstance(obj, filter_class)]
+            return [obj.get_id() for obj in object_map.values() if isinstance(obj, filter_class)]
         else:
-            return [obj.get_id() for obj in self.oval_objects_map.values()]
+            return [obj.get_id() for obj in object_map.values()]
 
     def get_oval_state_ids(self, filter_class=None):
         """Returns a list of all OVAL state IDs, optionally filtered by a specific class."""
-        if not self.datastream_collection or not self.oval_states_map:
+        if not self.datastream_collection or not self.maps['oval_state']:
             return []
+        
+        state_map = self.maps['oval_state']
             
         if filter_class:
-            return [state.get_id() for state in self.oval_states_map.values() if isinstance(state, filter_class)]
+            return [state.get_id() for state in state_map.values() if isinstance(state, filter_class)]
         else:
-            return [state.get_id() for state in self.oval_states_map.values()]
-                
+            return [state.get_id() for state in state_map.values()]
+
+            
 ##--  [  OVAL Objects ]---
     def populate_oval_objects_tree(self, oval_defs_obj):
         """Clears and repopulates the OVAL objects treeview."""
         for i in self.oval_objects_tree.get_children():
             self.oval_objects_tree.delete(i)
-        self.oval_objects_map.clear()
+        
+        self.maps['oval_object'].clear()
         
         objects_container = oval_defs_obj.get_objects()
         if objects_container and objects_container.get_object():
             for obj in objects_container.get_object():
                 obj_type_name = obj.__class__.__name__
+                comment_text = obj.get_comment() or ""
+                
                 item_id = self.oval_objects_tree.insert("", "end", values=(
                     obj.get_id(),
                     obj_type_name,
-                    obj.get_comment()
+                    comment_text
                 ))
-                self.oval_objects_map[item_id] = obj
+                
+                self.maps['oval_object'][item_id] = obj
 
     def _show_generic_object_details_dialog(self, obj_class, properties_map, obj_to_edit=None):
         """
@@ -2522,10 +2980,10 @@ class XccdfEditorApp:
                     return {'chk': chk_var, 'var': var}
  
                 b_row = 0
-                if obj_class is oval.rpminfo_object:
+                if obj_class is models.rpminfo_object:
                     b_widgets['filepaths'] = create_behavior_row(behaviors_frame, b_row, 'filepaths', ttk.Combobox, values=['true', 'false'], state='readonly')
                     b_row += 1
-                elif obj_class is oval.rpmverifypackage_object:
+                elif obj_class is models.rpmverifypackage_object:
                     b_widgets['nodeps'] = create_behavior_row(behaviors_frame, b_row, 'nodeps', ttk.Combobox, values=['true', 'false'], state='readonly')
                     b_row += 1
                     b_widgets['nodigest'] = create_behavior_row(behaviors_frame, b_row, 'nodigest', ttk.Combobox, values=['true', 'false'], state='readonly')
@@ -2534,8 +2992,8 @@ class XccdfEditorApp:
                     b_row += 1
                     b_widgets['nosignature'] = create_behavior_row(behaviors_frame, b_row, 'nosignature', ttk.Combobox, values=['true', 'false'], state='readonly')
                     b_row += 1
-                elif (obj_class is oval.rpmverifyfile_object or obj_class is oval.rpmverify_object):
-                    if obj_class is oval.rpmverify_object:
+                elif (obj_class is models.rpmverifyfile_object or obj_class is models.rpmverify_object):
+                    if obj_class is models.rpmverify_object:
                         b_widgets['nodeps'] = create_behavior_row(behaviors_frame, b_row, 'nodeps', ttk.Combobox, values=['true', 'false'], state='readonly')
                         b_row += 1
                         b_widgets['nodigest'] = create_behavior_row(behaviors_frame, b_row, 'nodigest', ttk.Combobox, values=['true', 'false'], state='readonly')
@@ -2578,11 +3036,11 @@ class XccdfEditorApp:
                     b_widgets['recurse_file_system'] = create_behavior_row(behaviors_frame, b_row, 'recurse_file_system', ttk.Combobox, values=['all', 'local', 'defined'], state='readonly')
                     b_row += 1
                 
-                if (obj_class is oval.filehash58_object or obj_class is oval.xmlfilecontent_object):
+                if (obj_class is models.filehash58_object or obj_class is models.xmlfilecontent_object):
                     b_widgets['windows_view'] = create_behavior_row(behaviors_frame, b_row, 'windows_view', ttk.Combobox, values=['32_bit', '64_bit'], state='readonly')
                     b_row += 1
 
-                if obj_class is oval.textfilecontent54_object: 
+                if obj_class is models.textfilecontent54_object: 
                     b_widgets['windows_view'] = create_behavior_row(behaviors_frame, b_row, 'windows_view', ttk.Combobox, values=['32_bit', '64_bit'], state='readonly')
                     b_row += 1
                     b_widgets['ignore_case'] = create_behavior_row(behaviors_frame, b_row, 'ignore_case', ttk.Combobox, values=['true', 'false'], state='readonly')
@@ -2766,11 +3224,11 @@ class XccdfEditorApp:
         sig = inspect.signature(obj_class.__init__)
         for param in sig.parameters.values():
             if param.name not in ['self', 'id', 'gds_collector_', 'kwargs_', 'comment', 'version'] and \
-               param.name not in oval_helper.DEPRECATED_OVAL_ENTITIES and \
-               param.name not in oval_helper.EXCLUDED_OVAL_PROPERTIES:
+               param.name not in self.DEPRECATED_OVAL_ENTITIES and \
+               param.name not in self.EXCLUDED_OVAL_PROPERTIES:
                 
                 # --- Look up the datatype from our new map, defaulting to 'string'
-                datatype = oval_helper.OVAL_PROPERTY_DATATYPE_MAP.get(param.name, 'string')
+                datatype = self.OVAL_PROPERTY_DATATYPE_MAP.get(param.name, 'string')
                 properties_map[param.name] = {'type': datatype}
 
 
@@ -2798,13 +3256,14 @@ class XccdfEditorApp:
         self._center_dialog(dialog)
         dialog.wait_window()
         return selected_properties
+
         
 ##--  [  OVAL States ]---
     def populate_oval_states_tree(self, oval_defs_obj):
         """Clears and repopulates the OVAL states treeview."""
         for i in self.oval_states_tree.get_children():
             self.oval_states_tree.delete(i)
-        self.oval_states_map.clear()
+        self.maps['oval_state'].clear()
         
         states_container = oval_defs_obj.get_states()
         if states_container and states_container.get_state():
@@ -2815,7 +3274,7 @@ class XccdfEditorApp:
                     state_type_name,
                     state.get_comment()
                 ))
-                self.oval_states_map[item_id] = state
+                self.maps['oval_state'][item_id] = state
 
     def _show_generic_state_details_dialog(self, state_class, properties_map, state_to_edit=None):
         """A smart dialog that builds an input form for any OVAL state."""
@@ -2850,6 +3309,7 @@ class XccdfEditorApp:
         ttk.Combobox(main_frame, textvariable=operator_var, values=["AND", "ONE", "OR", "XOR"], state="readonly", width=8).grid(row=row, column=1, sticky='ew', padx=5, pady=(5,0))
         row += 1
 
+        version_var = None
         if 'version' in [p.name for p in inspect.signature(state_class.__init__).parameters.values()]:
             version_val = state_to_edit.get_version() if is_edit and hasattr(state_to_edit, 'get_version') else "1"
             version_var = tk.StringVar(value=version_val)
@@ -2872,7 +3332,7 @@ class XccdfEditorApp:
             
             val_frame = ttk.Frame(prop_container)
             val_frame.pack(fill=tk.X, expand=True, padx=5, pady=5)
-            val_obj = getattr(obj_to_edit, f"get_{prop_name}", lambda: None)() if is_edit else None
+            val_obj = getattr(state_to_edit, f"get_{prop_name}", lambda: None)() if is_edit else None
             val_var = tk.StringVar(value=val_obj.get_valueOf_() if val_obj else "")
             
 
@@ -2983,12 +3443,13 @@ class XccdfEditorApp:
         dialog.wait_window()
         return results if results and 'id' in results else None
 
+
 ##--  [  OVAL Variables ]---
     def populate_oval_variables_tree(self, oval_defs_obj):
         """Clears and repopulates the OVAL variables treeview."""
         for i in self.oval_variables_tree.get_children():
             self.oval_variables_tree.delete(i)
-        self.oval_variables_map.clear()
+        self.maps['oval_variable'].clear()
         
         variables_container = oval_defs_obj.get_variables()
         if variables_container and variables_container.get_variable():
@@ -2999,7 +3460,7 @@ class XccdfEditorApp:
                     var_type_name,
                     var.get_comment()
                 ))
-                self.oval_variables_map[item_id] = var
+                self.maps['oval_variable'][item_id] = var
 
     def get_oval_variable_ids(self, specific_oval_defs=None):
         """
@@ -3022,7 +3483,7 @@ class XccdfEditorApp:
             
     def _show_generic_variable_details_dialog(self, var_class, var_to_edit=None):
         """A smart dialog that builds an input form for any OVAL variable."""
-        from models import oval_core_models
+##        from models import oval_core_models
         dialog = tk.Toplevel(self.root)
         dialog.transient(self.root)
         is_edit = var_to_edit is not None
@@ -3114,7 +3575,7 @@ class XccdfEditorApp:
         row += 1
             
         # --- Value Field (specific to constant_variable) ---
-        if var_class is oval.constant_variable:
+        if var_class is models.constant_variable:
             initial_values = [v.get_valueOf_() for v in var_to_edit.get_value()] if is_edit and var_to_edit.get_value() else []
             frame, editor_data = create_list_editor(
                 main_frame, "Values", initial_values, self._show_value_dialog, 
@@ -3123,7 +3584,7 @@ class XccdfEditorApp:
             frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
             results['value'] = editor_data.data
 
-        elif var_class is oval.external_variable:
+        elif var_class is models.external_variable:
             # Pre-populate lists if editing
             p_vals_data = []
             if is_edit and var_to_edit.get_possible_value():
@@ -3154,7 +3615,7 @@ class XccdfEditorApp:
             pr_frame.grid(row=5, column=0, columnspan=2, sticky="ew", pady=5)
             results['possible_restriction'] = pr_editor_data.data
 
-        elif var_class is oval.local_variable:
+        elif var_class is models.local_variable:
             # --- Component Frames ---
             component_type_var = tk.StringVar()
             function_type_var = tk.StringVar()
@@ -3431,7 +3892,7 @@ class XccdfEditorApp:
             results['comment'] = comment_var.get()
             results['datatype'] = dt_var.get()
             results['version'] = version_var.get()
-            if var_class is oval.local_variable:
+            if var_class is models.local_variable:
                 results['component_type'] = component_type_var.get()
                 if results['component_type'] == 'literal':
                     results['literal_value'] = lit_val_var.get()
@@ -3485,7 +3946,7 @@ class XccdfEditorApp:
         self._center_dialog(dialog)
         dialog.wait_window()
         return results if 'id' in results else None
-
+      
     def _show_possible_value_dialog(self, value_to_edit=None):
         """Shows a dialog to add or edit a possible_value with its attributes."""
         dialog = tk.Toplevel(self.root)
@@ -3571,6 +4032,7 @@ class XccdfEditorApp:
             if new_data:
                 restrictions_data.append(new_data)
                 listbox.insert(tk.END, f"{new_data['value']} (Operation: {new_data.get('operation', 'equals')})")
+                self._mark_as_dirty() # Mark change
 
         def edit_item():
             selected_index = listbox.curselection()
@@ -3581,6 +4043,7 @@ class XccdfEditorApp:
                 restrictions_data[index] = edited_data
                 listbox.delete(index)
                 listbox.insert(index, f"{edited_data['value']} (Operation: {edited_data.get('operation', 'equals')})")
+                self._mark_as_dirty() # Mark change
 
         def remove_item():
             selected_index = listbox.curselection()
@@ -3588,6 +4051,7 @@ class XccdfEditorApp:
             index = selected_index[0]
             listbox.delete(index)
             del restrictions_data[index]
+            self._mark_as_dirty() # Mark change
 
         edit_frame = ttk.Frame(list_frame)
         edit_frame.pack(side=tk.LEFT, padx=5, fill=tk.Y)
@@ -3643,6 +4107,7 @@ class XccdfEditorApp:
                 return
             results['value'] = value_var.get()
             results['operation'] = op_var.get()
+            self._mark_as_dirty()
             dialog.destroy()
 
         button_frame = ttk.Frame(dialog, padding=(10, 5))
@@ -3725,12 +4190,13 @@ class XccdfEditorApp:
         rec_field_var = tk.StringVar(); var_ref_var = tk.StringVar()
         
         ttk.Label(literal_frame, text="Value:").grid(row=0, column=0); ttk.Entry(literal_frame, textvariable=lit_var).grid(row=0, column=1, sticky='ew')
+        
         ttk.Label(object_frame, text="Object Ref:").grid(row=0, column=0); ttk.Combobox(object_frame, textvariable=obj_ref_var, values=self.get_oval_object_ids()).grid(row=0, column=1, sticky='ew')
         ttk.Label(object_frame, text="Item Field:").grid(row=1, column=0); ttk.Entry(object_frame, textvariable=item_field_var).grid(row=1, column=1, sticky='ew')
         ttk.Label(object_frame, text="Record Field:").grid(row=2, column=0); ttk.Entry(object_frame, textvariable=rec_field_var).grid(row=2, column=1, sticky='ew')
+        
         ttk.Label(variable_frame, text="Variable Ref:").grid(row=0, column=0); ttk.Combobox(variable_frame, textvariable=var_ref_var, values=self.get_oval_variable_ids()).grid(row=0, column=1, sticky='ew')
-#        ttk.Label(function_frame, text="Nested functions not yet supported.").pack()
-        # --- UI for the nested function ---
+
         func_type_var = tk.StringVar()
         ttk.Label(function_frame, text="Function Type:").pack(anchor='w')
         func_options = ["arithmetic", "concat", "end", "escape_regex", "split", "substring", "time_difference", "regex_capture", "unique", "count", "glob_to_regex"]
@@ -3739,8 +4205,18 @@ class XccdfEditorApp:
 
         # Pre-fill if editing
         if component_to_edit:
-            # This logic can be expanded to pre-fill the fields
-            pass 
+            ctype = component_to_edit.get('type')
+            component_type_var.set(ctype)
+            if ctype == 'literal_component':
+                lit_var.set(component_to_edit.get('value', ''))
+            elif ctype == 'object_component':
+                obj_ref_var.set(component_to_edit.get('object_ref', ''))
+                item_field_var.set(component_to_edit.get('item_field', ''))
+                rec_field_var.set(component_to_edit.get('record_field', ''))
+            elif ctype == 'variable_component':
+                var_ref_var.set(component_to_edit.get('var_ref', ''))
+            elif ctype == 'function_group':
+                func_type_var.set(component_to_edit.get('function_type', ''))
         else:
             component_type_var.set("literal_component")
 
@@ -3768,59 +4244,72 @@ class XccdfEditorApp:
 
         
 ##--  [ General Helpers & Getters ]---
-    def create_detail_entry(self, parent_frame, label_text, data_obj, attr_name):
+    def create_detail_entry(self, parent_frame, label_text, data_obj, attr_name, read_only=False):
         frame = ttk.Frame(parent_frame)
         frame.pack(fill=tk.X, pady=5)
+        
         label = ttk.Label(frame, text=label_text, width=15)
         label.pack(side=tk.LEFT, anchor='n')
+        
         var = tk.StringVar(self.root)
         var.set(getattr(data_obj, attr_name, ""))
-        def update_data(*args):
-            setattr(data_obj, attr_name, var.get())
-        var.trace_add("write", update_data)
+
         widget = ttk.Entry(frame, textvariable=var)
+        widget.var = var
+        
+        if read_only:
+            widget.config(state='readonly')
+
+        else:            
+            def update_data(*args):
+                setattr(data_obj, attr_name, var.get())
+                self._mark_as_dirty()
+            var.trace_add("write", update_data)
+
         widget.pack(fill=tk.X, expand=True)
       
     def get_cpe_dictionary(self):
-        if self.datastream_collection:
-            try:
-                for comp in self.datastream_collection.get_component():
-                    if comp.cpe_list is not None:
-                        return comp.cpe_list
-            except (IndexError, AttributeError):
-                return None
+        """
+        Finds and returns the first CPE List component in the datastream.
+        Returns None if no datastream or CPE dictionary is found.
+        """
+        if self.datastream_collection and self.datastream_collection.get_component():
+            for comp in self.datastream_collection.get_component():
+                if hasattr(comp, 'cpe_list') and comp.cpe_list is not None:
+                    return comp.cpe_list
         return None
 
     def get_oval_definition_ids(self, specific_oval_defs=None):
-        """Finds the CPE OVAL component and returns a list of all OVAL definition IDs within it."""
+        """
+        Finds and returns a sorted list of unique OVAL definition IDs.
+        If specific_oval_defs is provided, searches only within that object.
+        Otherwise, searches all OVAL components in the datastream.
+        """
         ids = []
         if not self.datastream_collection:
             return ids
-        
+
+        # Determine which OVAL components to search
         if specific_oval_defs:
-            # --- Search only within the provided OVAL definitions object
-            if specific_oval_defs.get_definitions():
-                for definition in specific_oval_defs.get_definitions().get_definition():
-                    ids.append(definition.get_id())
+            targets = [specific_oval_defs]
         else:
-            # --- Search all OVAL components in the entire datastream
-            for comp in self.datastream_collection.get_component():
-                if comp.oval_definitions:
-                    oval_defs = comp.oval_definitions
-                    if oval_defs.get_definitions():
-                        for definition in oval_defs.get_definitions().get_definition():
-                            ids.append(definition.get_id())
+            targets = [c.oval_definitions for c in self.datastream_collection.get_component() if c.oval_definitions]
+
+        # Collect the definition IDs
+        for oval_defs in targets:
+            if oval_defs and oval_defs.get_definitions():
+                for definition in oval_defs.get_definitions().get_definition():
+                    ids.append(definition.get_id())
         
         return sorted(list(set(ids)))
 
     def get_oval_components(self):
         """Finds all OVAL components in the datastream and returns a map of their ID to the object."""
         components = {}
-        if not self.datastream_collection:
-            return components
-        for comp in self.datastream_collection.get_component():
-            if comp.oval_definitions is not None:
-                components[comp.get_id()] = comp
+        if self.datastream_collection and self.datastream_collection.get_component():
+            for comp in self.datastream_collection.get_component():
+                if comp.oval_definitions is not None:
+                    components[comp.get_id()] = comp
         return components
         
     def _center_dialog(self, dialog):
@@ -3843,28 +4332,843 @@ class XccdfEditorApp:
         
         dialog.geometry(f'+{x}+{y}')
         
-    def find_parent(self, start_node, child_to_find):
-        if isinstance(start_node, datastream_models.data_stream_collection):
-            benchmark = self.get_benchmark()
-            if benchmark:
-                return self.find_parent(benchmark, child_to_find)
-        elif isinstance(start_node, (xccdf_models.Benchmark, xccdf_models.groupType)):
-            if hasattr(start_node, 'Group') and start_node.Group and child_to_find in start_node.Group:
-                return start_node
-            if hasattr(start_node, 'Rule') and start_node.Rule and child_to_find in start_node.Rule:
-                return start_node
-            if hasattr(start_node, 'Group') and start_node.Group:
-                for subgroup in start_node.Group:
-                    found_parent = self.find_parent(subgroup, child_to_find)
-                    if found_parent:
-                        return found_parent
-        return None
-
     def show_welcome_message(self):
         for widget in self.detail_frame.winfo_children():
             widget.destroy()
         ttk.Label(self.detail_frame, text="Welcome!", font=("Helvetica", 16)).pack()
         ttk.Label(self.detail_frame, text="Use Create -> New Datastream to get started.", justify=tk.LEFT).pack()         
+
+
+    def build_entity_from_node(self, node, entity_type_str):
+        """Builds an OVAL entity object from an lxml etree node."""
+        # Get the class name from the tag (e.g., 'textfilecontent54_test')
+        class_name = node.tag.split('}')[-1]
+        
+        # Find the correct Python class for that name
+        base_class = getattr(oval, f"{entity_type_str.capitalize()}Type")
+        entity_map = self._get_available_entity_types(base_class)
+        
+        selected_class = None
+        for family in entity_map.values():
+            for friendly_name, class_obj in family.items():
+                if class_obj.__name__ == class_name:
+                    selected_class = class_obj
+                    break
+            if selected_class: break
+        
+        if not selected_class:
+            return None
+
+        # Create an empty instance and populate it
+        new_entity = selected_class()
+        new_entity.original_tagname_ = class_name
+        
+        # Set attributes from the XML node
+        if 'id' in node.attrib: new_entity.set_id(node.attrib['id'])
+        if 'version' in node.attrib: new_entity.set_version(node.attrib['version'])
+        if 'comment' in node.attrib: new_entity.set_comment(node.attrib['comment'])
+        if 'check' in node.attrib: new_entity.set_check(node.attrib['check'])
+        if 'check_existence' in node.attrib: new_entity.set_check_existence(node.attrib['check_existence'])
+        
+        # This can be expanded to build child elements recursively
+        
+        return new_entity
+        
+    def _get_correct_wrapper_class(self, parent_entity_class, wrapper_name):
+        """
+        Finds the correct wrapper class (e.g., EntityObjectStringType) from the
+        same module as the parent entity.
+        """
+        module = inspect.getmodule(parent_entity_class)
+        return getattr(module, wrapper_name, None)
+        
+    def _create_wrapped_entity(self, parent_entity, prop_data, wrapper_class):
+        """Helper to build a new wrapper object (e.g., EntityObjectStringType)."""
+        if not prop_data or not prop_data.get('value'):
+            return None
+            
+        kwargs = {'valueOf_': prop_data.get('value')}
+        if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
+        if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
+        if prop_data.get('mask'): kwargs['mask'] = prop_data.get('mask')
+        if prop_data.get('var_ref'): kwargs['var_ref'] = prop_data.get('var_ref')
+        
+        wrapped_entity = wrapper_class(**kwargs)
+        wrapped_entity.ns_prefix_ = parent_entity.ns_prefix_
+        return wrapper_class(**kwargs)
+
+    def _update_wrapped_entity(self, parent_entity, prop_data, getter_func, setter_func, wrapper_class):
+        """Helper to update an existing wrapper object."""
+        if not prop_data: return
+
+        if prop_data.get('value'):
+            existing_entity = getter_func()
+            kwargs = {'valueOf_': prop_data.get('value')}
+            if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
+            if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
+            if prop_data.get('mask'): kwargs['mask'] = prop_data.get('mask')
+            if prop_data.get('var_ref'): kwargs['var_ref'] = prop_data.get('var_ref')
+
+            if not existing_entity:
+                new_entity = wrapper_class(**kwargs)
+                new_entity.ns_prefix_ = parent_entity.ns_prefix_
+                setter_func(new_entity)
+            else:
+                for key, value in kwargs.items():
+                    setter_name = f"set_{key}"
+                    if hasattr(existing_entity, setter_name):
+                         getattr(existing_entity, setter_name)(value)
+        else:
+            setter_func(None)
+
+    def _set_wrapped_property(self, parent_entity, data, prop_name, wrapper_class):
+        """
+        A helper to create, prefix, and set a wrapped property on a parent entity.
+        """
+        if prop_name in data:
+            entity = self._create_wrapped_entity(parent_entity, data[prop_name], wrapper_class)
+            if entity:
+                setter_method = getattr(parent_entity, f"set_{prop_name}")
+                setter_method(entity)
+                entity.ns_prefix_ = parent_entity.ns_prefix_
+
+    def _build_function_components(self, parent_function, components_data, func_type):
+        """A helper to build the components inside any function."""
+        if not components_data:
+#            print(f"No")
+            return
+        for comp_data in components_data:
+            comp_type = comp_data.get('type')
+#            print(f"comp_type: {comp_type}")
+            if comp_type == 'literal_component':
+                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
+                    parent_function.set_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
+                else:
+                    parent_function.add_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
+            elif comp_type == 'object_component':
+                oc_kwargs = {'object_ref': comp_data.get('object_ref'), 'item_field': comp_data.get('item_field')}
+                if comp_data.get('record_field'): oc_kwargs['record_field'] = comp_data.get('record_field')
+                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
+                    parent_function.set_object_component(models.ObjectComponentType(**oc_kwargs))
+                else:
+                    parent_function.add_object_component(models.ObjectComponentType(**oc_kwargs))
+            elif comp_type == 'variable_component':
+                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
+                    parent_function.set_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
+                else:
+                    parent_function.add_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
+
+            # --- START RECURSIVE LOGIC ---
+            elif comp_type == 'function_group':
+                func_group = models.FunctionGroup()
+                func_type = comp_data.get('function_type')
+                
+                func = None
+                if func_type == 'arithmetic':
+                    # A more advanced version would get the op and components
+                    func = models.ArithmeticFunctionType()
+                    func_group.set_arithmetic(func)
+                # ... (add elif for other function types) ...
+                
+                # We would need a way to get the nested components' data
+                # For now, we create an empty function group
+                if func:
+                    parent_function.add_function_group(func_group)
+                    
+    def _create_entity(self, selected_class, data, entity_type_str):
+        """Creates a new OVAL entity from dialog data."""
+        if not data:
+            return None
+        print(f"data: {data}")
+        print(f"selected_class: {selected_class}")
+        # --- Create an empty instance first
+        new_entity = selected_class()
+        new_entity.original_tagname_ = selected_class.__name__
+        
+        # --- Set COMMON attributes for all OVAL entities ---
+        if 'id' in data: new_entity.set_id(data['id'])
+        if 'version' in data: new_entity.set_version(data['version'])
+        if 'comment' in data: new_entity.set_comment(data['comment'])
+
+        if entity_type_str == 'test':
+            if 'check' in data: new_entity.set_check(data['check'])
+            if 'check_existence' in data: new_entity.set_check_existence(data['check_existence'])
+            if data.get('object_ref'):
+                obj_ref = models.ObjectRefType(object_ref=data['object_ref'])
+                obj_ref.ns_prefix_ = new_entity.ns_prefix_
+                new_entity.set_object(obj_ref)
+            if data.get('state_ref'):
+                state_ref = models.StateRefType(state_ref=data['state_ref'])
+                state_ref.ns_prefix_ = new_entity.ns_prefix_
+                new_entity.set_state([state_ref])      
+
+        elif entity_type_str == 'object':
+            if data.get('behaviors'):
+                b_data = data['behaviors']
+                b_kwargs = {k: v for k, v in b_data.items()}
+                if isinstance(new_entity, models.textfilecontent54_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.Textfilecontent54Behaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = new_entity.ns_prefix_
+                        new_entity.set_behaviors(behaviors)
+                elif isinstance(new_entity, models.rpminfo_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmInfoBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = new_entity.ns_prefix_
+                        new_entity.set_behaviors(behaviors)
+                elif isinstance(new_entity, models.rpmverifypackage_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmVerifyPackageBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = new_entity.ns_prefix_
+                        new_entity.set_behaviors(behaviors)
+                elif isinstance(new_entity, models.rpmverifyfile_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmVerifyFileBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = new_entity.ns_prefix_
+                        new_entity.set_behaviors(behaviors)
+                elif isinstance(new_entity, models.rpmverify_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmVerifyBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = new_entity.ns_prefix_
+                        new_entity.set_behaviors(behaviors)
+                else:
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.FileBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = new_entity.ns_prefix_
+                        new_entity.set_behaviors(behaviors)
+
+            # --- FOR FILTERS ---
+            if 'filter' in data:
+                f_data = data['filter']
+                if f_data.get('state_id'): # Only add a filter if a state was selected
+                    new_filter = models.filter(valueOf_=f_data['state_id'], action=f_data['action'])
+                    new_entity.add_filter(new_filter)
+ 
+            for prop_name, prop_data in data.items():
+                if prop_name in ['id', 'version', 'comment', 'behaviors', 'filter']:
+                    continue # Skip common props and complex types handled elsewhere
+
+                setter_name = f"set_{prop_name}"
+                if hasattr(new_entity, setter_name):
+                    # --- Determine which wrapper class to use based on the property name
+                    if prop_name in ["version_"]:
+                        if (isinstance(new_entity, models.sql57_object) or isinstance(new_entity, models.sql_object)):
+                            wrapper_class = models.EntityObjectStringType
+                        elif (isinstance(new_entity, models.rpmverifyfile_object) or isinstance(new_entity, models.rpmverifypackage_object)):
+                            wrapper_class = models.EntityObjectAnySimpleType
+                    elif prop_name in ['instance', 'pid', 'local_port']:
+                        wrapper_class = models.EntityObjectIntType
+                    elif prop_name in ['path', 'filename', 'filepath', 'name', 'connection_string', 'sql', 'xpath', 'pattern', 'domain_name', \
+                       'attribute_name', 'key', 'source', 'protocol', 'service_name', 'username', 'command_line', 'runlevel', 'interface_name', \
+                       'mount_point', 'arch', 'unit', 'property']:
+                         wrapper_class = models.EntityObjectStringType
+                    elif prop_name in ['epoch', 'release']:
+                        wrapper_class = models.EntityObjectAnySimpleType
+                    elif prop_name in ['local_address', 'destination']:
+                        wrapper_class = models.EntityObjectIPAddressType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = models.EntityObjectVariableRefType
+                    #Defined Problem Children
+                    elif prop_name in ['hash_type', 'engine']:
+                        wrapper_class = models.EntityObjectStringType
+                    #Left Overs
+                    else:
+                        wrapper_class = models.EntityObjectStringType
+                    
+                    # --- Use the existing helper to create and set the property
+                    self._set_wrapped_property(new_entity, data, prop_name, wrapper_class)
+
+        elif entity_type_str == 'state':
+            if 'operator' in data: new_entity.set_operator(data['operator'])
+
+            for prop_name, prop_data in data.items():
+                if prop_name in ['id', 'version', 'comment', 'operator']:
+                    continue # Skip common props handled elsewhere
+
+                setter_name = f"set_{prop_name}"
+
+                # --- Check if the entity actually has this property
+                if hasattr(new_entity, setter_name):
+                    # --- This logic correctly determines which wrapper to use based on the property name
+                    # --- This can be expanded as you add more types
+                    
+                    if prop_name in ['version_']:
+                        if (isinstance(new_entity, models.slackwarepkginfo_state) or isinstance(new_entity, models.sql57_state)):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(new_entity, models.rpmverifypackage_state) or isinstance(new_entity, models.rpmverifyfile_state) or\
+                           isinstance(new_entity, models.rpminfo_state) or isinstance(new_entity, models.dpkginfo_state):
+                            wrapper_class = models.EntityObjectAnySimpleType                
+                    elif prop_name in ['type']:
+                        if (isinstance(new_entity, models.selinuxsecuritycontext_state) or isinstance(new_entity, models.file_state)):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(new_entity, models.interface_state):
+                            wrapper_class = models.EntityStateInterfaceType
+                        elif isinstance(new_entity, models.gconf_state):
+                            wrapper_class = models.EntityStateGconfTypeType
+                        elif isinstance(new_entity, models.xinetd_state):
+                            wrapper_class = models.EntityStateXinetdTypeStatusType
+                    elif prop_name in ['flags']:
+                        if isinstance(new_entity, models.xinetd_state):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(new_entity, models.routingtable_state):
+                            wrapper_class = models.EntityStateRoutingTableFlagsType
+                    elif prop_name in ['arch', 'architecture', 'attribute_name', 'canonical_path', 'command_line', 'connection_string', 'dependency', \
+                       'device', 'domain_name', 'exec_as_user', 'exec_time', 'extended_name', 'filename', 'filepath', 'flag', 'fs_type', 'gcos', \
+                       'hardware_addr', 'hash', 'high_category', 'high_sensitivity', 'home_dir', 'hw_address', 'interface_name', 'key', 'login_shell', \
+                       'low_category', 'low_sensitivity', 'machine_class', 'mod_user', 'mount_options', 'mount_point', 'name', 'no_access', 'node_name', \
+                       'os_name', 'os_release', 'os_version', 'password', 'path', 'pattern', 'processor_type', 'program_name', 'property', 'protocol', \
+                       'rawhigh_category', 'rawhigh_sensitivity', 'rawlow_category', 'rawlow_sensitivity', 'revision', 'role', 'runlevel', 'scheduling_class', \
+                       'selinux_domain_label', 'server', 'server_arguments', 'server_program', 'service_name', 'signature_keyid', 'socket_type', 'source', \
+                       'sql', 'start_time', 'tty', 'unit', 'user', 'username', 'uuid', 'xpath']:
+                        wrapper_class = models.EntityStateStringType
+                    elif prop_name in ['a_time', 'chg_allow', 'chg_lst', 'chg_req', 'c_time', 'exp_date', 'exp_inact', 'exp_warn', 'group_id', 'instance', \
+                       'last_login', 'loginuid', 'mod_time', 'm_time', 'pid', 'port', 'ppid', 'priority', 'ruid', 'session_id', 'size', 'space_left', \
+                       'space_used', 'total_space', 'ttl', 'user_id']:
+                        wrapper_class = models.EntityStateIntType
+                    elif prop_name in ['configuration_file', 'current_status', 'dependency_check_passed', 'digest_check_passed', 'disabled', 'documentation_file', \
+                       'exec_shield', 'gexec', 'ghost_file', 'gread', 'gwrite', 'has_extended_acl', 'is_default', 'is_writable', 'kill', 'license_file', 'oexec', \
+                       'oread', 'owrite', 'pending_status', 'readme_file', 'sgid', 'signature_check_passed', 'start', 'sticky', 'suid', 'uexec', 'uread', \
+                       'uwrite', 'verification_script_successful', 'wait']:
+                        wrapper_class = models.EntityStateBoolType
+                    elif prop_name in ['capabilities_differ', 'device_differs', 'group_differs', 'link_mismatch', 'md5_differs', 'mode_differs', \
+                       'mtime_differs', 'ownership_differs', 'size_differs']:
+                        wrapper_class = models.EntityStateRpmVerifyResultType
+                    elif prop_name in ['epoch', 'result', 'subexpression', 'text', 'value', 'value_of']:
+                        wrapper_class = models.EntityStateAnySimpleType
+                    elif prop_name in ['broadcast_addr', 'inet_addr', 'ip_address', 'netmask', 'only_from']:
+                        wrapper_class = models.EntityStateIPAddressStringType
+                    elif prop_name in ['destination', 'gateway']:
+                        wrapper_class = models.EntityStateIPAddressType
+                    elif prop_name in ['posix_capability', 'protocol']:
+                        wrapper_class = models.EntityStateCapabilityType
+                    elif prop_name in ['encrypt_method']:
+                        wrapper_class = models.EntityStateEncryptMethodType
+                    elif prop_name in ['endpoint_type']:
+                        wrapper_class = models.EntityStateEndpointType
+                    elif prop_name in ['engine']:
+                        wrapper_class = models.EntityStateEngineType
+                    elif prop_name in ['evr']:
+                        wrapper_class = models.EntityStateEVRStringType
+                    elif prop_name in ['family']:
+                        wrapper_class = models.EntityStateFamilyType
+                    elif prop_name in ['hash_type']:
+                        wrapper_class = models.EntityStateHashTypeType
+                    elif prop_name in ['release']:
+                        wrapper_class = models.EntityStateProtocolType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = models.EntityStateRecordType
+                    elif prop_name in ['wait_status']:
+                        wrapper_class = models.EntityStateWaitStatusType
+                    elif prop_name in ['windows_view']:
+                        wrapper_class = models.EntityStateWindowsViewType
+                    #Left Overs
+                    else:
+                        wrapper_class = models.EntityObjectStringType
+                    
+                    # --- Use the existing helper to create and set the property
+                    self._set_wrapped_property(new_entity, data, prop_name, wrapper_class)
+
+        elif entity_type_str == 'variable':
+            new_entity.set_datatype(data['datatype'])
+            
+            if isinstance(new_entity, models.constant_variable) and 'value' in data:
+                for val in data['value']:
+                    new_entity.add_value(models.ValueType(valueOf_=val))
+
+            elif isinstance(new_entity, models.external_variable):
+                if 'possible_value' in data:
+                    for pv_data in data['possible_value']:
+                        pv = models.PossibleValueType(
+                            valueOf_=pv_data.get('value'),
+                            hint=pv_data.get('hint')
+                        )
+                        new_entity.add_possible_value(pv)
+                
+                if 'possible_restriction' in data:
+                    for pr_data in data['possible_restriction']:
+                        # Create the main <possible_restriction> container
+                        pr = models.PossibleRestrictionType(
+                            hint=pr_data.get('hint'),
+                            operator=pr_data.get('operator')
+                        )
+                        # Loop through its child restrictions and add them
+                        for r_data in pr_data.get('restrictions', []):
+                            restriction_child = models.RestrictionType(
+                                valueOf_=r_data.get('value'),
+                                operation=r_data.get('operation')
+                            )
+                            pr.add_restriction(restriction_child)
+                        new_entity.add_possible_restriction(pr)
+
+            elif isinstance(new_entity, models.local_variable):
+                comp_type = data.get('component_type')
+                if comp_type == 'literal':
+                    new_entity.set_literal_component(models.LiteralComponentType(valueOf_=data.get('literal_value')))
+                elif comp_type == 'variable':
+                    new_entity.set_variable_component(models.VariableComponentType(var_ref=data.get('var_ref')))
+                elif comp_type == 'object':
+                   # Build arguments, only including record_field if it has a value
+                    comp_kwargs = {
+                        'object_ref': data.get('object_ref'),
+                        'item_field': data.get('item_field')
+                    }
+                    if data.get('record_field'):
+                        comp_kwargs['record_field'] = data.get('record_field')
+                    
+                    new_entity.set_object_component(models.ObjectComponentType(**comp_kwargs))
+                elif comp_type == 'function':
+                    func_type = data.get('function_type')
+                    components_data = data.get('components_data', [])
+                    
+                    func = None
+                    if func_type == 'arithmetic':
+                        func = models.ArithmeticFunctionType(arithmetic_operation=data.get('arithmetic_op'))
+                        new_entity.set_arithmetic(func)
+                    elif func_type == 'concat':
+                        func = models.ConcatFunctionType()
+                        new_entity.set_concat(func)
+                    elif func_type == 'escape_regex':
+                        func = models.EscapeRegexFunctionType()
+                        new_entity.set_escape_regex(func)
+                    elif func_type == 'unique':
+                        func = models.UniqueFunctionType()
+                        new_entity.set_unique(func)
+                    elif func_type == 'count':
+                        func = models.CountFunctionType()
+                        new_entity.set_count(func)
+                    elif func_type == 'time_difference':
+                        func = models.TimeDifferenceFunctionType(
+                            format_1=data.get('format_1'),
+                            format_2=data.get('format_2')
+                        )
+                        new_entity.set_time_difference(func)
+                    elif func_type in ['begin', 'end']:
+                        func = models.BeginFunctionType(character=data.get('character')) if func_type == 'begin' else models.EndFunctionType(character=data.get('character'))
+                        if func_type == 'begin': new_entity.set_begin(func)
+                        else: new_entity.set_end(func)                   
+                    elif func_type == 'split':
+                        func = models.SplitFunctionType(delimiter=data.get('delimiter'))
+                        new_entity.set_split(func)
+                    elif func_type == 'regex_capture':
+                        func = models.RegexCaptureFunctionType(pattern=data.get('pattern'))
+                        comp_data = data.get('single_component_data')
+                        new_entity.set_regex_capture(func)
+                    elif func_type == 'glob_to_regex':
+                        func = models.GlobToRegexFunctionType(glob_noescape=data.get('glob_noescape'))
+                        new_entity.set_glob_to_regex(func)
+                    elif func_type == 'substring':
+                        func = models.SubstringFunctionType(
+                            substring_start=data.get('substring_start'),
+                            substring_length=data.get('substring_length')
+                        )
+                        new_entity.set_substring(func)
+                        
+                    if func:
+#                        print(f"comp_data: {components_data}")
+                        self._build_function_components(func, components_data, func_type)                    
+                    
+        print(f"entity: {new_entity}")
+        return new_entity
+
+    def _update_entity(self, entity_to_edit, data, entity_type_str):
+        """Updates an existing OVAL entity from dialog data."""
+        if not data: return
+        
+        print(f"data: {data}")
+        # --- Set COMMON attributes for all OVAL entities ---
+        if 'id' in data: entity_to_edit.set_id(data['id'])
+        if 'version' in data: entity_to_edit.set_version(data['version'])
+        if 'comment' in data: entity_to_edit.set_comment(data['comment'])
+
+        # --- Set SPECIFIC attributes based on the entity's type ---
+        if entity_type_str == 'test':
+            if 'check' in data: entity_to_edit.set_check(data['check'])
+            if 'check_existence' in data: entity_to_edit.set_check_existence(data['check_existence'])
+            if 'object_ref' in data:
+                obj_ref = entity_to_edit.get_object() or models.ObjectRefType()
+                obj_ref.set_object_ref(data['object_ref'])
+                obj_ref.ns_prefix_ = entity_to_edit.ns_prefix_
+                entity_to_edit.set_object(obj_ref)
+            if 'state_ref' in data:
+                state_ref = (entity_to_edit.get_state() or [models.StateRefType()])[0]
+                state_ref.set_state_ref(data['state_ref'])
+                state_ref.ns_prefix_ = entity_to_edit.ns_prefix_
+                entity_to_edit.set_state([state_ref])
+
+        elif entity_type_str == 'object':
+
+            # --- FOR BEHAVIORS ---
+            if 'behaviors' in data:
+                b_data = data['behaviors']
+                behaviors_obj = entity_to_edit.get_behaviors()
+                
+                if isinstance(entity_to_edit, models.textfilecontent54_object):
+                    if b_data and not behaviors_obj: 
+                        behaviors_obj = models.Textfilecontent54Behaviors()
+                        behaviors_obj.ns_prefix_ = entity_to_edit.ns_prefix_
+                        entity_to_edit.set_behaviors(behaviors_obj)                        
+                else:
+                    if b_data and not behaviors_obj: 
+                        behaviors_obj = models.FileBehaviors()
+                        behaviors_obj.ns_prefix_ = entity_to_edit.ns_prefix_
+                        entity_to_edit.set_behaviors(behaviors_obj)
+                if behaviors_obj:
+                    for key, value in b_data.items():
+                        setter_name = f"set_{key}"
+                        if hasattr(behaviors_obj, setter_name):
+                            getattr(behaviors_obj, setter_name)(value)
+
+            # --- FOR FILTERS ---
+            if 'filter' in data:
+                f_data = data['filter']
+                if f_data.get('state_id'):
+                    filter_obj = entity_to_edit.get_filter()[0] if entity_to_edit.get_filter() else None
+                    if not filter_obj: # Create if it doesn't exist
+                        filter_obj = models.filter()
+                        entity_to_edit.add_filter(filter_obj)
+                    
+                    # --- Update its properties
+                    filter_obj.set_action(f_data['action'])
+                    filter_obj.set_valueOf_(f_data['state_id'])
+                else: # The state ID was cleared, so remove the filter
+                    entity_to_edit.set_filter([])
+
+            # --- FOR REST ---
+            for prop_name, prop_data in data.items():
+                if prop_name in ['id', 'version', 'comment', 'behaviors', 'filter']:
+                    continue # Skip common props handled elsewhere
+
+                getter_name = f"get_{prop_name}"
+                setter_name = f"set_{prop_name}"
+
+                # --- Check if the entity actually has this property
+                if hasattr(entity_to_edit, getter_name) and hasattr(entity_to_edit, setter_name):
+                    # --- This logic correctly determines which wrapper to use based on the property name
+                    # --- This can be expanded as you add more types
+                    
+                    if prop_name in ["version_"]:
+                        if (isinstance(entity_to_edit, models.sql57_object) or isinstance(entity_to_edit, models.sql_object)):
+                            wrapper_class = models.EntityObjectStringType
+                        elif (isinstance(entity_to_edit, models.rpmverifyfile_object) or isinstance(entity_to_edit, models.rpmverifypackage_object)):
+                            wrapper_class = models.EntityObjectAnySimpleType
+                    elif prop_name in ['instance', 'pid', 'local_port']:
+                        wrapper_class = models.EntityObjectIntType
+                    elif prop_name in ['path', 'filename', 'filepath', 'name', 'connection_string', 'sql', 'xpath', 'pattern', 'domain_name', \
+                       'attribute_name', 'key', 'source', 'protocol', 'service_name', 'username', 'command_line', 'runlevel', 'interface_name', \
+                       'mount_point', 'arch', 'unit', 'property']:
+                         wrapper_class = models.EntityObjectStringType
+                    elif prop_name in ['epoch', 'release']:
+                        wrapper_class = models.EntityObjectAnySimpleType
+                    elif prop_name in ['local_address', 'destination']:
+                        wrapper_class = models.EntityObjectIPAddressType
+                    #Defined Problem Children
+                    elif prop_name in ['hash_type', 'engine']:
+                        wrapper_class = models.EntityObjectStringType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = models.EntityObjectVariableRefType
+                    #Left Overs
+                    else:
+                        wrapper_class = models.EntityObjectStringType
+                         
+                        
+                    self._update_wrapped_entity(
+                        entity_to_edit,
+                        prop_data,
+                        getattr(entity_to_edit, getter_name),
+                        getattr(entity_to_edit, setter_name),
+                        wrapper_class
+                    )
+
+        elif entity_type_str == 'state':
+            if 'operator' in data: new_entity.set_operator(data['operator'])
+            for prop_name, prop_data in data.items():
+                if prop_name in ['id', 'version', 'comment', 'operator']:
+                    continue # Skip common props handled elsewhere
+
+                getter_name = f"get_{prop_name}"
+                setter_name = f"set_{prop_name}"
+
+                # --- Check if the entity actually has this property
+                if hasattr(entity_to_edit, getter_name) and hasattr(entity_to_edit, setter_name):
+                    # --- This logic correctly determines which wrapper to use based on the property name
+                    # --- This can be expanded as you add more types
+                    
+                    if prop_name in ['version_']:
+                        if (isinstance(entity_to_edit, models.slackwarepkginfo_state) or isinstance(entity_to_edit, models.sql57_state)):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(entity_to_edit, models.rpmverifypackage_state) or isinstance(entity_to_edit, models.rpmverifyfile_state) or\
+                           isinstance(entity_to_edit, models.rpminfo_state) or isinstance(entity_to_edit, models.dpkginfo_state):
+                            wrapper_class = models.EntityObjectAnySimpleType                
+                    elif prop_name in ['type']:
+                        if (isinstance(entity_to_edit, models.selinuxsecuritycontext_state) or isinstance(entity_to_edit, models.file_state)):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(entity_to_edit, models.interface_state):
+                            wrapper_class = models.EntityStateInterfaceType
+                        elif isinstance(entity_to_edit, models.gconf_state):
+                            wrapper_class = models.EntityStateGconfTypeType
+                        elif isinstance(entity_to_edit, models.xinetd_state):
+                            wrapper_class = models.EntityStateXinetdTypeStatusType
+                    elif prop_name in ['flags']:
+                        if isinstance(entity_to_edit, models.xinetd_state):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(entity_to_edit, models.routingtable_state):
+                            wrapper_class = models.EntityStateRoutingTableFlagsType
+                    elif prop_name in ['arch', 'architecture', 'attribute_name', 'canonical_path', 'command_line', 'connection_string', 'dependency', \
+                       'device', 'domain_name', 'exec_as_user', 'exec_time', 'extended_name', 'filename', 'filepath', 'flag', 'fs_type', 'gcos', \
+                       'hardware_addr', 'hash', 'high_category', 'high_sensitivity', 'home_dir', 'hw_address', 'interface_name', 'key', 'login_shell', \
+                       'low_category', 'low_sensitivity', 'machine_class', 'mod_user', 'mount_options', 'mount_point', 'name', 'no_access', 'node_name', \
+                       'os_name', 'os_release', 'os_version', 'password', 'path', 'pattern', 'processor_type', 'program_name', 'property', 'protocol', \
+                       'rawhigh_category', 'rawhigh_sensitivity', 'rawlow_category', 'rawlow_sensitivity', 'revision', 'role', 'runlevel', 'scheduling_class', \
+                       'selinux_domain_label', 'server', 'server_arguments', 'server_program', 'service_name', 'signature_keyid', 'socket_type', 'source', \
+                       'sql', 'start_time', 'tty', 'unit', 'user', 'username', 'uuid', 'xpath']:
+                        wrapper_class = models.EntityStateStringType
+                    elif prop_name in ['a_time', 'chg_allow', 'chg_lst', 'chg_req', 'c_time', 'exp_date', 'exp_inact', 'exp_warn', 'group_id', 'instance', \
+                       'last_login', 'loginuid', 'mod_time', 'm_time', 'pid', 'port', 'ppid', 'priority', 'ruid', 'session_id', 'size', 'space_left', \
+                       'space_used', 'total_space', 'ttl', 'user_id']:
+                        wrapper_class = models.EntityStateIntType
+                    elif prop_name in ['configuration_file', 'current_status', 'dependency_check_passed', 'digest_check_passed', 'disabled', 'documentation_file', \
+                       'exec_shield', 'gexec', 'ghost_file', 'gread', 'gwrite', 'has_extended_acl', 'is_default', 'is_writable', 'kill', 'license_file', 'oexec', \
+                       'oread', 'owrite', 'pending_status', 'readme_file', 'sgid', 'signature_check_passed', 'start', 'sticky', 'suid', 'uexec', 'uread', \
+                       'uwrite', 'verification_script_successful', 'wait']:
+                        wrapper_class = models.EntityStateBoolType
+                    elif prop_name in ['capabilities_differ', 'device_differs', 'group_differs', 'link_mismatch', 'md5_differs', 'mode_differs', \
+                       'mtime_differs', 'ownership_differs', 'size_differs']:
+                        wrapper_class = models.EntityStateRpmVerifyResultType
+                    elif prop_name in ['epoch', 'result', 'subexpression', 'text', 'value', 'value_of']:
+                        wrapper_class = models.EntityStateAnySimpleType
+                    elif prop_name in ['broadcast_addr', 'inet_addr', 'ip_address', 'netmask', 'only_from']:
+                        wrapper_class = models.EntityStateIPAddressStringType
+                    elif prop_name in ['destination', 'gateway']:
+                        wrapper_class = models.EntityStateIPAddressType
+                    elif prop_name in ['posix_capability', 'protocol']:
+                        wrapper_class = models.EntityStateCapabilityType
+                    elif prop_name in ['encrypt_method']:
+                        wrapper_class = models.EntityStateEncryptMethodType
+                    elif prop_name in ['endpoint_type']:
+                        wrapper_class = models.EntityStateEndpointType
+                    elif prop_name in ['engine']:
+                        wrapper_class = models.EntityStateEngineType
+                    elif prop_name in ['evr']:
+                        wrapper_class = models.EntityStateEVRStringType
+                    elif prop_name in ['family']:
+                        wrapper_class = models.EntityStateFamilyType
+                    elif prop_name in ['hash_type']:
+                        wrapper_class = models.EntityStateHashTypeType
+                    elif prop_name in ['release']:
+                        wrapper_class = models.EntityStateProtocolType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = models.EntityStateRecordType
+                    elif prop_name in ['wait_status']:
+                        wrapper_class = models.EntityStateWaitStatusType
+                    elif prop_name in ['windows_view']:
+                        wrapper_class = models.EntityStateWindowsViewType
+                    #Left Overs
+                    else:
+                        wrapper_class = models.EntityObjectStringType
+                         
+                    self._update_wrapped_entity(
+                        entity_to_edit,
+                        prop_data,
+                        getattr(entity_to_edit, getter_name),
+                        getattr(entity_to_edit, setter_name),
+                        wrapper_class
+                    )
+
+        elif entity_type_str == 'variable':
+            entity_to_edit.set_datatype(data['datatype'])
+            
+            if isinstance(entity_to_edit, models.constant_variable) and 'value' in data:
+                entity_to_edit.set_value([])
+                for val in data['value']:
+                    entity_to_edit.add_value(models.ValueType(valueOf_=val))
+
+            elif isinstance(entity_to_edit, models.external_variable):
+                # Update possible values
+                entity_to_edit.set_possible_value([])
+                if 'possible_value' in data:
+                    for pv_data in data['possible_value']:
+                        pv = models.PossibleValueType(
+                            valueOf_=pv_data.get('value'),
+                            hint=pv_data.get('hint')
+                        )
+                        entity_to_edit.add_possible_value(pv)
+                
+                # Update possible restrictions
+                entity_to_edit.set_possible_restriction([])
+                if 'possible_restriction' in data:
+                    for pr_data in data['possible_restriction']:
+                        pr = models.PossibleRestrictionType(
+                            hint=pr_data.get('hint'),
+                            operator=pr_data.get('operator')
+                        )
+                        for r_data in pr_data.get('restrictions', []):
+                            restriction_child = models.RestrictionType(
+                                valueOf_=r_data.get('value'),
+                                operation=r_data.get('operation')
+                            )
+                            pr.add_restriction(restriction_child)
+                        entity_to_edit.add_possible_restriction(pr)
+
+            elif isinstance(entity_to_edit, models.local_variable):
+                # Clear all possible components first
+                entity_to_edit.set_literal_component(None)
+                entity_to_edit.set_variable_component(None)
+                entity_to_edit.set_object_component(None)
+                
+                comp_type = data.get('component_type')
+                if comp_type == 'literal':
+                    entity_to_edit.set_literal_component(models.LiteralComponentType(valueOf_=data.get('literal_value')))
+                elif comp_type == 'variable':
+                    entity_to_edit.set_variable_component(models.VariableComponentType(var_ref=data.get('var_ref')))
+                elif comp_type == 'object':
+                    # Build arguments, only including record_field if it has a value
+                    comp_kwargs = {
+                        'object_ref': data.get('object_ref'),
+                        'item_field': data.get('item_field')
+                    }
+                    if data.get('record_field'):
+                        comp_kwargs['record_field'] = data.get('record_field')
+                    
+                    entity_to_edit.set_object_component(models.ObjectComponentType(**comp_kwargs))
+                elif comp_type == 'function':
+                    func_type = data.get('function_type')
+                    components_data = data.get('components_data', [])
+                     
+                    if func_type == 'arithmetic':
+                        func = models.ArithmeticFunctionType(arithmetic_operation=data.get('arithmetic_op'))
+                        entity_to_edit.set_arithmetic(func)
+                    elif func_type == 'concat':
+                        func = models.ConcatFunctionType()
+                        entity_to_edit.set_concat(func)
+                    elif func_type == 'escape_regex':
+                        func = models.EscapeRegexFunctionType()
+                        entity_to_edit.set_escape_regex(func)
+                    elif func_type == 'unique':
+                        func = models.UniqueFunctionType()
+                        entity_to_edit.set_unique(func)
+                    elif func_type == 'count':
+                        func = models.CountFunctionType()
+                        entity_to_edit.set_count(func)
+                    elif func_type == 'time_difference':
+                        func = models.TimeDifferenceFunctionType(
+                            format_1=data.get('format_1'),
+                            format_2=data.get('format_2')
+                        )
+                        entity_to_edit.set_time_difference(func)                    
+                    elif func_type in ['begin', 'end']:
+                        func = models.BeginFunctionType(character=data.get('character')) if func_type == 'begin' else models.EndFunctionType(character=data.get('character'))
+
+                        if func_type == 'begin': entity_to_edit.set_begin(func)
+                        else: entity_to_edit.set_end(func)                        
+
+                    elif func_type == 'split':
+                        func = models.SplitFunctionType(delimiter=data.get('delimiter'))
+                        entity_to_edit.set_split(func)
+                    elif func_type == 'regex_capture':
+                        func = models.RegexCaptureFunctionType(pattern=data.get('pattern'))
+                        entity_to_edit.set_regex_capture(func)
+                    elif func_type == 'glob_to_regex':
+                        func = models.GlobToRegexFunctionType(glob_noescape=data.get('glob_noescape'))
+                        entity_to_edit.set_glob_to_regex(func)
+
+                    elif func_type == 'substring':
+                        func = models.SubstringFunctionType(
+                            substring_start=data.get('substring_start'),
+                            substring_length=data.get('substring_length')
+                        )
+                        entity_to_edit.set_substring(func)
+                        
+                    if func:
+                        self._build_function_components(func, components_data, func_type)
+#        print(f"entity: {entity_to_edit}")    
+
+####IMPORTS
+    def _import_oval_file(self, component_type_str, ref_list_name):
+        if not self.datastream_collection:
+            messagebox.showwarning("No Datastream", "Please create a new datastream first.")
+            return
+
+        oval_path = filedialog.askopenfilename(
+            title=f"Import {component_type_str} File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not oval_path:
+            return
+
+        try:
+            parsed_oval_defs = models.parse(oval_path, silence=True)
+            
+            comp_id = f"comp_oval_{uuid.uuid4()}"
+            oval_component = models.component(
+                id=comp_id,
+                timestamp=datetime.now(),
+                oval_definitions=parsed_oval_defs
+            )
+            
+            self.datastream_collection.add_component(oval_component)
+            comp_ref = self._create_component_ref(f"cref_oval_{uuid.uuid4()}", f"#{comp_id}")
+            ds = self.datastream_collection.get_data_stream()[0]
+            
+            ref_list_obj = getattr(ds, f"get_{ref_list_name}")()
+            if ref_list_obj is None:
+                ref_list_obj = models.refListType()
+                getattr(ds, f"set_{ref_list_name}")(ref_list_obj)
+            
+            ref_list_obj.add_component_ref(comp_ref)
+
+            self.populate_treeview()
+            messagebox.showinfo("Success", f"{component_type_str} component added.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import OVAL file:\n{e}")
+
+    def import_cpe_dictionary(self):
+        if not self.datastream_collection:
+            messagebox.showwarning("No Datastream", "Please create a new datastream first.")
+            return
+
+        # --- Add this check to prevent importing a second dictionary
+        if self.get_cpe_dictionary() is not None:
+            messagebox.showwarning("Exists", "A CPE Dictionary component already exists in this datastream.")
+            return
+
+        cpe_path = filedialog.askopenfilename(
+            title="Import CPE Dictionary File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not cpe_path:
+            return
+
+        try:
+            parsed_cpe_list = models.parse(cpe_path, silence=True)
+            
+            comp_id = f"comp_cpe_{uuid.uuid4()}"
+            cpe_component = models.component(
+                id=comp_id,
+                timestamp=datetime.now(),
+                cpe_list=parsed_cpe_list
+            )
+            
+            self.datastream_collection.add_component(cpe_component)
+            comp_ref = self._create_component_ref(f"cref_cpe_{uuid.uuid4()}", f"#{comp_id}")
+            ds = self.datastream_collection.get_data_stream()[0]
+            if ds.get_dictionaries() is None:
+                ds.set_dictionaries(models.refListType())
+            ds.get_dictionaries().add_component_ref(comp_ref)
+
+            self.populate_treeview()
+            messagebox.showinfo("Success", "CPE Dictionary component added.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import CPE dictionary:\n{e}")
+
+    def import_oval_component(self):
+        self._import_oval_file("OVAL Check", "checks")
+    
+    def import_cpe_oval(self):
+        self._import_oval_file("CPE OVAL", "dictionaries")
+
+
            
 if __name__ == "__main__":
     root = tk.Tk()
