@@ -3246,7 +3246,7 @@ class Benchmark(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
         self.Id = _cast(None, Id)
@@ -3263,93 +3263,93 @@ class Benchmark(GeneratedsSuper):
             self.status = []
         else:
             self.status = status
-        self.status_nsprefix_ = "cdf"
+        self.status_nsprefix_ = "xccdf"
         if dc_status is None:
             self.dc_status = []
         else:
             self.dc_status = dc_status
-        self.dc_status_nsprefix_ = "cdf"
+        self.dc_status_nsprefix_ = "xccdf"
         if title is None:
             self.title = []
         else:
             self.title = title
-        self.title_nsprefix_ = "cdf"
+        self.title_nsprefix_ = "xccdf"
         if description is None:
             self.description = []
         else:
             self.description = description
-        self.description_nsprefix_ = "cdf"
+        self.description_nsprefix_ = "xccdf"
         if notice is None:
             self.notice = []
         else:
             self.notice = notice
-        self.notice_nsprefix_ = "cdf"
+        self.notice_nsprefix_ = "xccdf"
         if front_matter is None:
             self.front_matter = []
         else:
             self.front_matter = front_matter
-        self.front_matter_nsprefix_ = "cdf"
+        self.front_matter_nsprefix_ = "xccdf"
         if rear_matter is None:
             self.rear_matter = []
         else:
             self.rear_matter = rear_matter
-        self.rear_matter_nsprefix_ = "cdf"
+        self.rear_matter_nsprefix_ = "xccdf"
         if reference is None:
             self.reference = []
         else:
             self.reference = reference
-        self.reference_nsprefix_ = "cdf"
+        self.reference_nsprefix_ = "xccdf"
         if plain_text is None:
             self.plain_text = []
         else:
             self.plain_text = plain_text
-        self.plain_text_nsprefix_ = "cdf"
+        self.plain_text_nsprefix_ = "xccdf"
         self.platform_specification = platform_specification
         self.platform_specification_nsprefix_ = "cpe2"
         if platform is None:
             self.platform = []
         else:
             self.platform = platform
-        self.platform_nsprefix_ = "cdf"
+        self.platform_nsprefix_ = "xccdf"
         self.version = version
-        self.version_nsprefix_ = "cdf"
+        self.version_nsprefix_ = "xccdf"
         if metadata is None:
             self.metadata = []
         else:
             self.metadata = metadata
-        self.metadata_nsprefix_ = "cdf"
+        self.metadata_nsprefix_ = "xccdf"
         if model is None:
             self.model = []
         else:
             self.model = model
-        self.model_nsprefix_ = "cdf"
+        self.model_nsprefix_ = "xccdf"
         if Profile is None:
             self.Profile = []
         else:
             self.Profile = Profile
-        self.Profile_nsprefix_ = "cdf"
+        self.Profile_nsprefix_ = "xccdf"
         if Value is None:
             self.Value = []
         else:
             self.Value = Value
-        self.Value_nsprefix_ = "cdf"
+        self.Value_nsprefix_ = "xccdf"
         if Group is None:
             self.Group = []
         else:
             self.Group = Group
-        self.Group_nsprefix_ = "cdf"
+        self.Group_nsprefix_ = "xccdf"
         if Rule is None:
             self.Rule = []
         else:
             self.Rule = Rule
-        self.Rule_nsprefix_ = "cdf"
+        self.Rule_nsprefix_ = "xccdf"
         if TestResult is None:
             self.TestResult = []
         else:
             self.TestResult = TestResult
-        self.TestResult_nsprefix_ = "cdf"
+        self.TestResult_nsprefix_ = "xccdf"
         self.signature = signature
-        self.signature_nsprefix_ = "cdf"
+        self.signature_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -3608,7 +3608,7 @@ class Benchmark(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:cpe2="http://cpe.mitre.org/language/2.0" ', name_='Benchmark', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:cpe2="http://cpe.mitre.org/language/2.0" ', name_='Benchmark', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('Benchmark')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3631,7 +3631,7 @@ class Benchmark(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='Benchmark'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='Benchmark'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
@@ -3650,14 +3650,14 @@ class Benchmark(GeneratedsSuper):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:cpe2="http://cpe.mitre.org/language/2.0" ', name_='Benchmark', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:cpe2="http://cpe.mitre.org/language/2.0" ', name_='Benchmark', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for status_ in self.status:
             namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
-            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+            status_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
         for dc_status_ in self.dc_status:
             namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
             dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
@@ -3696,22 +3696,22 @@ class Benchmark(GeneratedsSuper):
             metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
         for model_ in self.model:
             namespaceprefix_ = self.model_nsprefix_ + ':' if (UseCapturedNS_ and self.model_nsprefix_) else ''
-            model_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='model', pretty_print=pretty_print)
+            model_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='model', pretty_print=pretty_print)
         for Profile_ in self.Profile:
             namespaceprefix_ = self.Profile_nsprefix_ + ':' if (UseCapturedNS_ and self.Profile_nsprefix_) else ''
-            Profile_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Profile', pretty_print=pretty_print)
+            Profile_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Profile', pretty_print=pretty_print)
         for Value_ in self.Value:
             namespaceprefix_ = self.Value_nsprefix_ + ':' if (UseCapturedNS_ and self.Value_nsprefix_) else ''
-            Value_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Value', pretty_print=pretty_print)
+            Value_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Value', pretty_print=pretty_print)
         for Group_ in self.Group:
             namespaceprefix_ = self.Group_nsprefix_ + ':' if (UseCapturedNS_ and self.Group_nsprefix_) else ''
-            Group_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Group', pretty_print=pretty_print)
+            Group_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Group', pretty_print=pretty_print)
         for Rule_ in self.Rule:
             namespaceprefix_ = self.Rule_nsprefix_ + ':' if (UseCapturedNS_ and self.Rule_nsprefix_) else ''
-            Rule_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Rule', pretty_print=pretty_print)
+            Rule_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Rule', pretty_print=pretty_print)
         for TestResult_ in self.TestResult:
             namespaceprefix_ = self.TestResult_nsprefix_ + ':' if (UseCapturedNS_ and self.TestResult_nsprefix_) else ''
-            TestResult_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='TestResult', pretty_print=pretty_print)
+            TestResult_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='TestResult', pretty_print=pretty_print)
         if self.signature is not None:
             namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
             self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
@@ -3937,7 +3937,7 @@ class noticeType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='noticeType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='noticeType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('noticeType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -3957,7 +3957,7 @@ class noticeType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='noticeType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='noticeType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
@@ -3967,7 +3967,7 @@ class noticeType(GeneratedsSuper):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='noticeType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='noticeType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -4067,7 +4067,7 @@ class dc_statusType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='dc-statusType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='dc-statusType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('dc-statusType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4090,9 +4090,9 @@ class dc_statusType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='dc-statusType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='dc-statusType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='dc-statusType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='dc-statusType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -4162,7 +4162,7 @@ class plainTextType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='plainTextType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='plainTextType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('plainTextType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4182,11 +4182,11 @@ class plainTextType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='plainTextType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='plainTextType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='plainTextType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='plainTextType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -4276,7 +4276,7 @@ class referenceType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='referenceType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='referenceType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('referenceType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4296,14 +4296,14 @@ class referenceType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='referenceType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='referenceType'):
         if self.href is not None and 'href' not in already_processed:
             already_processed.add('href')
             outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
         if self.override is not None and 'override' not in already_processed:
             already_processed.add('override')
             outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='referenceType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='referenceType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -4399,7 +4399,7 @@ class signatureType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='signatureType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='signatureType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('signatureType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4422,9 +4422,9 @@ class signatureType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='signatureType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='signatureType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='signatureType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='signatureType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -4492,7 +4492,7 @@ class metadataType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='metadataType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='metadataType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('metadataType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4515,9 +4515,9 @@ class metadataType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='metadataType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='metadataType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='metadataType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='metadataType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -4605,7 +4605,7 @@ class status(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='status', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='status', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('status')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4625,11 +4625,11 @@ class status(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='status'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='status'):
         if self.date is not None and 'date' not in already_processed:
             already_processed.add('date')
             outfile.write(' date="%s"' % self.gds_format_date(self.date, input_name='date'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='status', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='status', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -4669,14 +4669,14 @@ class model(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.system = _cast(None, system)
         self.system_nsprefix_ = None
         if param is None:
             self.param = []
         else:
             self.param = param
-        self.param_nsprefix_ = "cdf"
+        self.param_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -4713,7 +4713,7 @@ class model(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='model', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='model', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('model')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4736,11 +4736,11 @@ class model(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='model'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='model'):
         if self.system is not None and 'system' not in already_processed:
             already_processed.add('system')
             outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='model', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='model', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -4814,7 +4814,7 @@ class paramType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='paramType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='paramType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('paramType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4834,11 +4834,11 @@ class paramType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='paramType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='paramType'):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='paramType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='paramType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -4912,7 +4912,7 @@ class versionType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='versionType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='versionType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('versionType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -4932,14 +4932,14 @@ class versionType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='versionType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='versionType'):
         if self.time is not None and 'time' not in already_processed:
             already_processed.add('time')
             outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
         if self.update is not None and 'update' not in already_processed:
             already_processed.add('update')
             outfile.write(' update=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.update), input_name='update')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='versionType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='versionType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -5017,7 +5017,7 @@ class textType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('textType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5037,14 +5037,14 @@ class textType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='textType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='textType'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
         if self.override is not None and 'override' not in already_processed:
             already_processed.add('override')
             outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='textType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -5143,7 +5143,7 @@ class htmlTextType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('htmlTextType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5163,14 +5163,14 @@ class htmlTextType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='htmlTextType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='htmlTextType'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
         if self.override is not None and 'override' not in already_processed:
             already_processed.add('override')
             outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='htmlTextType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -5261,7 +5261,7 @@ class htmlTextWithSubType(GeneratedsSuper):
             self.sub = []
         else:
             self.sub = sub
-        self.sub_nsprefix_ = "cdf"
+        self.sub_nsprefix_ = "xccdf"
         self.anytypeobjs_ = anytypeobjs_
         self.valueOf_ = valueOf_
         self.extensiontype_ = extensiontype_
@@ -5323,7 +5323,7 @@ class htmlTextWithSubType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='htmlTextWithSubType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='htmlTextWithSubType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('htmlTextWithSubType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5343,7 +5343,7 @@ class htmlTextWithSubType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='htmlTextWithSubType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='htmlTextWithSubType'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
@@ -5358,7 +5358,7 @@ class htmlTextWithSubType(GeneratedsSuper):
                 outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='htmlTextWithSubType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='htmlTextWithSubType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -5465,7 +5465,7 @@ class profileNoteType(GeneratedsSuper):
             self.sub = []
         else:
             self.sub = sub
-        self.sub_nsprefix_ = "cdf"
+        self.sub_nsprefix_ = "xccdf"
         self.anytypeobjs_ = anytypeobjs_
         self.valueOf_ = valueOf_
         if mixedclass_ is None:
@@ -5524,7 +5524,7 @@ class profileNoteType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='profileNoteType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='profileNoteType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileNoteType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5544,14 +5544,14 @@ class profileNoteType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='profileNoteType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='profileNoteType'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
         if self.tag is not None and 'tag' not in already_processed:
             already_processed.add('tag')
             outfile.write(' tag=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.tag), input_name='tag')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='profileNoteType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='profileNoteType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -5639,7 +5639,7 @@ class textWithSubType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.lang = _cast(None, lang)
         self.lang_nsprefix_ = None
         self.override = _cast(bool, override)
@@ -5648,7 +5648,7 @@ class textWithSubType(GeneratedsSuper):
             self.sub = []
         else:
             self.sub = sub
-        self.sub_nsprefix_ = "cdf"
+        self.sub_nsprefix_ = "xccdf"
         self.valueOf_ = valueOf_
         if mixedclass_ is None:
             self.mixedclass_ = MixedContainer
@@ -5703,7 +5703,7 @@ class textWithSubType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='textWithSubType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='textWithSubType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('textWithSubType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5723,14 +5723,14 @@ class textWithSubType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='textWithSubType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='textWithSubType'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
         if self.override is not None and 'override' not in already_processed:
             already_processed.add('override')
             outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='textWithSubType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='textWithSubType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -5830,7 +5830,7 @@ class idrefType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('idrefType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5852,7 +5852,7 @@ class idrefType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='idrefType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='idrefType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
@@ -5864,7 +5864,7 @@ class idrefType(GeneratedsSuper):
                 outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -5929,7 +5929,7 @@ class idrefListType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefListType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefListType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('idrefListType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -5951,11 +5951,11 @@ class idrefListType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='idrefListType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='idrefListType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (quote_attrib(self.idref), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefListType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='idrefListType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -6019,7 +6019,7 @@ class CPE2idrefType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='CPE2idrefType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='CPE2idrefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CPE2idrefType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6041,7 +6041,7 @@ class CPE2idrefType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='CPE2idrefType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='CPE2idrefType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
@@ -6053,7 +6053,7 @@ class CPE2idrefType(GeneratedsSuper):
                 outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='CPE2idrefType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='CPE2idrefType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -6119,7 +6119,7 @@ class overrideableCPE2idrefType(CPE2idrefType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideableCPE2idrefType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideableCPE2idrefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('overrideableCPE2idrefType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6141,12 +6141,12 @@ class overrideableCPE2idrefType(CPE2idrefType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='overrideableCPE2idrefType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='overrideableCPE2idrefType'):
         super(overrideableCPE2idrefType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='overrideableCPE2idrefType')
         if self.override is not None and 'override' not in already_processed:
             already_processed.add('override')
             outfile.write(' override="%s"' % self.gds_format_boolean(self.override, input_name='override'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideableCPE2idrefType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='overrideableCPE2idrefType', fromsubclass_=False, pretty_print=True):
         super(overrideableCPE2idrefType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         pass
     def build(self, node, gds_collector_=None):
@@ -6268,7 +6268,7 @@ class itemType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.abstract = _cast(bool, abstract)
         self.abstract_nsprefix_ = None
         self.cluster_id = _cast(None, cluster_id)
@@ -6289,44 +6289,44 @@ class itemType(GeneratedsSuper):
             self.status = []
         else:
             self.status = status
-        self.status_nsprefix_ = "cdf"
+        self.status_nsprefix_ = "xccdf"
         if dc_status is None:
             self.dc_status = []
         else:
             self.dc_status = dc_status
-        self.dc_status_nsprefix_ = "cdf"
+        self.dc_status_nsprefix_ = "xccdf"
         self.version = version
-        self.version_nsprefix_ = "cdf"
+        self.version_nsprefix_ = "xccdf"
         if title is None:
             self.title = []
         else:
             self.title = title
-        self.title_nsprefix_ = "cdf"
+        self.title_nsprefix_ = "xccdf"
         if description is None:
             self.description = []
         else:
             self.description = description
-        self.description_nsprefix_ = "cdf"
+        self.description_nsprefix_ = "xccdf"
         if warning is None:
             self.warning = []
         else:
             self.warning = warning
-        self.warning_nsprefix_ = "cdf"
+        self.warning_nsprefix_ = "xccdf"
         if question is None:
             self.question = []
         else:
             self.question = question
-        self.question_nsprefix_ = "cdf"
+        self.question_nsprefix_ = "xccdf"
         if reference is None:
             self.reference = []
         else:
             self.reference = reference
-        self.reference_nsprefix_ = "cdf"
+        self.reference_nsprefix_ = "xccdf"
         if metadata is None:
             self.metadata = []
         else:
             self.metadata = metadata
-        self.metadata_nsprefix_ = "cdf"
+        self.metadata_nsprefix_ = "xccdf"
         self.extensiontype_ = extensiontype_
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -6476,7 +6476,7 @@ class itemType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='itemType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='itemType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('itemType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6499,7 +6499,7 @@ class itemType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='itemType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='itemType'):
         if self.abstract and 'abstract' not in already_processed:
             already_processed.add('abstract')
             outfile.write(' abstract="%s"' % self.gds_format_boolean(self.abstract, input_name='abstract'))
@@ -6532,14 +6532,14 @@ class itemType(GeneratedsSuper):
                 outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='itemType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='itemType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for status_ in self.status:
             namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
-            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+            status_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
         for dc_status_ in self.dc_status:
             namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
             dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
@@ -6795,7 +6795,7 @@ class selectableItemType(itemType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         super(globals().get("selectableItemType"), self).__init__(abstract, cluster_id, extends, hidden, prohibitChanges, lang, base, Id, status, dc_status, version, title, description, warning, question, reference, metadata, extensiontype_,  **kwargs_)
         self.selected = _cast(bool, selected)
         self.selected_nsprefix_ = None
@@ -6805,22 +6805,22 @@ class selectableItemType(itemType):
             self.rationale = []
         else:
             self.rationale = rationale
-        self.rationale_nsprefix_ = "cdf"
+        self.rationale_nsprefix_ = "xccdf"
         if platform is None:
             self.platform = []
         else:
             self.platform = platform
-        self.platform_nsprefix_ = "cdf"
+        self.platform_nsprefix_ = "xccdf"
         if requires is None:
             self.requires = []
         else:
             self.requires = requires
-        self.requires_nsprefix_ = "cdf"
+        self.requires_nsprefix_ = "xccdf"
         if conflicts is None:
             self.conflicts = []
         else:
             self.conflicts = conflicts
-        self.conflicts_nsprefix_ = "cdf"
+        self.conflicts_nsprefix_ = "xccdf"
         self.extensiontype_ = extensiontype_
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
@@ -6913,7 +6913,7 @@ class selectableItemType(itemType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selectableItemType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selectableItemType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('selectableItemType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -6936,7 +6936,7 @@ class selectableItemType(itemType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='selectableItemType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='selectableItemType'):
         super(selectableItemType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selectableItemType')
         if not self.selected and 'selected' not in already_processed:
             already_processed.add('selected')
@@ -6952,7 +6952,7 @@ class selectableItemType(itemType):
                 outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selectableItemType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selectableItemType', fromsubclass_=False, pretty_print=True):
         super(selectableItemType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
@@ -7073,7 +7073,7 @@ class groupType(selectableItemType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         super(globals().get("groupType"), self).__init__(abstract, cluster_id, extends, hidden, prohibitChanges, lang, base, Id, status, dc_status, version, title, description, warning, question, reference, metadata, selected, weight, rationale, platform, requires, conflicts,  **kwargs_)
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
@@ -7081,19 +7081,19 @@ class groupType(selectableItemType):
             self.Value = []
         else:
             self.Value = Value
-        self.Value_nsprefix_ = "cdf"
+        self.Value_nsprefix_ = "xccdf"
         if Group is None:
             self.Group = []
         else:
             self.Group = Group
-        self.Group_nsprefix_ = "cdf"
+        self.Group_nsprefix_ = "xccdf"
         if Rule is None:
             self.Rule = []
         else:
             self.Rule = Rule
-        self.Rule_nsprefix_ = "cdf"
+        self.Rule_nsprefix_ = "xccdf"
         self.signature = signature
-        self.signature_nsprefix_ = "cdf"
+        self.signature_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7169,7 +7169,7 @@ class groupType(selectableItemType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='groupType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='groupType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('groupType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7192,12 +7192,12 @@ class groupType(selectableItemType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='groupType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='groupType'):
         super(groupType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='groupType')
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='groupType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='groupType', fromsubclass_=False, pretty_print=True):
         super(groupType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
@@ -7205,13 +7205,13 @@ class groupType(selectableItemType):
             eol_ = ''
         for Value_ in self.Value:
             namespaceprefix_ = self.Value_nsprefix_ + ':' if (UseCapturedNS_ and self.Value_nsprefix_) else ''
-            Value_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Value', pretty_print=pretty_print)
+            Value_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Value', pretty_print=pretty_print)
         for Group_ in self.Group:
             namespaceprefix_ = self.Group_nsprefix_ + ':' if (UseCapturedNS_ and self.Group_nsprefix_) else ''
-            Group_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Group', pretty_print=pretty_print)
+            Group_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Group', pretty_print=pretty_print)
         for Rule_ in self.Rule:
             namespaceprefix_ = self.Rule_nsprefix_ + ':' if (UseCapturedNS_ and self.Rule_nsprefix_) else ''
-            Rule_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Rule', pretty_print=pretty_print)
+            Rule_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Rule', pretty_print=pretty_print)
         if self.signature is not None:
             namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
             self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
@@ -7361,33 +7361,33 @@ class ruleType(selectableItemType):
             self.ident = []
         else:
             self.ident = ident
-        self.ident_nsprefix_ = "cdf"
+        self.ident_nsprefix_ = "xccdf"
         self.impact_metric = impact_metric
         self.impact_metric_nsprefix_ = None
         if profile_note is None:
             self.profile_note = []
         else:
             self.profile_note = profile_note
-        self.profile_note_nsprefix_ = "cdf"
+        self.profile_note_nsprefix_ = "xccdf"
         if fixtext is None:
             self.fixtext = []
         else:
             self.fixtext = fixtext
-        self.fixtext_nsprefix_ = "cdf"
+        self.fixtext_nsprefix_ = "xccdf"
         if fix is None:
             self.fix = []
         else:
             self.fix = fix
-        self.fix_nsprefix_ = "cdf"
+        self.fix_nsprefix_ = "xccdf"
         if check is None:
             self.check = []
         else:
             self.check = check
-        self.check_nsprefix_ = "cdf"
+        self.check_nsprefix_ = "xccdf"
         self.complex_check = complex_check
-        self.complex_check_nsprefix_ = "cdf"
+        self.complex_check_nsprefix_ = "xccdf"
         self.signature = signature
-        self.signature_nsprefix_ = "cdf"
+        self.signature_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -7533,7 +7533,7 @@ class ruleType(selectableItemType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ruleType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ruleType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ruleType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7556,7 +7556,7 @@ class ruleType(selectableItemType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='ruleType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='ruleType'):
         super(ruleType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='ruleType')
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
@@ -7570,7 +7570,7 @@ class ruleType(selectableItemType):
         if self.multiple and 'multiple' not in already_processed:
             already_processed.add('multiple')
             outfile.write(' multiple="%s"' % self.gds_format_boolean(self.multiple, input_name='multiple'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ruleType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ruleType', fromsubclass_=False, pretty_print=True):
         super(ruleType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
@@ -7728,7 +7728,7 @@ class identType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('identType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7748,7 +7748,7 @@ class identType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='identType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='identType'):
         unique_counter = 0
         for name, value in self.anyAttributes_.items():
             xsinamespaceprefix = 'xsi'
@@ -7783,7 +7783,7 @@ class identType(GeneratedsSuper):
         if self.system is not None and 'system' not in already_processed:
             already_processed.add('system')
             outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -7877,7 +7877,7 @@ class warningType(htmlTextWithSubType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='warningType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='warningType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('warningType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -7897,12 +7897,12 @@ class warningType(htmlTextWithSubType):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='warningType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='warningType'):
         super(warningType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='warningType')
         if self.category != "general" and 'category' not in already_processed:
             already_processed.add('category')
             outfile.write(' category=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.category), input_name='category')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='warningType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='warningType', fromsubclass_=False, pretty_print=True):
         super(warningType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -8040,7 +8040,7 @@ class fixTextType(htmlTextWithSubType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixTextType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixTextType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('fixTextType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8060,7 +8060,7 @@ class fixTextType(htmlTextWithSubType):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='fixTextType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='fixTextType'):
         super(fixTextType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='fixTextType')
         if self.fixref is not None and 'fixref' not in already_processed:
             already_processed.add('fixref')
@@ -8077,7 +8077,7 @@ class fixTextType(htmlTextWithSubType):
         if self.complexity != "unknown" and 'complexity' not in already_processed:
             already_processed.add('complexity')
             outfile.write(' complexity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.complexity), input_name='complexity')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixTextType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='fixTextType', fromsubclass_=False, pretty_print=True):
         super(fixTextType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -8164,7 +8164,7 @@ class fixType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
         self.reboot = _cast(bool, reboot)
@@ -8183,12 +8183,12 @@ class fixType(GeneratedsSuper):
             self.sub = []
         else:
             self.sub = sub
-        self.sub_nsprefix_ = "cdf"
+        self.sub_nsprefix_ = "xccdf"
         if instance is None:
             self.instance = []
         else:
             self.instance = instance
-        self.instance_nsprefix_ = "cdf"
+        self.instance_nsprefix_ = "xccdf"
         self.valueOf_ = valueOf_
         if mixedclass_ is None:
             self.mixedclass_ = MixedContainer
@@ -8300,7 +8300,7 @@ class fixType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='fixType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='fixType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('fixType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8320,7 +8320,7 @@ class fixType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='fixType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='fixType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
@@ -8342,7 +8342,7 @@ class fixType(GeneratedsSuper):
         if self.platform is not None and 'platform' not in already_processed:
             already_processed.add('platform')
             outfile.write(' platform=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.platform), input_name='platform')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='fixType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='fixType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -8475,7 +8475,7 @@ class instanceFixType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceFixType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceFixType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('instanceFixType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8497,11 +8497,11 @@ class instanceFixType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='instanceFixType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='instanceFixType'):
         if self.context != "undefined" and 'context' not in already_processed:
             already_processed.add('context')
             outfile.write(' context=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.context), input_name='context')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceFixType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceFixType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -8543,7 +8543,7 @@ class complexCheckType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.operator = _cast(None, operator)
         self.operator_nsprefix_ = None
         self.negate = _cast(bool, negate)
@@ -8552,12 +8552,12 @@ class complexCheckType(GeneratedsSuper):
             self.check = []
         else:
             self.check = check
-        self.check_nsprefix_ = "cdf"
+        self.check_nsprefix_ = "xccdf"
         if complex_check is None:
             self.complex_check = []
         else:
             self.complex_check = complex_check
-        self.complex_check_nsprefix_ = "cdf"
+        self.complex_check_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8622,7 +8622,7 @@ class complexCheckType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='complexCheckType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='complexCheckType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('complexCheckType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8645,14 +8645,14 @@ class complexCheckType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='complexCheckType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='complexCheckType'):
         if self.operator is not None and 'operator' not in already_processed:
             already_processed.add('operator')
             outfile.write(' operator=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.operator), input_name='operator')), ))
         if self.negate is not None and 'negate' not in already_processed:
             already_processed.add('negate')
             outfile.write(' negate="%s"' % self.gds_format_boolean(self.negate, input_name='negate'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='complexCheckType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='complexCheckType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -8782,7 +8782,7 @@ class checkType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.system = _cast(None, system)
         self.system_nsprefix_ = None
         self.negate = _cast(bool, negate)
@@ -8799,19 +8799,19 @@ class checkType(GeneratedsSuper):
             self.check_import = []
         else:
             self.check_import = check_import
-        self.check_import_nsprefix_ = "cdf"
+        self.check_import_nsprefix_ = "xccdf"
         if check_export is None:
             self.check_export = []
         else:
             self.check_export = check_export
-        self.check_export_nsprefix_ = "cdf"
+        self.check_export_nsprefix_ = "xccdf"
         if check_content_ref is None:
             self.check_content_ref = []
         else:
             self.check_content_ref = check_content_ref
-        self.check_content_ref_nsprefix_ = "cdf"
+        self.check_content_ref_nsprefix_ = "xccdf"
         self.check_content = check_content
-        self.check_content_nsprefix_ = "cdf"
+        self.check_content_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -8895,7 +8895,7 @@ class checkType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='checkType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='checkType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -8918,7 +8918,7 @@ class checkType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='checkType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='checkType'):
         if self.system is not None and 'system' not in already_processed:
             already_processed.add('system')
             outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
@@ -8937,7 +8937,7 @@ class checkType(GeneratedsSuper):
         if self.base is not None and 'base' not in already_processed:
             already_processed.add('base')
             outfile.write(' xml:base=%s' % (quote_attrib(self.base), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='checkType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='checkType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -9085,7 +9085,7 @@ class checkImportType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkImportType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkImportType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkImportType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9105,14 +9105,14 @@ class checkImportType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='checkImportType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='checkImportType'):
         if self.import_name is not None and 'import_name' not in already_processed:
             already_processed.add('import_name')
             outfile.write(' import-name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.import_name), input_name='import-name')), ))
         if self.import_xpath is not None and 'import_xpath' not in already_processed:
             already_processed.add('import_xpath')
             outfile.write(' import-xpath=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.import_xpath), input_name='import-xpath')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkImportType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkImportType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -9211,7 +9211,7 @@ class checkExportType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkExportType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkExportType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkExportType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9233,14 +9233,14 @@ class checkExportType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='checkExportType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='checkExportType'):
         if self.value_id is not None and 'value_id' not in already_processed:
             already_processed.add('value_id')
             outfile.write(' value-id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.value_id), input_name='value-id')), ))
         if self.export_name is not None and 'export_name' not in already_processed:
             already_processed.add('export_name')
             outfile.write(' export-name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.export_name), input_name='export-name')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkExportType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkExportType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -9311,7 +9311,7 @@ class checkContentRefType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentRefType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentRefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkContentRefType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9333,14 +9333,14 @@ class checkContentRefType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='checkContentRefType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='checkContentRefType'):
         if self.href is not None and 'href' not in already_processed:
             already_processed.add('href')
             outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentRefType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentRefType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -9416,7 +9416,7 @@ class checkContentType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('checkContentType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9436,9 +9436,9 @@ class checkContentType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='checkContentType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='checkContentType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='checkContentType', fromsubclass_=False, pretty_print=True):
         if not fromsubclass_:
             for item_ in self.content_:
                 item_.export(outfile, level, item_.name, namespaceprefix_, pretty_print=pretty_print)
@@ -9719,7 +9719,7 @@ class valueType(itemType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         super(globals().get("valueType"), self).__init__(abstract, cluster_id, extends, hidden, prohibitChanges, lang, base, Id, status, dc_status, version, title, description, warning, question, reference, metadata,  **kwargs_)
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
@@ -9735,49 +9735,49 @@ class valueType(itemType):
             self.value = []
         else:
             self.value = value
-        self.value_nsprefix_ = "cdf"
+        self.value_nsprefix_ = "xccdf"
         if complex_value is None:
             self.complex_value = []
         else:
             self.complex_value = complex_value
-        self.complex_value_nsprefix_ = "cdf"
+        self.complex_value_nsprefix_ = "xccdf"
         if default is None:
             self.default = []
         else:
             self.default = default
-        self.default_nsprefix_ = "cdf"
+        self.default_nsprefix_ = "xccdf"
         if complex_default is None:
             self.complex_default = []
         else:
             self.complex_default = complex_default
-        self.complex_default_nsprefix_ = "cdf"
+        self.complex_default_nsprefix_ = "xccdf"
         if match is None:
             self.match = []
         else:
             self.match = match
-        self.match_nsprefix_ = "cdf"
+        self.match_nsprefix_ = "xccdf"
         if lower_bound is None:
             self.lower_bound = []
         else:
             self.lower_bound = lower_bound
-        self.lower_bound_nsprefix_ = "cdf"
+        self.lower_bound_nsprefix_ = "xccdf"
         if upper_bound is None:
             self.upper_bound = []
         else:
             self.upper_bound = upper_bound
-        self.upper_bound_nsprefix_ = "cdf"
+        self.upper_bound_nsprefix_ = "xccdf"
         if choices is None:
             self.choices = []
         else:
             self.choices = choices
-        self.choices_nsprefix_ = "cdf"
+        self.choices_nsprefix_ = "xccdf"
         if source is None:
             self.source = []
         else:
             self.source = source
-        self.source_nsprefix_ = "cdf"
+        self.source_nsprefix_ = "xccdf"
         self.signature = signature
-        self.signature_nsprefix_ = "cdf"
+        self.signature_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -9974,7 +9974,7 @@ class valueType(itemType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='valueType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='valueType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('valueType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -9997,7 +9997,7 @@ class valueType(itemType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='valueType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='valueType'):
         super(valueType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='valueType')
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
@@ -10014,7 +10014,7 @@ class valueType(itemType):
         if self.interfaceHint is not None and 'interfaceHint' not in already_processed:
             already_processed.add('interfaceHint')
             outfile.write(' interfaceHint=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.interfaceHint), input_name='interfaceHint')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='valueType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='valueType', fromsubclass_=False, pretty_print=True):
         super(valueType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         if pretty_print:
             eol_ = '\n'
@@ -10200,7 +10200,7 @@ class complexValueType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexValueType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexValueType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('complexValueType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10223,7 +10223,7 @@ class complexValueType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='complexValueType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='complexValueType'):
         if self.extensiontype_ is not None and 'xsi:type' not in already_processed:
             already_processed.add('xsi:type')
             outfile.write(' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"')
@@ -10233,7 +10233,7 @@ class complexValueType(GeneratedsSuper):
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexValueType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='complexValueType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -10307,7 +10307,7 @@ class selComplexValueType(complexValueType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selComplexValueType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selComplexValueType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('selComplexValueType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10330,12 +10330,12 @@ class selComplexValueType(complexValueType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='selComplexValueType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='selComplexValueType'):
         super(selComplexValueType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='selComplexValueType')
         if self.selector != "" and 'selector' not in already_processed:
             already_processed.add('selector')
             outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selComplexValueType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selComplexValueType', fromsubclass_=False, pretty_print=True):
         super(selComplexValueType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -10389,7 +10389,7 @@ class selChoicesType(GeneratedsSuper):
             self.complex_choice = []
         else:
             self.complex_choice = complex_choice
-        self.complex_choice_nsprefix_ = "cdf"
+        self.complex_choice_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -10441,7 +10441,7 @@ class selChoicesType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selChoicesType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selChoicesType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('selChoicesType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10464,14 +10464,14 @@ class selChoicesType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='selChoicesType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='selChoicesType'):
         if self.mustMatch is not None and 'mustMatch' not in already_processed:
             already_processed.add('mustMatch')
             outfile.write(' mustMatch="%s"' % self.gds_format_boolean(self.mustMatch, input_name='mustMatch'))
         if self.selector != "" and 'selector' not in already_processed:
             already_processed.add('selector')
             outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selChoicesType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='selChoicesType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -10565,7 +10565,7 @@ class selStringType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selStringType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selStringType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('selStringType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10585,11 +10585,11 @@ class selStringType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='selStringType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='selStringType'):
         if self.selector != "" and 'selector' not in already_processed:
             already_processed.add('selector')
             outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selStringType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selStringType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -10654,7 +10654,7 @@ class selNumType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selNumType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selNumType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('selNumType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10674,11 +10674,11 @@ class selNumType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='selNumType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='selNumType'):
         if self.selector != "" and 'selector' not in already_processed:
             already_processed.add('selector')
             outfile.write(' selector=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.selector), input_name='selector')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selNumType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='selNumType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -10740,7 +10740,7 @@ class uriRefType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='uriRefType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='uriRefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('uriRefType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -10762,11 +10762,11 @@ class uriRefType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='uriRefType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='uriRefType'):
         if self.uri is not None and 'uri' not in already_processed:
             already_processed.add('uri')
             outfile.write(' uri=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.uri), input_name='uri')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='uriRefType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='uriRefType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -10899,7 +10899,7 @@ class profileType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
         self.prohibitChanges = _cast(bool, prohibitChanges)
@@ -10918,66 +10918,66 @@ class profileType(GeneratedsSuper):
             self.status = []
         else:
             self.status = status
-        self.status_nsprefix_ = "cdf"
+        self.status_nsprefix_ = "xccdf"
         if dc_status is None:
             self.dc_status = []
         else:
             self.dc_status = dc_status
-        self.dc_status_nsprefix_ = "cdf"
+        self.dc_status_nsprefix_ = "xccdf"
         self.version = version
-        self.version_nsprefix_ = "cdf"
+        self.version_nsprefix_ = "xccdf"
         if title is None:
             self.title = []
         else:
             self.title = title
-        self.title_nsprefix_ = "cdf"
+        self.title_nsprefix_ = "xccdf"
         if description is None:
             self.description = []
         else:
             self.description = description
-        self.description_nsprefix_ = "cdf"
+        self.description_nsprefix_ = "xccdf"
         if reference is None:
             self.reference = []
         else:
             self.reference = reference
-        self.reference_nsprefix_ = "cdf"
+        self.reference_nsprefix_ = "xccdf"
         if platform is None:
             self.platform = []
         else:
             self.platform = platform
-        self.platform_nsprefix_ = "cdf"
+        self.platform_nsprefix_ = "xccdf"
         if select is None:
             self.select = []
         else:
             self.select = select
-        self.select_nsprefix_ = "cdf"
+        self.select_nsprefix_ = "xccdf"
         if set_complex_value is None:
             self.set_complex_value = []
         else:
             self.set_complex_value = set_complex_value
-        self.set_complex_value_nsprefix_ = "cdf"
+        self.set_complex_value_nsprefix_ = "xccdf"
         if set_value is None:
             self.set_value = []
         else:
             self.set_value = set_value
-        self.set_value_nsprefix_ = "cdf"
+        self.set_value_nsprefix_ = "xccdf"
         if refine_value is None:
             self.refine_value = []
         else:
             self.refine_value = refine_value
-        self.refine_value_nsprefix_ = "cdf"
+        self.refine_value_nsprefix_ = "xccdf"
         if refine_rule is None:
             self.refine_rule = []
         else:
             self.refine_rule = refine_rule
-        self.refine_rule_nsprefix_ = "cdf"
+        self.refine_rule_nsprefix_ = "xccdf"
         if metadata is None:
             self.metadata = []
         else:
             self.metadata = metadata
-        self.metadata_nsprefix_ = "cdf"
+        self.metadata_nsprefix_ = "xccdf"
         self.signature = signature
-        self.signature_nsprefix_ = "cdf"
+        self.signature_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -11180,7 +11180,7 @@ class profileType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -11203,7 +11203,7 @@ class profileType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='profileType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='profileType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
@@ -11225,14 +11225,14 @@ class profileType(GeneratedsSuper):
         if self.Id is not None and 'Id' not in already_processed:
             already_processed.add('Id')
             outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for status_ in self.status:
             namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
-            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+            status_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
         for dc_status_ in self.dc_status:
             namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
             dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
@@ -11411,7 +11411,7 @@ class profileSelectType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.idref = _cast(None, idref)
         self.idref_nsprefix_ = None
         self.selected = _cast(bool, selected)
@@ -11420,7 +11420,7 @@ class profileSelectType(GeneratedsSuper):
             self.remark = []
         else:
             self.remark = remark
-        self.remark_nsprefix_ = "cdf"
+        self.remark_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -11461,7 +11461,7 @@ class profileSelectType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileSelectType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileSelectType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileSelectType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -11484,14 +11484,14 @@ class profileSelectType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='profileSelectType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='profileSelectType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
         if self.selected is not None and 'selected' not in already_processed:
             already_processed.add('selected')
             outfile.write(' selected="%s"' % self.gds_format_boolean(self.selected, input_name='selected'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileSelectType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileSelectType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -11574,7 +11574,7 @@ class profileSetValueType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetValueType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetValueType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileSetValueType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -11594,11 +11594,11 @@ class profileSetValueType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='profileSetValueType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='profileSetValueType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetValueType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetValueType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -11661,7 +11661,7 @@ class profileSetComplexValueType(complexValueType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetComplexValueType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetComplexValueType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileSetComplexValueType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -11684,12 +11684,12 @@ class profileSetComplexValueType(complexValueType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='profileSetComplexValueType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='profileSetComplexValueType'):
         super(profileSetComplexValueType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='profileSetComplexValueType')
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetComplexValueType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='profileSetComplexValueType', fromsubclass_=False, pretty_print=True):
         super(profileSetComplexValueType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -11727,7 +11727,7 @@ class profileRefineValueType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.idref = _cast(None, idref)
         self.idref_nsprefix_ = None
         self.selector = _cast(None, selector)
@@ -11738,7 +11738,7 @@ class profileRefineValueType(GeneratedsSuper):
             self.remark = []
         else:
             self.remark = remark
-        self.remark_nsprefix_ = "cdf"
+        self.remark_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -11796,7 +11796,7 @@ class profileRefineValueType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineValueType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineValueType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileRefineValueType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -11819,7 +11819,7 @@ class profileRefineValueType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='profileRefineValueType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='profileRefineValueType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
@@ -11829,7 +11829,7 @@ class profileRefineValueType(GeneratedsSuper):
         if self.operator is not None and 'operator' not in already_processed:
             already_processed.add('operator')
             outfile.write(' operator=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.operator), input_name='operator')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineValueType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineValueType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -11884,7 +11884,7 @@ class profileRefineRuleType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.idref = _cast(None, idref)
         self.idref_nsprefix_ = None
         self.weight = _cast(None, weight)
@@ -11899,7 +11899,7 @@ class profileRefineRuleType(GeneratedsSuper):
             self.remark = []
         else:
             self.remark = remark
-        self.remark_nsprefix_ = "cdf"
+        self.remark_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -11993,7 +11993,7 @@ class profileRefineRuleType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineRuleType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineRuleType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('profileRefineRuleType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -12016,7 +12016,7 @@ class profileRefineRuleType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='profileRefineRuleType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='profileRefineRuleType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
@@ -12032,7 +12032,7 @@ class profileRefineRuleType(GeneratedsSuper):
         if self.role is not None and 'role' not in already_processed:
             already_processed.add('role')
             outfile.write(' role=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.role), input_name='role')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineRuleType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='profileRefineRuleType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -12300,28 +12300,28 @@ class testResultType(GeneratedsSuper):
         self.Id = _cast(None, Id)
         self.Id_nsprefix_ = None
         self.benchmark = benchmark
-        self.benchmark_nsprefix_ = "cdf"
+        self.benchmark_nsprefix_ = "xccdf"
         self.tailoring_file = tailoring_file
-        self.tailoring_file_nsprefix_ = "cdf"
+        self.tailoring_file_nsprefix_ = "xccdf"
         if title is None:
             self.title = []
         else:
             self.title = title
-        self.title_nsprefix_ = "cdf"
+        self.title_nsprefix_ = "xccdf"
         if remark is None:
             self.remark = []
         else:
             self.remark = remark
-        self.remark_nsprefix_ = "cdf"
+        self.remark_nsprefix_ = "xccdf"
         if organization is None:
             self.organization = []
         else:
             self.organization = organization
         self.organization_nsprefix_ = None
         self.identity = identity
-        self.identity_nsprefix_ = "cdf"
+        self.identity_nsprefix_ = "xccdf"
         self.profile = profile
-        self.profile_nsprefix_ = "cdf"
+        self.profile_nsprefix_ = "xccdf"
         if target is None:
             self.target = []
         else:
@@ -12333,45 +12333,45 @@ class testResultType(GeneratedsSuper):
             self.target_address = target_address
         self.target_address_nsprefix_ = None
         self.target_facts = target_facts
-        self.target_facts_nsprefix_ = "cdf"
+        self.target_facts_nsprefix_ = "xccdf"
         if target_id_ref is None:
             self.target_id_ref = []
         else:
             self.target_id_ref = target_id_ref
-        self.target_id_ref_nsprefix_ = "cdf"
+        self.target_id_ref_nsprefix_ = "xccdf"
         self.anytypeobjs_ = anytypeobjs_
         if platform is None:
             self.platform = []
         else:
             self.platform = platform
-        self.platform_nsprefix_ = "cdf"
+        self.platform_nsprefix_ = "xccdf"
         if set_value is None:
             self.set_value = []
         else:
             self.set_value = set_value
-        self.set_value_nsprefix_ = "cdf"
+        self.set_value_nsprefix_ = "xccdf"
         if set_complex_value is None:
             self.set_complex_value = []
         else:
             self.set_complex_value = set_complex_value
-        self.set_complex_value_nsprefix_ = "cdf"
+        self.set_complex_value_nsprefix_ = "xccdf"
         if rule_result is None:
             self.rule_result = []
         else:
             self.rule_result = rule_result
-        self.rule_result_nsprefix_ = "cdf"
+        self.rule_result_nsprefix_ = "xccdf"
         if score is None:
             self.score = []
         else:
             self.score = score
-        self.score_nsprefix_ = "cdf"
+        self.score_nsprefix_ = "xccdf"
         if metadata is None:
             self.metadata = []
         else:
             self.metadata = metadata
-        self.metadata_nsprefix_ = "cdf"
+        self.metadata_nsprefix_ = "xccdf"
         self.signature = signature
-        self.signature_nsprefix_ = "cdf"
+        self.signature_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -12593,7 +12593,7 @@ class testResultType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='testResultType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='testResultType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('testResultType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -12616,7 +12616,7 @@ class testResultType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='testResultType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='testResultType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
@@ -12635,7 +12635,7 @@ class testResultType(GeneratedsSuper):
         if self.Id is not None and 'Id' not in already_processed:
             already_processed.add('Id')
             outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='testResultType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='testResultType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -12904,7 +12904,7 @@ class benchmarkReferenceType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='benchmarkReferenceType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='benchmarkReferenceType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('benchmarkReferenceType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -12926,7 +12926,7 @@ class benchmarkReferenceType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='benchmarkReferenceType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='benchmarkReferenceType'):
         if self.href is not None and 'href' not in already_processed:
             already_processed.add('href')
             outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
@@ -12941,7 +12941,7 @@ class benchmarkReferenceType(GeneratedsSuper):
                 outfile.write(' xsi:type="%s%s"' % (imported_ns_type_prefix_, self.extensiontype_))
             else:
                 outfile.write(' xsi:type="%s"' % self.extensiontype_)
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='benchmarkReferenceType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='benchmarkReferenceType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -13019,7 +13019,7 @@ class scoreType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='scoreType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='scoreType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('scoreType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -13039,14 +13039,14 @@ class scoreType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='scoreType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='scoreType'):
         if self.system is not None and 'system' not in already_processed:
             already_processed.add('system')
             outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
         if self.maximum is not None and 'maximum' not in already_processed:
             already_processed.add('maximum')
             outfile.write(' maximum="%s"' % self.gds_format_decimal(self.maximum, input_name='maximum'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='scoreType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='scoreType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -13088,12 +13088,12 @@ class targetFactsType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         if fact is None:
             self.fact = []
         else:
             self.fact = fact
-        self.fact_nsprefix_ = "cdf"
+        self.fact_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -13126,7 +13126,7 @@ class targetFactsType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='targetFactsType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='targetFactsType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('targetFactsType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -13149,9 +13149,9 @@ class targetFactsType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='targetFactsType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='targetFactsType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='targetFactsType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='targetFactsType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -13231,7 +13231,7 @@ class targetIdRefType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetIdRefType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetIdRefType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('targetIdRefType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -13253,7 +13253,7 @@ class targetIdRefType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='targetIdRefType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='targetIdRefType'):
         if self.system is not None and 'system' not in already_processed:
             already_processed.add('system')
             outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
@@ -13263,7 +13263,7 @@ class targetIdRefType(GeneratedsSuper):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetIdRefType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='targetIdRefType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -13341,7 +13341,7 @@ class identityType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identityType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identityType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('identityType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -13361,14 +13361,14 @@ class identityType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='identityType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='identityType'):
         if self.authenticated is not None and 'authenticated' not in already_processed:
             already_processed.add('authenticated')
             outfile.write(' authenticated="%s"' % self.gds_format_boolean(self.authenticated, input_name='authenticated'))
         if self.privileged is not None and 'privileged' not in already_processed:
             already_processed.add('privileged')
             outfile.write(' privileged="%s"' % self.gds_format_boolean(self.privileged, input_name='privileged'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identityType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='identityType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -13466,7 +13466,7 @@ class factType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='factType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='factType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('factType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -13486,14 +13486,14 @@ class factType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='factType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='factType'):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
         if self.type_ != "boolean" and 'type_' not in already_processed:
             already_processed.add('type_')
             outfile.write(' type=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.type_), input_name='type')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='factType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='factType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -13581,7 +13581,7 @@ class tailoringReferenceType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringReferenceType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringReferenceType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringReferenceType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -13603,7 +13603,7 @@ class tailoringReferenceType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='tailoringReferenceType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='tailoringReferenceType'):
         if self.href is not None and 'href' not in already_processed:
             already_processed.add('href')
             outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
@@ -13616,7 +13616,7 @@ class tailoringReferenceType(GeneratedsSuper):
         if self.time is not None and 'time' not in already_processed:
             already_processed.add('time')
             outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringReferenceType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringReferenceType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -13747,7 +13747,7 @@ class ruleResultType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.idref = _cast(None, idref)
         self.idref_nsprefix_ = None
         self.role = _cast(None, role)
@@ -13765,44 +13765,44 @@ class ruleResultType(GeneratedsSuper):
         self.weight_nsprefix_ = None
         self.result = result
         self.validate_resultEnumType(self.result)
-        self.result_nsprefix_ = "cdf"
+        self.result_nsprefix_ = "xccdf"
         if override is None:
             self.override = []
         else:
             self.override = override
-        self.override_nsprefix_ = "cdf"
+        self.override_nsprefix_ = "xccdf"
         if ident is None:
             self.ident = []
         else:
             self.ident = ident
-        self.ident_nsprefix_ = "cdf"
+        self.ident_nsprefix_ = "xccdf"
         if metadata is None:
             self.metadata = []
         else:
             self.metadata = metadata
-        self.metadata_nsprefix_ = "cdf"
+        self.metadata_nsprefix_ = "xccdf"
         if message is None:
             self.message = []
         else:
             self.message = message
-        self.message_nsprefix_ = "cdf"
+        self.message_nsprefix_ = "xccdf"
         if instance is None:
             self.instance = []
         else:
             self.instance = instance
-        self.instance_nsprefix_ = "cdf"
+        self.instance_nsprefix_ = "xccdf"
         if fix is None:
             self.fix = []
         else:
             self.fix = fix
-        self.fix_nsprefix_ = "cdf"
+        self.fix_nsprefix_ = "xccdf"
         if check is None:
             self.check = []
         else:
             self.check = check
-        self.check_nsprefix_ = "cdf"
+        self.check_nsprefix_ = "xccdf"
         self.complex_check = complex_check
-        self.complex_check_nsprefix_ = "cdf"
+        self.complex_check_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -13991,7 +13991,7 @@ class ruleResultType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='ruleResultType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='ruleResultType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ruleResultType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -14014,7 +14014,7 @@ class ruleResultType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='ruleResultType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='ruleResultType'):
         if self.idref is not None and 'idref' not in already_processed:
             already_processed.add('idref')
             outfile.write(' idref=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.idref), input_name='idref')), ))
@@ -14033,7 +14033,7 @@ class ruleResultType(GeneratedsSuper):
         if self.weight is not None and 'weight' not in already_processed:
             already_processed.add('weight')
             outfile.write(' weight="%s"' % self.gds_format_decimal(self.weight, input_name='weight'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='ruleResultType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='ruleResultType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -14207,7 +14207,7 @@ class instanceResultType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceResultType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceResultType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('instanceResultType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -14227,14 +14227,14 @@ class instanceResultType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='instanceResultType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='instanceResultType'):
         if self.context != "undefined" and 'context' not in already_processed:
             already_processed.add('context')
             outfile.write(' context=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.context), input_name='context')), ))
         if self.parentContext is not None and 'parentContext' not in already_processed:
             already_processed.add('parentContext')
             outfile.write(' parentContext=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.parentContext), input_name='parentContext')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceResultType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='instanceResultType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -14286,7 +14286,7 @@ class overrideType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         if isinstance(time, BaseStrType_):
             initvalue_ = datetime_.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
         else:
@@ -14296,12 +14296,12 @@ class overrideType(GeneratedsSuper):
         self.authority_nsprefix_ = None
         self.old_result = old_result
         self.validate_resultEnumType(self.old_result)
-        self.old_result_nsprefix_ = "cdf"
+        self.old_result_nsprefix_ = "xccdf"
         self.new_result = new_result
         self.validate_resultEnumType(self.new_result)
-        self.new_result_nsprefix_ = "cdf"
+        self.new_result_nsprefix_ = "xccdf"
         self.remark = remark
-        self.remark_nsprefix_ = "cdf"
+        self.remark_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -14361,7 +14361,7 @@ class overrideType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='overrideType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='overrideType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('overrideType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -14384,14 +14384,14 @@ class overrideType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='overrideType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='overrideType'):
         if self.time is not None and 'time' not in already_processed:
             already_processed.add('time')
             outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
         if self.authority is not None and 'authority' not in already_processed:
             already_processed.add('authority')
             outfile.write(' authority=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.authority), input_name='authority')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='overrideType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='overrideType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -14509,7 +14509,7 @@ class messageType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='messageType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='messageType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('messageType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -14529,11 +14529,11 @@ class messageType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='messageType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='messageType'):
         if self.severity is not None and 'severity' not in already_processed:
             already_processed.add('severity')
             outfile.write(' severity=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.severity), input_name='severity')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='messageType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='messageType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -14634,37 +14634,37 @@ class tailoringType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "cdf"
+        self.ns_prefix_ = "xccdf"
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
         self.Id = _cast(None, Id)
         self.Id_nsprefix_ = None
         self.benchmark = benchmark
-        self.benchmark_nsprefix_ = "cdf"
+        self.benchmark_nsprefix_ = "xccdf"
         if status is None:
             self.status = []
         else:
             self.status = status
-        self.status_nsprefix_ = "cdf"
+        self.status_nsprefix_ = "xccdf"
         if dc_status is None:
             self.dc_status = []
         else:
             self.dc_status = dc_status
-        self.dc_status_nsprefix_ = "cdf"
+        self.dc_status_nsprefix_ = "xccdf"
         self.version = version
-        self.version_nsprefix_ = "cdf"
+        self.version_nsprefix_ = "xccdf"
         if metadata is None:
             self.metadata = []
         else:
             self.metadata = metadata
-        self.metadata_nsprefix_ = "cdf"
+        self.metadata_nsprefix_ = "xccdf"
         if Profile is None:
             self.Profile = []
         else:
             self.Profile = Profile
-        self.Profile_nsprefix_ = "cdf"
+        self.Profile_nsprefix_ = "xccdf"
         self.signature = signature
-        self.signature_nsprefix_ = "cdf"
+        self.signature_nsprefix_ = "xccdf"
     def factory(*args_, **kwargs_):
         if CurrentSubclassModule_ is not None:
             subclass = getSubclassFromModule_(
@@ -14764,7 +14764,7 @@ class tailoringType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='tailoringType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='tailoringType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -14787,14 +14787,14 @@ class tailoringType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='tailoringType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='tailoringType'):
         if self.id is not None and 'id' not in already_processed:
             already_processed.add('id')
             outfile.write(' id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.id), input_name='id')), ))
         if self.Id is not None and 'Id' not in already_processed:
             already_processed.add('Id')
             outfile.write(' Id=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.Id), input_name='Id')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='tailoringType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" ', name_='tailoringType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -14804,7 +14804,7 @@ class tailoringType(GeneratedsSuper):
             self.benchmark.export(outfile, level, namespaceprefix_, namespacedef_='', name_='benchmark', pretty_print=pretty_print)
         for status_ in self.status:
             namespaceprefix_ = self.status_nsprefix_ + ':' if (UseCapturedNS_ and self.status_nsprefix_) else ''
-            status_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
+            status_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='status', pretty_print=pretty_print)
         for dc_status_ in self.dc_status:
             namespaceprefix_ = self.dc_status_nsprefix_ + ':' if (UseCapturedNS_ and self.dc_status_nsprefix_) else ''
             dc_status_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='dc-status', pretty_print=pretty_print)
@@ -14816,7 +14816,7 @@ class tailoringType(GeneratedsSuper):
             metadata_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='metadata', pretty_print=pretty_print)
         for Profile_ in self.Profile:
             namespaceprefix_ = self.Profile_nsprefix_ + ':' if (UseCapturedNS_ and self.Profile_nsprefix_) else ''
-            Profile_.export(outfile, level, namespaceprefix_='cdf:', namespacedef_='', name_='Profile', pretty_print=pretty_print)
+            Profile_.export(outfile, level, namespaceprefix_='xccdf:', namespacedef_='', name_='Profile', pretty_print=pretty_print)
         if self.signature is not None:
             namespaceprefix_ = self.signature_nsprefix_ + ':' if (UseCapturedNS_ and self.signature_nsprefix_) else ''
             self.signature.export(outfile, level, namespaceprefix_, namespacedef_='', name_='signature', pretty_print=pretty_print)
@@ -14919,7 +14919,7 @@ class tailoringBenchmarkReferenceType(benchmarkReferenceType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringBenchmarkReferenceType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringBenchmarkReferenceType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringBenchmarkReferenceType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -14941,12 +14941,12 @@ class tailoringBenchmarkReferenceType(benchmarkReferenceType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='tailoringBenchmarkReferenceType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='tailoringBenchmarkReferenceType'):
         super(tailoringBenchmarkReferenceType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='tailoringBenchmarkReferenceType')
         if self.version is not None and 'version' not in already_processed:
             already_processed.add('version')
             outfile.write(' version=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.version), input_name='version')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringBenchmarkReferenceType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringBenchmarkReferenceType', fromsubclass_=False, pretty_print=True):
         super(tailoringBenchmarkReferenceType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         pass
     def build(self, node, gds_collector_=None):
@@ -15016,7 +15016,7 @@ class tailoringVersionType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringVersionType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringVersionType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('tailoringVersionType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -15036,11 +15036,11 @@ class tailoringVersionType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='tailoringVersionType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='tailoringVersionType'):
         if self.time is not None and 'time' not in already_processed:
             already_processed.add('time')
             outfile.write(' time="%s"' % self.gds_format_datetime(self.time, input_name='time'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringVersionType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='tailoringVersionType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -34776,7 +34776,7 @@ class GeneratorType3(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"', name_='GeneratorType3', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"', name_='GeneratorType3', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('GeneratorType3')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -34799,9 +34799,9 @@ class GeneratorType3(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe_dict:', name_='GeneratorType3'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe-dict:', name_='GeneratorType3'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"', name_='GeneratorType3', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"', name_='GeneratorType3', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -34893,19 +34893,19 @@ class ItemType(GeneratedsSuper):
             self.title = []
         else:
             self.title = title
-        self.title_nsprefix_ = "cpe_dict"
+        self.title_nsprefix_ = "cpe-dict"
         if notes is None:
             self.notes = []
         else:
             self.notes = notes
-        self.notes_nsprefix_ = "cpe_dict"
+        self.notes_nsprefix_ = "cpe-dict"
         self.references = references
-        self.references_nsprefix_ = "cpe_dict"
+        self.references_nsprefix_ = "cpe-dict"
         if check is None:
             self.check = []
         else:
             self.check = check
-        self.check_nsprefix_ = "cpe_dict"
+        self.check_nsprefix_ = "cpe-dict"
         if anytypeobjs_ is None:
             self.anytypeobjs_ = []
         else:
@@ -35001,7 +35001,7 @@ class ItemType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ItemType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ItemType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ItemType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -35024,7 +35024,7 @@ class ItemType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe_dict:', name_='ItemType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe-dict:', name_='ItemType'):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.name), input_name='name')), ))
@@ -35037,7 +35037,7 @@ class ItemType(GeneratedsSuper):
         if self.deprecation_date is not None and 'deprecation_date' not in already_processed:
             already_processed.add('deprecation_date')
             outfile.write(' deprecation_date="%s"' % self.gds_format_datetime(self.deprecation_date, input_name='deprecation_date'))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ItemType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ItemType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -35141,12 +35141,12 @@ class ListType(GeneratedsSuper):
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = None
         self.generator = generator
-        self.generator_nsprefix_ = "cpe_dict"
+        self.generator_nsprefix_ = "cpe-dict"
         if cpe_item is None:
             self.cpe_item = []
         else:
             self.cpe_item = cpe_item
-        self.cpe_item_nsprefix_ = "cpe_dict"
+        self.cpe_item_nsprefix_ = "cpe-dict"
         if anytypeobjs_ is None:
             self.anytypeobjs_ = []
         else:
@@ -35193,7 +35193,7 @@ class ListType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ListType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ListType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ListType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -35216,9 +35216,9 @@ class ListType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe_dict:', name_='ListType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe-dict:', name_='ListType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ListType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"  xmlns:None="http://www.w3.org/1999/xhtml" ', name_='ListType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -35228,7 +35228,7 @@ class ListType(GeneratedsSuper):
             self.generator.export(outfile, level, namespaceprefix_, namespacedef_='', name_='generator', pretty_print=pretty_print)
         for cpe_item_ in self.cpe_item:
             namespaceprefix_ = self.cpe_item_nsprefix_ + ':' if (UseCapturedNS_ and self.cpe_item_nsprefix_) else ''
-            cpe_item_.export(outfile, level, namespaceprefix_='cpe_dict:', namespacedef_='', name_='cpe-item', pretty_print=pretty_print)
+            cpe_item_.export(outfile, level, namespaceprefix_='cpe-dict:', namespacedef_='', name_='cpe-item', pretty_print=pretty_print)
         if not fromsubclass_:
             for obj_ in self.anytypeobjs_:
                 showIndent(outfile, level, pretty_print)
@@ -35305,7 +35305,7 @@ class TextType4(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_='', name_='TextType4', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_='', name_='TextType4', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('TextType4')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -35325,11 +35325,11 @@ class TextType4(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe_dict:', name_='TextType4'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe-dict:', name_='TextType4'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_='', name_='TextType4', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_='', name_='TextType4', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -35406,7 +35406,7 @@ class NotesType5(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"', name_='NotesType5', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"', name_='NotesType5', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('NotesType5')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -35429,11 +35429,11 @@ class NotesType5(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe_dict:', name_='NotesType5'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe-dict:', name_='NotesType5'):
         if self.lang is not None and 'lang' not in already_processed:
             already_processed.add('lang')
             outfile.write(' xml:lang=%s' % (quote_attrib(self.lang), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"', name_='NotesType5', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"', name_='NotesType5', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -35515,7 +35515,7 @@ class ReferencesType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"', name_='ReferencesType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"', name_='ReferencesType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('ReferencesType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -35538,9 +35538,9 @@ class ReferencesType(GeneratedsSuper):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe_dict:', name_='ReferencesType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe-dict:', name_='ReferencesType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0"', name_='ReferencesType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0"', name_='ReferencesType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -35617,7 +35617,7 @@ class CheckType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_='', name_='CheckType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_='', name_='CheckType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('CheckType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -35637,14 +35637,14 @@ class CheckType(GeneratedsSuper):
         self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_, pretty_print=pretty_print)
         outfile.write(self.convert_unicode(self.valueOf_))
         outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe_dict:', name_='CheckType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cpe-dict:', name_='CheckType'):
         if self.system is not None and 'system' not in already_processed:
             already_processed.add('system')
             outfile.write(' system=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.system), input_name='system')), ))
         if self.href is not None and 'href' not in already_processed:
             already_processed.add('href')
             outfile.write(' href=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.href), input_name='href')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cpe_dict:', namespacedef_='', name_='CheckType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='cpe-dict:', namespacedef_='', name_='CheckType', fromsubclass_=False, pretty_print=True):
         pass
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
@@ -122934,7 +122934,7 @@ class subType(idrefType):
             return True
         else:
             return False
-    def export(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='subType', pretty_print=True):
+    def export(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='subType', pretty_print=True):
         imported_ns_def_ = GenerateDSNamespaceDefs_.get('subType')
         if imported_ns_def_ is not None:
             namespacedef_ = imported_ns_def_
@@ -122956,12 +122956,12 @@ class subType(idrefType):
             outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='cdf:', name_='subType'):
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='xccdf:', name_='subType'):
         super(subType, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='subType')
         if self.use != "value" and 'use' not in already_processed:
             already_processed.add('use')
             outfile.write(' use=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.use), input_name='use')), ))
-    def _exportChildren(self, outfile, level, namespaceprefix_='cdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='subType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='xccdf:', namespacedef_='xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" xmlns:cdf="http://checklists.nist.gov/xccdf/1.2"', name_='subType', fromsubclass_=False, pretty_print=True):
         super(subType, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
         pass
     def build(self, node, gds_collector_=None):
