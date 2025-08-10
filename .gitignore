@@ -1,5 +1,5 @@
 dist/*
-models/__pycache__/*
+models/*
 /models/__pycache__
 *.pyc
 models/__pycache__/oval_helper.cpython-313.pyc
