@@ -150,16 +150,16 @@ class XccdfEditorApp:
         self.create_menu.add_command(label="New OVAL Check Component", command=lambda: self.new_oval_component("checks"))
         self.create_menu.add_command(label="New CPE OVAL Component", command=lambda: self.new_oval_component("dictionaries"))
 
-        # --- Import Menu (now a submenu of File) ---
-        self.import_menu = tk.Menu(self.file_menu, tearoff=0)
-        self.file_menu.add_cascade(label="Import Component", menu=self.import_menu)
-        self.import_menu.add_command(label="CPE Dictionary...", command=self.import_cpe_dictionary)
-        # ... (other import commands)
-
         # --- Exit
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=self.root.quit)
         
+        # --- Import Menu (its own menu) ---
+        self.import_menu = tk.Menu(self.menu, tearoff=0)
+        self.menu.add_cascade(label="Import", menu=self.import_menu)
+        self.import_menu.add_command(label="CPE Dictionary...", command=self.import_cpe_dictionary)
+        # ... (other import commands)
+
         # --- Main layout ---
         paned_window = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
         paned_window.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
@@ -191,7 +191,8 @@ class XccdfEditorApp:
         self.file_menu.entryconfig("Close Datastream", state=state)
         self.file_menu.entryconfig("Save Datastream As...", state=state)
         self.file_menu.entryconfig("Create Component", state=state)
-        self.file_menu.entryconfig("Import Component", state=state)
+        
+        self.menu.entryconfig("Import", state=state)
 
        
 ##--  [ Top-Level Menu Commands ]---
