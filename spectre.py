@@ -341,7 +341,7 @@ class XccdfEditorApp:
             ns_definitions = (
                 'xmlns:ds="http://scap.nist.gov/schema/scap/source/1.2" '
                 'xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" '
-                'xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0" '
+                'xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0" '
                 'xmlns:cpe-lang="http://cpe.mitre.org/language/2.0" '
                 'xmlns:html="http://www.w3.org/1999/xhtml" '
                 'xmlns:dc="http://purl.org/dc/elements/1.1/" '
@@ -818,8 +818,13 @@ class XccdfEditorApp:
             tab_platforms = ttk.Frame(notebook, padding=10)
             notebook.add(tab_general, text="General")
             notebook.add(tab_platforms, text="Platforms")
+            
             self.create_detail_entry(tab_general, "Benchmark ID", item, "id")
             self.create_text_editor(tab_general, "Title", item, "title")
+            
+            import_button_frame = ttk.Frame(tab_platforms)
+            import_button_frame.pack(fill=tk.X, pady=(0, 10))
+            ttk.Button(import_button_frame, text="Import All Platforms into CPE Dictionary", command=self._sync_platforms_to_cpe).pack(anchor='e')            
             
             if item.version is None: item.version = models.versionType(valueOf_='')
             self.create_detail_entry(tab_general, "Version", item.version, "valueOf_")
@@ -1194,6 +1199,9 @@ class XccdfEditorApp:
         ttk.Button(button_frame, text="Add Item...", command=lambda: self.add_cpe_item(cpe_list_obj)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Edit Item...", command=lambda: self.edit_cpe_item(cpe_list_obj)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Remove Selected", command=lambda: self.remove_cpe_item(cpe_list_obj)).pack(side=tk.LEFT, padx=2)
+        
+        ttk.Separator(button_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=10, fill=tk.Y)
+        ttk.Button(button_frame, text="Sync All to XCCDF Platforms", command=self._sync_cpe_to_platforms).pack(side=tk.LEFT, padx=2)
 
     def populate_cpe_tree(self, cpe_list_obj):
         """Clears and repopulates the CPE items treeview."""
@@ -1464,7 +1472,61 @@ class XccdfEditorApp:
         messagebox.showinfo("Success", "Datastream references have been updated.")
         # Refresh the details view to show the changes
         self.display_details(ds)
-        
+
+    def _sync_cpe_to_platforms(self):
+        """
+        Reads all items from the CPE Dictionary and adds them to the XCCDF
+        Benchmark's platforms, creating definitions for 'cpe:/a:' and
+        top-level applicable platforms for 'cpe:/o:'.
+        """
+        benchmark = self.get_benchmark()
+        cpe_list = self.get_cpe_dictionary()
+
+        if not benchmark or not cpe_list or not cpe_list.get_cpe_item():
+            messagebox.showinfo("No Data", "No CPE items found to sync.")
+            return
+
+        added_definitions = 0
+        added_applicable = 0
+
+        # Ensure parent elements exist
+        if benchmark.platform_specification is None:
+            benchmark.platform_specification = models.platformSpecificationType()
+        if benchmark.platform_specification.platform is None:
+            benchmark.platform_specification.platform = []
+        if benchmark.platform is None:
+            benchmark.platform = []
+
+        # Get existing platform IDs to avoid duplicates
+        existing_def_ids = {p.get_id() for p in benchmark.platform_specification.platform}
+        existing_app_ids = {p.get_idref() for p in benchmark.platform}
+
+        for item in cpe_list.get_cpe_item():
+            cpe_name = item.get_name()
+            
+            # Add 'cpe:/a:' items as Platform Definitions
+            if cpe_name.startswith("cpe:/a:") and cpe_name not in existing_def_ids:
+                # A simple platform definition just needs an ID
+                new_platform_def = models.PlatformType(id=cpe_name)
+                benchmark.platform_specification.platform.append(new_platform_def)
+                added_definitions += 1
+            
+            # Add 'cpe:/o:' items as Applicable Platforms
+            elif cpe_name.startswith("cpe:/o:") and cpe_name not in existing_app_ids:
+                new_platform_ref = models.overrideableCPE2idrefType(idref=cpe_name)
+                benchmark.platform.append(new_platform_ref)
+                added_applicable += 1
+
+        if added_definitions > 0 or added_applicable > 0:
+            self._mark_as_dirty()
+            messagebox.showinfo("Sync Complete", 
+                                f"Added {added_definitions} platform definitions (cpe:/a:).\n"
+                                f"Added {added_applicable} applicable platforms (cpe:/o:).")
+            # You may want to refresh the platform view if it's open
+            self.populate_platforms_tree() 
+        else:
+            messagebox.showinfo("No Changes", "All CPE platforms already exist in the XCCDF Benchmark.")
+            
 
 ##--  [  XCCDF-Specific UI & Helpers ]---
     def create_benchmark_platform_manager(self, parent_frame, item_data):
@@ -2009,18 +2071,6 @@ class XccdfEditorApp:
         if not selected_item:
             messagebox.showwarning("No Selection", "Please select a platform to remove.")
             return
-        id_to_remove = self.platforms_tree.item(selected_item)['values'][0]
-        if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove platform '{id_to_remove}'?"):
-            benchmark_obj = self.get_benchmark()
-            if benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
-                benchmark_obj.platform_specification.platform = [p for p in benchmark_obj.platform_specification.platform if p.get_id() != id_to_remove]
-            self.populate_platforms_tree()
-
-    def remove_platform(self):
-        selected_item = self.platforms_tree.focus()
-        if not selected_item:
-            messagebox.showwarning("No Selection", "Please select a platform to remove.")
-            return
             
         id_to_remove = self.platforms_tree.item(selected_item)['values'][0]
         
@@ -2038,6 +2088,35 @@ class XccdfEditorApp:
                     self.populate_platforms_tree()
                     self._mark_as_dirty() # Mark the change
 
+    def add_fact_ref(self):
+        """Adds a new CPE fact-ref to the selected platform's logical test."""
+        if not self.fact_refs_tree or not self.selected_platform_obj: 
+            return
+
+        # Ensure the logical_test and its fact_ref list exist
+        logical_test = self.selected_platform_obj.logical_test
+        if logical_test is None:
+            logical_test = models.LogicalTestType(operator='AND', negate=False)
+            self.selected_platform_obj.logical_test = logical_test
+        if logical_test.fact_ref is None:
+            logical_test.fact_ref = []
+
+        new_cpe = simpledialog.askstring("Add CPE", "Enter the new CPE name:", parent=self.root)
+        if not new_cpe:
+            return
+
+        # Check for duplicates
+        if any(fact.get_name() == new_cpe for fact in logical_test.fact_ref):
+            messagebox.showwarning("Duplicate", f"The CPE name '{new_cpe}' already exists in this logical test.")
+            return
+
+        # Create and add the new fact reference
+        new_fact = models.CPEFactRefType(name=new_cpe)
+        logical_test.fact_ref.append(new_fact)
+        
+        self.populate_fact_refs_tree()
+        self._mark_as_dirty()
+        
     def edit_fact_ref(self):
         if not self.fact_refs_tree or not self.selected_platform_obj: return
         
@@ -2088,6 +2167,53 @@ class XccdfEditorApp:
                     self.populate_fact_refs_tree()
                     self._mark_as_dirty() # Mark the change
 
+    def _sync_platforms_to_cpe(self):
+        """
+        Reads all platforms from the XCCDF Benchmark and adds any missing
+        ones to the CPE Dictionary.
+        """
+        benchmark = self.get_benchmark()
+        cpe_list = self.get_cpe_dictionary()
+
+        if not benchmark or not cpe_list:
+            messagebox.showinfo("No Data", "Benchmark and CPE Dictionary must both exist.")
+            return
+
+        platforms_to_add = set()
+        if benchmark.platform_specification and benchmark.platform_specification.platform:
+            for p in benchmark.platform_specification.platform:
+                platforms_to_add.add(p.get_id())
+        if benchmark.platform:
+            for p_ref in benchmark.platform:
+                platforms_to_add.add(p_ref.get_idref())
+
+        if not platforms_to_add:
+            messagebox.showinfo("No Platforms", "No platforms found in the Benchmark to import.")
+            return
+
+        if cpe_list.get_cpe_item() is None:
+            cpe_list.set_cpe_item([])
+            
+        existing_cpe_names = {item.get_name() for item in cpe_list.get_cpe_item()}
+        added_count = 0
+
+        for name in platforms_to_add:
+            if name not in existing_cpe_names:
+                new_item = models.ItemType(name=name)
+                # Create a simple title from the CPE name
+                simple_title = name.split(':')[-1].replace('_', ' ').title()
+                new_item.add_title(models.TextType(valueOf_=simple_title))
+                cpe_list.add_cpe_item(new_item)
+                added_count += 1
+        
+        if added_count > 0:
+            self._mark_as_dirty()
+            messagebox.showinfo("Sync Complete", f"Added {added_count} new items to the CPE Dictionary.")
+            # You may want to refresh the CPE view if it's open
+            self.populate_cpe_tree(cpe_list)
+        else:
+            messagebox.showinfo("No Changes", "All Benchmark platforms already exist in the CPE Dictionary.")
+            
 
 ##--  [  OVAL Manager UI & Commands ]---
     def display_oval_manager(self, oval_defs_obj):
