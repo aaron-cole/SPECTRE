@@ -340,8 +340,8 @@ class XccdfEditorApp:
             # 2. Define ALL namespaces, including the schemaLocation
             ns_definitions = (
                 'xmlns:ds="http://scap.nist.gov/schema/scap/source/1.2" '
-                'xmlns:cdf="http://checklists.nist.gov/xccdf/1.2" '
-                'xmlns:cpe_dict="http://cpe.mitre.org/dictionary/2.0" '
+                'xmlns:xccdf="http://checklists.nist.gov/xccdf/1.2" '
+                'xmlns:cpe-dict="http://cpe.mitre.org/dictionary/2.0" '
                 'xmlns:cpe-lang="http://cpe.mitre.org/language/2.0" '
                 'xmlns:html="http://www.w3.org/1999/xhtml" '
                 'xmlns:dc="http://purl.org/dc/elements/1.1/" '
@@ -354,6 +354,9 @@ class XccdfEditorApp:
                 'xmlns:sol-def="http://oval.mitre.org/XMLSchema/oval-definitions-5#solaris" '
                 'xmlns:xlink="http://www.w3.org/1999/xlink" '
                 'xmlns:cat="urn:oasis:names:tc:entity:xmlns:xml:catalog" '
+                'xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" '
+                'xmlns:cpe="http://cpe.mitre.org/language/2.0" '
+                'xmlns:cpe2="http://cpe.mitre.org/language/2.0" '
                 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
 ##                f'xsi:schemaLocation="{root_schema_location}"'
             )
@@ -460,7 +463,7 @@ class XccdfEditorApp:
             )
             
             # Now, look inside the component to find out what it really is
-            benchmark_node = comp_node.find('cdf:Benchmark', ns)
+            benchmark_node = comp_node.find('xccdf:Benchmark', ns)
             cpe_list_node = comp_node.find('cpe-dict:cpe-list', ns)
             oval_defs_node = comp_node.find('oval-def:oval_definitions', ns)
 
@@ -621,7 +624,7 @@ class XccdfEditorApp:
             messagebox.showwarning("Exists", "An XCCDF Benchmark component already exists in this datastream.")
             return None, None
         
-        benchmark = models.Benchmark(id=f"xccdf_benchmark_{uuid.uuid4()}")
+        benchmark = models.Benchmark(id=f"xccdf_benchmark_{uuid.uuid4()}", lang="en", style="SCAP_1.2", resolved="true")
         benchmark.set_title([models.textWithSubType(valueOf_='New Security Benchmark')])
         benchmark.status = [models.status(valueOf_='incomplete', date=datetime.now().strftime('%Y-%m-%d'))]
         benchmark.description = [models.htmlTextWithSubType(valueOf_='A new benchmark description.')]
@@ -1506,8 +1509,17 @@ class XccdfEditorApp:
             
             # Add 'cpe:/a:' items as Platform Definitions
             if cpe_name.startswith("cpe:/a:") and cpe_name not in existing_def_ids:
-                # A simple platform definition just needs an ID
-                new_platform_def = models.PlatformType(id=cpe_name)
+                idref = cpe_name.replace("cpe:/a:", "")
+                new_platform_def = models.PlatformType(id=idref)
+                
+                fact_ref = models.CPEFactRefType(name=cpe_name)
+                logical_test = models.LogicalTestType(
+                    operator='AND',
+                    negate=False,
+                    fact_ref=[fact_ref]
+                )
+                new_platform_def.set_logical_test(logical_test)
+                
                 benchmark.platform_specification.platform.append(new_platform_def)
                 added_definitions += 1
             
@@ -1522,7 +1534,7 @@ class XccdfEditorApp:
             messagebox.showinfo("Sync Complete", 
                                 f"Added {added_definitions} platform definitions (cpe:/a:).\n"
                                 f"Added {added_applicable} applicable platforms (cpe:/o:).")
-            # You may want to refresh the platform view if it's open
+
             self.populate_platforms_tree() 
         else:
             messagebox.showinfo("No Changes", "All CPE platforms already exist in the XCCDF Benchmark.")
