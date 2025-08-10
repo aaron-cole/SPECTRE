@@ -6,6 +6,7 @@ import random
 import inspect
 import io
 import re
+import yaml
 from lxml import etree
 
 # Import the entire models package.
@@ -157,8 +158,18 @@ class XccdfEditorApp:
         # --- Import Menu (its own menu) ---
         self.import_menu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label="Import", menu=self.import_menu)
-        self.import_menu.add_command(label="CPE Dictionary...", command=self.import_cpe_dictionary)
-        # ... (other import commands)
+
+        # --- Submenu for CPE Dictionary ---
+        cpe_import_menu = tk.Menu(self.import_menu, tearoff=0)
+        self.import_menu.add_cascade(label="CPE Dictionary", menu=cpe_import_menu)
+        cpe_import_menu.add_command(label="From XML...", command=lambda: self.import_cpe_dictionary(file_type='xml'))
+        cpe_import_menu.add_command(label="From YAML...", command=lambda: self.import_cpe_dictionary(file_type='yaml'))
+        
+        # --- OVAL Component Imports (can remain disabled for now) ---
+        self.import_menu.add_separator()
+        self.import_menu.add_command(label="OVAL Check Component...", command=lambda: self._import_oval_file("OVAL Check", "checks"), state=tk.DISABLED)
+        self.import_menu.add_command(label="CPE OVAL Component...", command=lambda: self._import_oval_file("CPE OVAL", "dictionaries"), state=tk.DISABLED)
+
 
         # --- Main layout ---
         paned_window = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
@@ -472,94 +483,102 @@ class XccdfEditorApp:
         
         return collection
 
-    def import_cpe_dictionary(self):
+    def _add_imported_cpe_list(self, parsed_cpe_list):
         """
-        Imports a CPE Dictionary from an XML file. If a dictionary already
-        exists, it prompts the user to either merge with or replace the
-        existing dictionary.
+        A helper function that takes a parsed cpe-list object and handles
+        the logic for merging, replacing, or creating a new component.
+        """
+        new_items = parsed_cpe_list.get_cpe_item()
+        if not new_items:
+            messagebox.showinfo("No Items", "The selected file does not contain any CPE items to import.")
+            return
+
+        existing_cpe_list = self.get_cpe_dictionary()
+
+        if existing_cpe_list is not None:
+            choice = messagebox.askquestion(
+                "Dictionary Exists",
+                "A CPE Dictionary already exists.\n\n"
+                "Do you want to MERGE the new items into the existing dictionary?\n\n"
+                "(Click 'No' to REPLACE the existing items.)",
+                type=messagebox.YESNOCANCEL
+            )
+            if choice == 'yes': # MERGE
+                for item in new_items:
+                    if not any(e.get_name() == item.get_name() for e in existing_cpe_list.get_cpe_item()):
+                        existing_cpe_list.add_cpe_item(item)
+                messagebox.showinfo("Success", "CPE items merged successfully.")
+            elif choice == 'no': # REPLACE
+                existing_cpe_list.set_cpe_item(new_items)
+                messagebox.showinfo("Success", "CPE Dictionary replaced successfully.")
+            else: # CANCEL
+                return
+        else: # No existing dictionary, create a new one
+            comp_id = f"scap_{self.prefix}_comp_IMPORTED-cpe-dictionary.xml"
+            cpe_component = models.component(
+                id=comp_id,
+                timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
+                cpe_list=parsed_cpe_list
+            )
+            self.datastream_collection.add_component(cpe_component)
+            ds = self.datastream_collection.get_data_stream()[0]
+            if ds.get_dictionaries() is None:
+                ds.set_dictionaries(models.refListType())
+            
+            cref_id = f"scap_{self.prefix}_cref_IMPORTED-cpe-dictionary.xml"
+            comp_ref = self._create_component_ref(cref_id, f"#{comp_id}")
+            ds.get_dictionaries().add_component_ref(comp_ref)
+            messagebox.showinfo("Success", "CPE Dictionary component imported successfully.")
+
+        self.populate_treeview()
+        self._mark_as_dirty()
+
+    def import_cpe_dictionary(self, file_type):
+        """
+        Main dispatcher for importing a CPE dictionary from either XML or YAML.
         """
         if not self.datastream_collection:
             messagebox.showwarning("No Datastream", "Please create a new datastream first.")
             return
 
         file_path = filedialog.askopenfilename(
-            title="Import CPE Dictionary File",
-            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+            title=f"Import CPE Dictionary from {file_type.upper()}",
+            filetypes=((f"{file_type.upper()} files", f"*.{file_type}"), ("All files", "*.*"))
         )
         if not file_path:
             return
 
         try:
-            from lxml import etree
-
-            # 1. Parse the file and find the cpe-list element
-            tree = etree.parse(file_path)
-            cpe_list_node = tree.find('.//{http://cpe.mitre.org/dictionary/2.0}cpe-list')
-
-            if cpe_list_node is None:
-                messagebox.showerror("Import Error", "Could not find a <cpe-list> element in the selected file.")
-                return
-
-            # 2. Convert just that element back to a string and parse it with our model
-            cpe_list_xml_string = etree.tostring(cpe_list_node)
-            parsed_cpe_list = models.parseString(cpe_list_xml_string, silence=True)
-            new_items = parsed_cpe_list.get_cpe_item()
-            if not new_items:
-                messagebox.showinfo("No Items", "The selected file does not contain any CPE items to import.")
-                return
-
-            # 3. Check if a CPE dictionary already exists
-            existing_cpe_list = self.get_cpe_dictionary()
-
-            if existing_cpe_list is not None:
-                # --- Prompt the user to Merge or Replace ---
-                choice = messagebox.askquestion(
-                    "Dictionary Exists",
-                    "A CPE Dictionary already exists.\n\n"
-                    "Do you want to MERGE the new items into the existing dictionary?\n\n"
-                    "(Click 'No' to REPLACE the existing items with the new ones.)",
-                    type=messagebox.YESNOCANCEL
-                )
-
-                if choice == 'yes': # MERGE
-                    for item in new_items:
-                        # Optional: Add a check for duplicate names before adding
-                        if not any(e.get_name() == item.get_name() for e in existing_cpe_list.get_cpe_item()):
-                            existing_cpe_list.add_cpe_item(item)
-                    messagebox.showinfo("Success", "CPE items merged successfully.")
-                
-                elif choice == 'no': # REPLACE
-                    existing_cpe_list.set_cpe_item(new_items)
-                    messagebox.showinfo("Success", "CPE Dictionary replaced successfully.")
-                
-                else: # User clicked Cancel
+            parsed_cpe_list = None
+            if file_type == 'xml':
+                from lxml import etree
+                tree = etree.parse(file_path)
+                cpe_list_node = tree.find('.//{http://cpe.mitre.org/dictionary/2.0}cpe-list')
+                if cpe_list_node is None:
+                    messagebox.showerror("Import Error", "Could not find a <cpe-list> element in the selected file.")
                     return
-
-            else: # --- No existing dictionary, create a new one ---
-                comp_id = f"scap_{self.prefix}_comp_IMPORTED-cpe-dictionary.xml"
-                cpe_component = models.component(
-                    id=comp_id,
-                    timestamp=datetime.now().strftime('%Y-%m-%dT%H:%M:%S'),
-                    cpe_list=parsed_cpe_list
-                )
-                self.datastream_collection.add_component(cpe_component)
+                parsed_cpe_list = models.parseString(etree.tostring(cpe_list_node), silence=True)
+            
+            elif file_type == 'yaml':
+                import yaml
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    yaml_data = yaml.safe_load(f)
                 
-                ds = self.datastream_collection.get_data_stream()[0]
-                if ds.get_dictionaries() is None:
-                    ds.set_dictionaries(models.refListType())
+                parsed_cpe_list = models.ListType()
                 
-                cref_id = f"scap_{self.prefix}_cref_IMPORTED-cpe-dictionary.xml"
-                comp_ref = self._create_component_ref(cref_id, f"#{comp_id}")
-                ds.get_dictionaries().add_component_ref(comp_ref)
-                messagebox.showinfo("Success", "CPE Dictionary component imported successfully.")
-
-            # 4. Refresh the UI
-            self.populate_treeview()
-            self._mark_as_dirty()
+                if 'cpe_items' in yaml_data:
+                    for category_key, items_dict in yaml_data['cpe_items'].items():
+                        for item_key, details in items_dict.items():
+                            full_cpe_name = f"cpe:/{category_key}:{item_key}"
+                            new_item = models.ItemType(name=full_cpe_name)
+                            new_item.add_title(models.TextType(valueOf_=details.get('title', '')))
+                            parsed_cpe_list.add_cpe_item(new_item)
+                            
+            if parsed_cpe_list:
+                self._add_imported_cpe_list(parsed_cpe_list)
 
         except Exception as e:
             messagebox.showerror("Import Error", f"Failed to import CPE dictionary:\n{e}")
-
 
 ##--  [ Core Component Creators ]---
     def new_cpe_dictionary(self):
