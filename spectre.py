@@ -565,6 +565,8 @@ class XccdfEditorApp:
                     yaml_data = yaml.safe_load(f)
                 
                 parsed_cpe_list = models.ListType()
+                oval_ref = yaml_data.get('oval_ref')
+                oval_def_prefix = yaml_data.get('oval_def_prefix')
                 
                 if 'cpe_items' in yaml_data:
                     for category_key, items_dict in yaml_data['cpe_items'].items():
@@ -572,6 +574,16 @@ class XccdfEditorApp:
                             full_cpe_name = f"cpe:/{category_key}:{item_key}"
                             new_item = models.ItemType(name=full_cpe_name)
                             new_item.add_title(models.TextType(valueOf_=details.get('title', '')))
+                            if 'def' in details and 'system' in details and oval_ref and oval_def_prefix:
+                                full_def_id = f"oval:{oval_def_prefix}:def:{details['def']}"
+                                
+                                check = models.CheckType(
+                                    system=details['system'],
+                                    href=oval_ref,
+                                    valueOf_=full_def_id
+                                )
+                                new_item.add_check(check)
+
                             parsed_cpe_list.add_cpe_item(new_item)
                             
             if parsed_cpe_list:
