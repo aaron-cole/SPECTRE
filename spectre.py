@@ -158,12 +158,18 @@ class XccdfEditorApp:
         # --- Import Menu (its own menu) ---
         self.import_menu = tk.Menu(self.menu, tearoff=0)
         self.menu.add_cascade(label="Import", menu=self.import_menu)
-
+        
         # --- Submenu for CPE Dictionary ---
         cpe_import_menu = tk.Menu(self.import_menu, tearoff=0)
         self.import_menu.add_cascade(label="CPE Dictionary", menu=cpe_import_menu)
         cpe_import_menu.add_command(label="From XML...", command=lambda: self.import_cpe_dictionary(file_type='xml'))
         cpe_import_menu.add_command(label="From YAML...", command=lambda: self.import_cpe_dictionary(file_type='yaml'))
+
+        # --- Submenu for XCCDF
+        self.import_menu.add_separator()
+        xccdf_import_menu = tk.Menu(self.import_menu, tearoff=0)
+        self.import_menu.add_cascade(label="XCCDF", menu=xccdf_import_menu)
+        xccdf_import_menu.add_command(label="Profiles from File...", command=self.import_xccdf_profiles)        
         
         # --- OVAL Component Imports (can remain disabled for now) ---
         self.import_menu.add_separator()
@@ -595,6 +601,134 @@ class XccdfEditorApp:
         except Exception as e:
             messagebox.showerror("Import Error", f"Failed to import CPE dictionary:\n{e}")
 
+    def _select_profiles_to_import_dialog(self, profiles):
+        """Shows a dialog with a checklist of profiles to import."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select Profiles to Import")
+        dialog.minsize(width=400, height=300)
+
+        main_frame = ttk.Frame(dialog, padding=10)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(main_frame, text="Select the profiles you want to import:").pack(anchor="w", pady=5)
+        
+        check_vars = {}
+        for profile in profiles:
+            profile_id = profile.get_id()
+            title = profile.get_title()[0].get_valueOf_() if profile.get_title() else "No Title"
+            var = tk.BooleanVar(value=True) # Default to selected
+            chk = ttk.Checkbutton(main_frame, text=f"{profile_id} ({title})", variable=var)
+            chk.pack(anchor="w", padx=10)
+            check_vars[profile_id] = var
+
+        selected_ids = None
+        def on_ok():
+            nonlocal selected_ids
+            selected_ids = [pid for pid, var in check_vars.items() if var.get()]
+            dialog.destroy()
+
+        button_frame = ttk.Frame(dialog, padding=(10, 5))
+        button_frame.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame, text="Import Selected", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_ids
+
+    def import_xccdf_profiles(self):
+        """
+        Opens an XCCDF file, finds all <Profile> elements using lxml, and
+        imports the user's selection.
+        """
+        benchmark = self.get_benchmark()
+        if not benchmark:
+            messagebox.showwarning("No Benchmark", "Please create or open a datastream with an XCCDF component first.")
+            return
+
+        file_path = filedialog.askopenfilename(
+            title="Import XCCDF Profiles From File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not file_path:
+            return
+
+        try:
+            from lxml import etree
+            tree = etree.parse(file_path)
+            ns = {'xccdf': 'http://checklists.nist.gov/xccdf/1.2'}
+            profile_nodes = tree.findall('.//xccdf:Benchmark/xccdf:Profile', namespaces=ns)
+
+            if not profile_nodes:
+                messagebox.showinfo("No Profiles", "The selected file does not contain any XCCDF profiles.")
+                return
+
+            source_profiles = []
+            for p_node in profile_nodes:
+                profile_obj = models.parseString(etree.tostring(p_node), silence=True)
+                if profile_obj:
+                    profile_obj.set_refine_rule([])
+                    if hasattr(profile_obj, 'set_refine_value'):
+                         profile_obj.set_refine_value([])
+                         
+                # After parsing, clean the object of its old prefixes
+                self._reset_xccdf_prefixes(profile_obj)
+                source_profiles.append(profile_obj)
+
+            selected_profile_ids = self._select_profiles_to_import_dialog(source_profiles)
+            if not selected_profile_ids:
+                return
+
+
+            # 6. Merge the selected profiles into the current benchmark (this part is also correct).
+            if benchmark.get_Profile() is None:
+                benchmark.set_Profile([])
+            
+            existing_profile_ids = {p.get_id() for p in benchmark.get_Profile()}
+            added_count = 0
+
+            for profile in source_profiles:
+                if profile.get_id() in selected_profile_ids:
+                    if profile.get_id() not in existing_profile_ids:
+                        benchmark.add_Profile(profile)
+                        added_count += 1
+            
+            if added_count > 0:
+                self._mark_as_dirty()
+                messagebox.showinfo("Import Complete", f"Successfully imported {added_count} new profile(s).")
+                self.populate_treeview()
+                self.display_details(benchmark)
+            else:
+                messagebox.showinfo("No Changes", "All selected profiles already exist in the current Benchmark.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import profiles:\n{e}")
+
+    def _reset_xccdf_prefixes(self, element):
+        """
+        Recursively walks through an XCCDF element and all its children,
+        resetting their namespace prefix to the application's standard 'xccdf'.
+        """
+        if not hasattr(element, 'ns_prefix_'):
+            return # Not a model object we can modify
+
+        # 1. Set the prefix for the current element
+        element.ns_prefix_ = 'xccdf'
+
+        # 2. Recurse into all known child elements and lists of elements
+        # This list can be expanded to include any XCCDF element type.
+        for child_attr in ['status', 'title', 'description', 'version', 'Group', 'Rule', 'select']:
+            if hasattr(element, child_attr):
+                children = getattr(element, child_attr)
+                if isinstance(children, list):
+                    for child in children:
+                        self._reset_xccdf_prefixes(child)
+                elif children is not None:
+                    self._reset_xccdf_prefixes(children)
+
+
+           
 ##--  [ Core Component Creators ]---
     def new_cpe_dictionary(self):
         if not self.datastream_collection:
@@ -907,22 +1041,39 @@ class XccdfEditorApp:
             publisher_var.trace_add("write", lambda *args: update_metadata_field("publisher", publisher_var.get()))
             contrib_var.trace_add("write", lambda *args: update_metadata_field("contributor", contrib_var.get()))
             source_var.trace_add("write", lambda *args: update_metadata_field("source", source_var.get()))
+
+            # --- Platforms Tab UI
             platform_frame = ttk.LabelFrame(tab_platforms, text="Platform Definitions", padding=5)
             platform_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 5))
+            
             self.platforms_tree = ttk.Treeview(platform_frame, columns=("id",), show="headings", height=4)
             self.platforms_tree.heading("id", text="Platform ID")
             self.platforms_tree.pack(fill=tk.BOTH, expand=True)
-            self.populate_platforms_tree()
+            
             self.platforms_tree.bind("<<TreeviewSelect>>", self.on_platform_select)
+            
             button_frame = ttk.Frame(platform_frame)
             button_frame.pack(fill=tk.X, pady=5)
             ttk.Button(button_frame, text="Add", command=self.add_platform).pack(side=tk.LEFT, padx=2)
             ttk.Button(button_frame, text="Edit", command=self.edit_platform).pack(side=tk.LEFT, padx=2)
             ttk.Button(button_frame, text="Remove", command=self.remove_platform).pack(side=tk.LEFT, padx=2)
+            
             self.logical_test_editor_frame = ttk.Frame(tab_platforms)
             self.logical_test_editor_frame.pack(fill=tk.BOTH, expand=True, pady=5)
             self.create_benchmark_platform_manager(tab_platforms, item)
-
+            
+            self.populate_platforms_tree()
+            children = self.platforms_tree.get_children()
+            if children:
+                first_item_id = children[0]
+                self.platforms_tree.selection_set(first_item_id)
+                self.platforms_tree.focus(first_item_id)
+                # Manually trigger the selection event handler to load the details
+                self.on_platform_select(None)
+            else:
+                # If there are no platforms, ensure the details panel is empty
+                self.display_logical_test_details() 
+            
             # Profiles
             profile_tree = ttk.Treeview(tab_profiles, columns=("id", "title"), show="headings", height=5)
             profile_tree.heading("id", text="Profile ID")
@@ -1573,7 +1724,8 @@ class XccdfEditorApp:
                                 f"Added {added_definitions} platform definitions (cpe:/a:).\n"
                                 f"Added {added_applicable} applicable platforms (cpe:/o:).")
 
-            self.populate_platforms_tree() 
+            if self.platforms_tree and self.platforms_tree.winfo_exists():
+                self.populate_platforms_tree()
         else:
             messagebox.showinfo("No Changes", "All CPE platforms already exist in the XCCDF Benchmark.")
             
@@ -1995,13 +2147,14 @@ class XccdfEditorApp:
         self.fact_refs_tree = ttk.Treeview(editor_frame, columns=("cpe",), show="headings", height=3)
         self.fact_refs_tree.heading("cpe", text="CPE Name (fact-ref)")
         self.fact_refs_tree.pack(fill=tk.BOTH, expand=True, pady=5)
-        self.populate_fact_refs_tree()
 
         fact_button_frame = ttk.Frame(editor_frame)
         fact_button_frame.pack(fill=tk.X)
         ttk.Button(fact_button_frame, text="Add CPE", command=self.add_fact_ref).pack(side=tk.LEFT, padx=2)
         ttk.Button(fact_button_frame, text="Edit CPE", command=self.edit_fact_ref).pack(side=tk.LEFT, padx=2)
         ttk.Button(fact_button_frame, text="Remove CPE", command=self.remove_fact_ref).pack(side=tk.LEFT, padx=2)
+
+        self.populate_fact_refs_tree()
         
     def populate_platforms_tree(self):
         if not self.platforms_tree: return
@@ -2010,7 +2163,7 @@ class XccdfEditorApp:
         if benchmark_obj and benchmark_obj.platform_specification and benchmark_obj.platform_specification.platform:
             for platform in benchmark_obj.platform_specification.platform:
                 self.platforms_tree.insert("", "end", values=(platform.get_id(),))
-
+            
     def add_platform(self):
         benchmark_obj = self.get_benchmark()
         if not benchmark_obj: return
