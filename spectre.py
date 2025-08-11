@@ -1075,56 +1075,8 @@ class XccdfEditorApp:
                 self.display_logical_test_details() 
             
             # Profiles
-            profile_tree = ttk.Treeview(tab_profiles, columns=("id", "title"), show="headings", height=5)
-            profile_tree.heading("id", text="Profile ID")
-            profile_tree.heading("title", text="Title")
-            profile_tree.pack(fill=tk.BOTH, expand=True, pady=5)
-            
-            benchmark_obj = self.get_benchmark()
-
-            def populate_profile_list():
-                for i in profile_tree.get_children(): profile_tree.delete(i)
-                if benchmark_obj and benchmark_obj.Profile:
-                    for p in benchmark_obj.Profile:
-                        title = p.title[0].get_valueOf_() if p.title else ""
-                        profile_tree.insert("", "end", values=(p.get_id(), title))
-            
-            def add_profile():
-                new_id = simpledialog.askstring("Add Profile", "Enter new profile ID:", parent=self.root)
-                if not new_id: return
-                if benchmark_obj.Profile and any(p.get_id() == new_id for p in benchmark_obj.Profile):
-                    messagebox.showwarning("Duplicate ID", "A profile with that ID already exists.")
-                    return
-                
-                new_profile = models.profileType(id=new_id)
-                new_profile.set_title([models.textWithSubType(valueOf_="New Profile")])
-                if benchmark_obj.Profile is None:
-                    benchmark_obj.Profile = []
-                    
-                benchmark_obj.Profile.append(new_profile)
-                self.populate_treeview() # Refreshes the main tree
-                populate_profile_list()  # Refreshes this local tree
-                self._mark_as_dirty()   # Mark the change
-                
-            def remove_profile():
-                selected = profile_tree.focus()
-                if not selected: return
-                id_to_remove = profile_tree.item(selected)['values'][0]
-                
-                if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove profile '{id_to_remove}'?"):
-                    if benchmark_obj.Profile:
-                        benchmark_obj.Profile = [p for p in benchmark_obj.Profile if p.get_id() != id_to_remove]
-                        self.populate_treeview() # Refreshes the main tree
-                        populate_profile_list()  # Refreshes this local tree
-                        self._mark_as_dirty()   # Mark the change
-
-            button_frame = ttk.Frame(tab_profiles)
-            button_frame.pack(fill=tk.X, pady=5)
-            ttk.Button(button_frame, text="Add Profile...", command=add_profile).pack(side=tk.LEFT, padx=2)
-            ttk.Button(button_frame, text="Remove Selected", command=remove_profile).pack(side=tk.LEFT, padx=2)
-
-            populate_profile_list()
-        
+            self._create_full_profile_editor(tab_profiles, item)
+              
         elif isinstance(item, (models.groupType, models.ruleType)):
             move_frame = ttk.Frame(self.detail_frame)
             move_frame.pack(fill=tk.X, pady=(0, 5))
@@ -1190,6 +1142,198 @@ class XccdfEditorApp:
             # If nothing else matches, show a simple message
             self.show_welcome_message()
 
+    def _create_full_profile_editor(self, parent_frame, benchmark_obj):
+        """Creates a comprehensive UI for managing all aspects of XCCDF Profiles."""
+        # Main container for the entire editor
+        editor_pane = ttk.PanedWindow(parent_frame, orient=tk.VERTICAL)
+        editor_pane.pack(fill=tk.BOTH, expand=True)
+
+        # --- Top Pane: A smaller box for the list of all Profiles ---
+        profile_list_frame = ttk.LabelFrame(editor_pane, text="Profiles", padding=5)
+        editor_pane.add(profile_list_frame, weight=1) # Smaller weight means it takes less space
+
+        profile_tree = ttk.Treeview(profile_list_frame, columns=("id",), show="headings", height=3)
+        profile_tree.heading("id", text="Profile ID")
+        profile_tree.pack(fill=tk.BOTH, expand=True, pady=(5,0))
+        
+        # --- Bottom Pane: The editor for the currently selected profile ---
+        selection_editor_frame = ttk.Frame(editor_pane, padding=5)
+        editor_pane.add(selection_editor_frame, weight=8) # Larger weight for the main editor
+
+        # --- Details for the selected profile (ID, Title, etc.) ---
+        profile_details_frame = ttk.LabelFrame(selection_editor_frame, text="Profile Details", padding=5)
+        profile_details_frame.pack(fill=tk.X, expand=False, pady=(0, 10))
+        
+        # --- The shuttle editor will appear below the details ---
+        shuttle_frame = ttk.Frame(selection_editor_frame)
+        shuttle_frame.pack(fill=tk.BOTH, expand=True)
+        
+        # --- LOGIC ---
+        def populate_profile_list():
+            profile_tree.delete(*profile_tree.get_children())
+            if benchmark_obj.Profile:
+                for p in benchmark_obj.Profile:
+                    profile_tree.insert("", "end", values=(p.get_id(),), text=p.get_id())
+
+        def on_profile_select(event):
+            # Clear the right-hand editor
+            for widget in profile_details_frame.winfo_children(): widget.destroy()
+            for widget in shuttle_frame.winfo_children(): widget.destroy()
+            
+            selected_id = profile_tree.focus()
+            if not selected_id: return
+            
+            profile_id = profile_tree.item(selected_id)['text']
+            selected_profile = next((p for p in benchmark_obj.Profile if p.get_id() == profile_id), None)
+            if not selected_profile: return
+            
+            # --- Build the details editor for the selected profile ---
+            self.create_detail_entry(profile_details_frame, "Profile ID", selected_profile, "id")
+            self.create_text_editor(profile_details_frame, "Title", selected_profile, "title")
+            self.create_text_editor(profile_details_frame, "Description", selected_profile, "description", height=3)
+
+            # --- Build the shuttle editor ---
+            self._create_profile_selection_shuttle(shuttle_frame, selected_profile)
+
+        profile_tree.bind("<<TreeviewSelect>>", on_profile_select)
+
+        def add_profile():
+            new_id = simpledialog.askstring("Add Profile", "Enter new profile ID:", parent=self.root)
+            if not new_id: return
+            if benchmark_obj.Profile and any(p.get_id() == new_id for p in benchmark_obj.Profile):
+                messagebox.showwarning("Duplicate ID", "A profile with that ID already exists.")
+                return
+            
+            new_profile = models.profileType(id=new_id)
+            new_profile.set_title([models.textWithSubType(valueOf_="New Profile")])
+            if benchmark_obj.Profile is None:
+                benchmark_obj.Profile = []
+                
+            benchmark_obj.Profile.append(new_profile)
+            self.populate_treeview()
+            populate_profile_list()
+            self._mark_as_dirty()
+            
+        def remove_profile():
+            selected = profile_tree.focus()
+            if not selected: return
+            id_to_remove = profile_tree.item(selected)['values'][0]
+            
+            if messagebox.askyesno("Confirm Delete", f"Are you sure you want to remove profile '{id_to_remove}'?"):
+                if benchmark_obj.Profile:
+                    benchmark_obj.Profile = [p for p in benchmark_obj.Profile if p.get_id() != id_to_remove]
+                    self.populate_treeview()
+                    populate_profile_list()
+                    self._mark_as_dirty()
+
+        button_frame = ttk.Frame(profile_list_frame)
+        button_frame.pack(fill=tk.X, pady=5)
+        ttk.Button(button_frame, text="Add Profile...", command=add_profile).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="Remove Selected", command=remove_profile).pack(side=tk.LEFT, padx=2)
+
+        populate_profile_list()
+
+    def _create_profile_selection_shuttle(self, parent_frame, profile_obj):
+        """Creates the shuttle UI for managing a profile's selections using a robust grid layout."""
+        
+        # --- START FINAL FIX ---
+        # 1. Use a standard Frame as the main container for the grid.
+        shuttle_container = ttk.Frame(parent_frame)
+        shuttle_container.pack(fill=tk.BOTH, expand=True)
+
+        # --- Configure the grid columns ---
+        # Column 0 (Available) will expand.
+        shuttle_container.columnconfigure(0, weight=1)
+        # Column 1 (Buttons) will NOT expand.
+        shuttle_container.columnconfigure(1, weight=0)
+        # Column 2 (Selected) will expand.
+        shuttle_container.columnconfigure(2, weight=1)
+        shuttle_container.rowconfigure(0, weight=1)
+
+        # --- 2. Create and place the frames on the grid ---
+        available_frame = ttk.LabelFrame(shuttle_container, text="Available Items", padding=5)
+        button_frame = ttk.Frame(shuttle_container, padding=5)
+        selected_frame = ttk.LabelFrame(shuttle_container, text="Profile Selections", padding=5)
+
+        available_frame.grid(row=0, column=0, sticky="nsew", padx=2)
+        button_frame.grid(row=0, column=1, sticky="ns", pady=20)
+        selected_frame.grid(row=0, column=2, sticky="nsew", padx=2)
+        # --- END FINAL FIX ---
+
+        # The rest of your code for creating the widgets inside these frames is perfect.
+        
+        available_tree = ttk.Treeview(available_frame)
+        available_tree.pack(fill=tk.BOTH, expand=True)
+        
+        selected_tree = ttk.Treeview(selected_frame, columns=("status",), show="tree headings", height=10)
+        selected_tree.heading("#0", text="Item")
+        selected_tree.heading("status", text="Selected")
+        selected_tree.column("status", width=80, anchor='center')
+        selected_tree.pack(fill=tk.BOTH, expand=True)
+        
+        benchmark_obj = self.get_benchmark()
+
+        def get_all_item_ids(groups):
+            ids = {}
+            def recurse(items):
+                for item in items:
+                    if isinstance(item, (models.groupType, models.ruleType)):
+                        ids[item.get_id()] = item
+                        if isinstance(item, models.groupType) and item.Group: recurse(item.Group)
+                        if isinstance(item, models.groupType) and item.Rule: recurse(item.Rule)
+            if groups: recurse(groups)
+            return ids
+        all_benchmark_items = get_all_item_ids(benchmark_obj.Group)
+        
+        def populate_trees():
+            available_tree.delete(*available_tree.get_children())
+            selected_tree.delete(*selected_tree.get_children())
+            
+            if profile_obj.select is None: profile_obj.select = []
+            selected_idrefs = {s.get_idref() for s in profile_obj.select}
+            
+            def populate_available_recursively(parent_node, items):
+                for item in items:
+                    if item.get_id() not in selected_idrefs:
+                        title = item.title[0].get_valueOf_() if item.title else ""
+                        node_id = available_tree.insert(parent_node, "end", text=f"{item.get_id()}: {title}", open=False, values=[item.get_id()])
+                        if isinstance(item, models.groupType) and item.Group: populate_available_recursively(node_id, item.Group)
+                        if isinstance(item, models.groupType) and item.Rule: populate_available_recursively(node_id, item.Rule)
+
+            if benchmark_obj.Group:
+                populate_available_recursively("", benchmark_obj.Group)
+
+            for selection in profile_obj.select:
+                idref = selection.get_idref()
+                status_str = "Yes" if selection.get_selected() else "No"
+                item_obj = all_benchmark_items.get(idref)
+                title = item_obj.title[0].get_valueOf_() if item_obj and item_obj.title else ""
+                selected_tree.insert("", "end", text=f"{idref}: {title}", values=(status_str, idref))
+        
+        def move_item(is_selected_bool):
+            selected_id = available_tree.focus()
+            if not selected_id: return
+            idref = available_tree.item(selected_id)['values'][0]
+            
+            profile_obj.select.append(models.profileSelectType(idref=idref, selected=is_selected_bool))
+            populate_trees()
+            self._mark_as_dirty()
+        
+        def remove_selection():
+            selected_in_profile = selected_tree.focus()
+            if not selected_in_profile: return
+            idref_to_remove = selected_tree.item(selected_in_profile)['values'][1]
+            
+            profile_obj.select = [s for s in profile_obj.select if s.get_idref() != idref_to_remove]
+            populate_trees()
+            self._mark_as_dirty()
+        
+        ttk.Button(button_frame, text="Select >>", command=lambda: move_item(True)).pack(pady=5)
+        ttk.Button(button_frame, text="Unselect >>", command=lambda: move_item(False)).pack(pady=5)
+        ttk.Button(button_frame, text="<< Remove", command=remove_selection).pack(pady=20)
+        
+        populate_trees()
+        
     def _update_prefix(self, new_prefix):
         """Validates and applies a new prefix to all relevant IDs in the datastream."""
         if not self.datastream_collection or not self.prefix or not new_prefix:
