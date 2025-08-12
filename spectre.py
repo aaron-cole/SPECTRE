@@ -169,7 +169,8 @@ class XccdfEditorApp:
         self.import_menu.add_separator()
         xccdf_import_menu = tk.Menu(self.import_menu, tearoff=0)
         self.import_menu.add_cascade(label="XCCDF", menu=xccdf_import_menu)
-        xccdf_import_menu.add_command(label="Profiles from File...", command=self.import_xccdf_profiles)        
+        xccdf_import_menu.add_command(label="Profiles from File...", command=self.import_xccdf_profiles)
+        xccdf_import_menu.add_command(label="Groups and Rules from File...", command=self.import_xccdf_groups_and_rules)        
         
         # --- OVAL Component Imports (can remain disabled for now) ---
         self.import_menu.add_separator()
@@ -492,6 +493,7 @@ class XccdfEditorApp:
         
         return collection
 
+##--  [ Imports and such ]---
     def _add_imported_cpe_list(self, parsed_cpe_list):
         """
         A helper function that takes a parsed cpe-list object and handles
@@ -727,7 +729,158 @@ class XccdfEditorApp:
                 elif children is not None:
                     self._reset_xccdf_prefixes(children)
 
+    def import_xccdf_groups_and_rules(self):
+        """
+        Opens an XCCDF file and orchestrates the import of selected groups
+        and their entire contents (subgroups and rules).
+        """
+        target_benchmark = self.get_benchmark()
+        if not target_benchmark:
+            messagebox.showwarning("No Benchmark", "Please create or open a datastream with an XCCDF component first.")
+            return
 
+        file_path = filedialog.askopenfilename(
+            title="Import XCCDF Groups From File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not file_path:
+            return
+
+        try:
+            from lxml import etree
+            tree = etree.parse(file_path)
+            ns = {'xccdf': 'http://checklists.nist.gov/xccdf/1.2'}
+
+            # Find all top-level <Group> nodes
+            group_nodes = tree.findall('.//xccdf:Benchmark/xccdf:Group', namespaces=ns)
+            if not group_nodes:
+                messagebox.showinfo("No Groups Found", "The selected file does not contain any top-level XCCDF groups.")
+                return
+
+            # Parse just the found group nodes into model objects
+            source_groups = [models.parseString(etree.tostring(g_node), silence=True) for g_node in group_nodes]
+            
+            # Let the user select which top-level groups to import
+            selected_group_ids = self._select_groups_to_import_dialog(source_groups)
+            if not selected_group_ids:
+                return
+
+            # Delegate the complex merging logic to a helper
+            added_count = self._import_groups_and_dependencies(
+                target_benchmark=target_benchmark,
+                source_groups=source_groups,
+                group_ids_to_import=selected_group_ids
+            )
+
+            if added_count > 0:
+                self._mark_as_dirty()
+                messagebox.showinfo("Import Complete", f"Successfully imported {added_count} new item(s) (groups and rules).")
+                self.populate_treeview()
+                self.display_details(target_benchmark)
+            else:
+                messagebox.showinfo("No Changes", "All selected groups and their contents already exist in the current Benchmark.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import groups:\n{e}")
+
+    def _select_groups_to_import_dialog(self, groups):
+        """Shows a dialog with a checklist of top-level groups to import."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select Groups to Import")
+        dialog.minsize(width=450, height=400)
+
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        ttk.Label(main_frame, text="Select the top-level groups you want to import:").pack(anchor="w", pady=5)
+
+        canvas = tk.Canvas(main_frame, borderwidth=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        checkbox_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=checkbox_frame, anchor="nw")
+
+        def on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        checkbox_frame.bind("<Configure>", on_configure)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        
+        check_vars = {}
+        for group in groups:
+            group_id = group.get_id()
+            title = group.get_title()[0].get_valueOf_() if group.get_title() else "No Title"
+            var = tk.BooleanVar(value=True)
+            # Add the checkboxes to the INNER frame
+            chk = ttk.Checkbutton(checkbox_frame, text=f"{group_id} ({title})", variable=var)
+            chk.pack(anchor="w", padx=10, pady=2)
+            check_vars[group_id] = var
+
+        # --- Button Frame for Select/Deselect All ---
+        button_frame_top = ttk.Frame(main_frame)
+        button_frame_top.pack(fill=tk.X, before=canvas, pady=(0, 5)) # Place it before the canvas
+
+        def select_all():
+            for var in check_vars.values():
+                var.set(True)
+        
+        def deselect_all():
+            for var in check_vars.values():
+                var.set(False)
+
+        ttk.Button(button_frame_top, text="Select All", command=select_all).pack(side=tk.LEFT)
+        ttk.Button(button_frame_top, text="Deselect All", command=deselect_all).pack(side=tk.LEFT, padx=5)
+
+        selected_ids = None
+        def on_ok():
+            nonlocal selected_ids
+            selected_ids = [gid for gid, var in check_vars.items() if var.get()]
+            dialog.destroy()
+
+        # --- OK/Cancel buttons at the bottom ---
+        button_frame_bottom = ttk.Frame(dialog, padding=(10, 5))
+        button_frame_bottom.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame_bottom, text="Import Selected", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame_bottom, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_ids
+
+    def _import_groups_and_dependencies(self, target_benchmark, source_groups, group_ids_to_import):
+        """
+        Recursively imports selected groups and all their children (subgroups and rules),
+        avoiding duplicates.
+        """
+        # 1. Get a set of all item IDs that ALREADY EXIST in the TARGET benchmark
+        existing_target_ids = set()
+        def get_target_ids(items):
+            for item in items:
+                existing_target_ids.add(item.get_id())
+                if isinstance(item, models.groupType) and item.get_Group():
+                    get_target_ids(item.get_Group())
+                if isinstance(item, models.groupType) and item.get_Rule():
+                    get_target_ids(item.get_Rule())
+        if target_benchmark.get_Group():
+            get_target_ids(target_benchmark.get_Group())
+
+        # 2. Loop through the source groups the user selected
+        added_count = 0
+        for group in source_groups:
+            if group.get_id() in group_ids_to_import:
+                # 3. Check if this top-level group already exists. If not, add it.
+                if group.get_id() not in existing_target_ids:
+                    if target_benchmark.get_Group() is None:
+                        target_benchmark.set_Group([])
+                    self._reset_xccdf_prefixes(group)
+                    target_benchmark.add_Group(group)
+                    added_count += 1
+        
+        return added_count
+                   
            
 ##--  [ Core Component Creators ]---
     def new_cpe_dictionary(self):
@@ -2049,6 +2202,7 @@ class XccdfEditorApp:
 
     def create_text_editor(self, parent_frame, label_text, data_obj, attr_name, height=1):
         ttk.Label(parent_frame, text=label_text, width=15).pack(anchor='w', pady=(5, 0))
+        
         text_class = models.htmlTextWithSubType
         if attr_name in ['title', 'rationale', 'fixtext']:
             text_class = models.textWithSubType if attr_name == 'title' else models.htmlTextWithSubType
@@ -2057,7 +2211,13 @@ class XccdfEditorApp:
         
         text_obj_list = getattr(data_obj, attr_name, [])
         if text_obj_list:
-            text_widget.insert("1.0", text_obj_list[0].get_valueOf_() or "")
+            text_obj = text_obj_list[0]
+            initial_text = ""
+            if hasattr(text_obj, 'get_valueOf_'):
+                initial_text = text_obj.get_valueOf_() or ""
+            elif isinstance(text_obj, str):
+                initial_text = text_obj
+            text_widget.insert("1.0", initial_text)
         
         def update_text_content(event):
             current_list = getattr(data_obj, attr_name, [])
