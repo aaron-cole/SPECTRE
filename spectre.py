@@ -1247,10 +1247,6 @@ class XccdfEditorApp:
             self._create_group_shuttle_editor(shuttle_container, item)
 
         elif isinstance(item, models.ruleType):
-            move_frame = ttk.Frame(self.detail_frame)
-            move_frame.pack(fill=tk.X, pady=(0, 5))
-            
-            ttk.Button(move_frame, text="Move...", command=self.show_move_dialog).pack(side=tk.LEFT)
             
             notebook = ttk.Notebook(self.detail_frame)
             notebook.pack(fill=tk.BOTH, expand=True, pady=5)
@@ -2251,105 +2247,7 @@ class XccdfEditorApp:
         if logical_test and logical_test.fact_ref:
             for fact in logical_test.fact_ref:
                 self.fact_refs_tree.insert("", "end", values=(fact.get_name(),))
-
-    def show_move_dialog(self):
-        selected_id = self.tree.focus()
-        if not selected_id: return
-        
-        item_to_move = self.maps['item'].get(selected_id)
-        if not isinstance(item_to_move, (models.groupType, models.ruleType)): return
-
-        dialog = tk.Toplevel(self.root)
-        dialog.title(f"Move '{item_to_move.get_id()}'")
-        dialog.geometry("400x500")
-        dialog.transient(self.root)
-        
-        ttk.Label(dialog, text=f"Select a new parent for '{item_to_move.get_id()}'").pack(pady=10)
-        
-        # --- Treeview to display possible parents ---
-        tree_frame = ttk.Frame(dialog)
-        tree_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        
-        parent_tree = ttk.Treeview(tree_frame)
-        parent_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=parent_tree.yview)
-        scrollbar.pack(side=tk.RIGHT, fill="y")
-        parent_tree.config(yscrollcommand=scrollbar.set)
-        
-        # --- LOGIC to build the tree of valid parents ---
-        
-        # 1. Find the item being moved and all of its children
-        def get_descendants(item):
-            descendants = {item}
-            if isinstance(item, models.groupType) and item.Group:
-                for child_group in item.Group:
-                    descendants.update(get_descendants(child_group))
-            return descendants
-        items_to_exclude = get_descendants(item_to_move)
-
-        # 2. Recursively build the tree, skipping any excluded items
-        parent_map = {}
-        def populate_parent_tree_recursive(parent_node_id, current_item):
-            # Don't allow an item to be moved into itself or its children
-            if current_item in items_to_exclude:
-                return
-
-            # Add the current item to the tree
-            item_id = current_item.get_id()
-            title = current_item.title[0].get_valueOf_() if current_item.title else ""
-            node_id = parent_tree.insert(parent_node_id, "end", text=f"{item_id}: {title}", open=True)
-            parent_map[node_id] = current_item
-            
-            # Recurse into children if it's a group
-            if isinstance(current_item, models.groupType) and current_item.Group:
-                for subgroup in current_item.Group:
-                    populate_parent_tree_recursive(node_id, subgroup)
-
-        # Start the tree build from the main benchmark
-        benchmark_obj = self.get_benchmark()
-        if benchmark_obj:
-            populate_parent_tree_recursive("", benchmark_obj)
-        
-        def on_ok():
-            selected_parent_id = parent_tree.focus()
-            if not selected_parent_id:
-                messagebox.showwarning("No Selection", "Please select a new parent location.", parent=dialog)
-                return
-            
-            new_parent_obj = parent_map.get(selected_parent_id)
-            old_parent_obj = self.find_parent(benchmark_obj, item_to_move)
-
-            if new_parent_obj is old_parent_obj:
-                dialog.destroy()
-                return
-
-            if isinstance(item_to_move, models.ruleType) and isinstance(new_parent_obj, models.Benchmark):
-                messagebox.showerror("Invalid Move", "Rules cannot be moved directly under a Benchmark. They must be inside a Group.")
-                return
-
-            # Remove from old parent
-            if isinstance(item_to_move, models.groupType):
-                if old_parent_obj and old_parent_obj.Group: old_parent_obj.Group.remove(item_to_move)
-            else:
-                if old_parent_obj and old_parent_obj.Rule: old_parent_obj.Rule.remove(item_to_move)
-            
-            # Add to new parent
-            if isinstance(item_to_move, models.groupType):
-                if new_parent_obj.Group is None: new_parent_obj.Group = []
-                new_parent_obj.Group.append(item_to_move)
-            else:
-                if new_parent_obj.Rule is None: new_parent_obj.Rule = []
-                new_parent_obj.Rule.append(item_to_move)
-
-            self.populate_treeview()
-            self._mark_as_dirty()
-            dialog.destroy()
-
-        button_frame = ttk.Frame(dialog)
-        button_frame.pack(pady=10)
-        ttk.Button(button_frame, text="Move", command=on_ok).pack(side=tk.LEFT, padx=10)
-        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT)
-        
+       
     def create_text_editor(self, parent_frame, label_text, data_obj, attr_name, height=1):
         frame = ttk.Frame(parent_frame)
         frame.pack(fill=tk.X, pady=5)
