@@ -30967,17 +30967,19 @@ class GeneratorType(GeneratedsSuper):
             outfile.write('/>%s' % (eol_, ))
     def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='oval:', name_='GeneratorType'):
         pass
-    def _exportChildren(self, outfile, level, namespaceprefix_='oval:', namespacedef_=' xmlns:None="http://www.w3.org/1999/xhtml"  xmlns:oval="http://oval.mitre.org/XMLSchema/oval-common-5" ', name_='GeneratorType', fromsubclass_=False, pretty_print=True):
+    def _exportChildren(self, outfile, level, namespaceprefix_='oval:', namespacedef_='xmlns:oval="http://oval.mitre.org/XMLSchema/oval-common-5" xmlns:None="http://www.w3.org/2001/XMLSchema" ', name_='GeneratorType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.product_name is not None:
             namespaceprefix_ = self.product_name_nsprefix_ + ':' if (UseCapturedNS_ and self.product_name_nsprefix_) else ''
-            self.product_name.export(outfile, level, namespaceprefix_, namespacedef_='', name_='product_name', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sproduct_name>%s</%sproduct_name>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.product_name), input_name='product_name')), namespaceprefix_ , eol_))
         if self.product_version is not None:
             namespaceprefix_ = self.product_version_nsprefix_ + ':' if (UseCapturedNS_ and self.product_version_nsprefix_) else ''
-            self.product_version.export(outfile, level, namespaceprefix_, namespacedef_='', name_='product_version', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sproduct_version>%s</%sproduct_version>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.product_version), input_name='product_version')), namespaceprefix_ , eol_))
         for schema_version_ in self.schema_version:
             namespaceprefix_ = self.schema_version_nsprefix_ + ':' if (UseCapturedNS_ and self.schema_version_nsprefix_) else ''
             schema_version_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='schema_version', pretty_print=pretty_print)
