@@ -2758,13 +2758,24 @@ class XccdfEditorApp:
         ttk.Label(gen_frame, text="Schema Version:").grid(row=2, column=0, sticky="w", pady=3)
         schema_version_var = tk.StringVar(value=schema_version_str)
         ttk.Entry(gen_frame, textvariable=schema_version_var).grid(row=2, column=1, sticky="ew", pady=3)
+
+        def apply_generator_changes():
+            # Correctly wrap the schema_version in its required object
+            sv = models.SchemaVersionType(valueOf_=schema_version_var.get())
+            
+            # Set all values at once
+            generator.set_product_version(version_var.get())
+            generator.set_schema_version([sv])
+#            generator.set_timestamp(datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f'))
+            
+            self._mark_as_dirty()
+            messagebox.showinfo("Success", "Generator details updated.", parent=self.root)
+
+        apply_button = ttk.Button(gen_frame, text="Apply Changes", command=apply_generator_changes)
+        apply_button.grid(row=3, column=1, sticky="e", pady=10)
         
         gen_frame.columnconfigure(1, weight=1)
         
-        # --- Trace changes to the editable fields and call the update helper
-        version_var.trace_add("write", lambda *args: self._update_oval_generator(generator, version_var, schema_version_var, *args))
-        schema_version_var.trace_add("write", lambda *args: self._update_oval_generator(generator, version_var, schema_version_var, *args))
-
         # --- Create the Definitions Tab ---
         def_frame = ttk.Frame(notebook)
         notebook.add(def_frame, text="Definitions")
@@ -2852,21 +2863,6 @@ class XccdfEditorApp:
         ttk.Button(button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
         
-    def _update_oval_generator(self, generator_obj, version_var, schema_version_var, *args):
-        """Callback to update the generator object when an entry is changed."""
-        generator_obj.set_product_version(version_var.get())
-        
-        # --- Schema version is a list, so we update the first element
-        if generator_obj.get_schema_version():
-            generator_obj.get_schema_version()[0].set_valueOf_(schema_version_var.get())
-        else: # Or create it if it doesn't exist
-            sv = models.SchemaVersionType(valueOf_=schema_version_var.get())
-            generator_obj.set_schema_version([sv])
-
-        # --- Update the timestamp automatically
-        generator_obj.set_timestamp(datetime.now().strftime('%Y-%m-%dT%H:%M:%S'))
-        self._mark_as_dirty()
-
       
 ##--  [  OVAL Definitions ]---
     def populate_oval_definitions_tree(self, oval_defs_obj):
