@@ -782,14 +782,20 @@ except ModulenotfoundExp_ as exp:
                 result = GeneratedsSuper.gds_encode(str(instring))
             return result
         def __eq__(self, other):
-            def excl_select_objs_(obj):
-                return (obj[0] != 'parent_object_' and
-                        obj[0] != 'gds_collector_')
             if type(self) != type(other):
                 return False
-            return all(x == y for x, y in zip_longest(
-                filter(excl_select_objs_, self.__dict__.items()),
-                filter(excl_select_objs_, other.__dict__.items())))
+            
+            # This generator expression includes the filtering logic directly.
+            self_items = (
+                item for item in self.__dict__.items() 
+                if item[0] not in ('parent_object_', 'gds_collector_')
+            )
+            other_items = (
+                item for item in other.__dict__.items() 
+                if item[0] not in ('parent_object_', 'gds_collector_')
+            )
+    
+            return all(x == y for x, y in zip_longest(self_items, other_items))
         def __ne__(self, other):
             return not self.__eq__(other)
         # Django ETL transform hooks.
