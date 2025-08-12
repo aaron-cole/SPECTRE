@@ -1229,67 +1229,96 @@ class XccdfEditorApp:
             
             # Profiles
             self._create_full_profile_editor(tab_profiles, item)
-              
-        elif isinstance(item, (models.groupType, models.ruleType)):
+
+        elif isinstance(item, models.groupType):
+            details_frame = ttk.Frame(self.detail_frame)
+            details_frame.pack(fill=tk.X, expand=False)
+            
+            self.create_detail_entry(details_frame, "Group ID", item, "id")
+            self.create_text_editor(details_frame, "Group Title", item, "title")
+            self.create_text_editor(details_frame, "Description", item, "description", height=4)
+            self.create_item_platform_manager(details_frame, item)
+
+            ttk.Separator(self.detail_frame, orient=tk.HORIZONTAL).pack(fill=tk.X, pady=10)
+            
+            # --- Bottom section for the new shuttle editor ---
+            shuttle_container = ttk.Frame(self.detail_frame)
+            shuttle_container.pack(fill=tk.BOTH, expand=True)
+            self._create_group_shuttle_editor(shuttle_container, item)
+
+        elif isinstance(item, models.ruleType):
             move_frame = ttk.Frame(self.detail_frame)
             move_frame.pack(fill=tk.X, pady=(0, 5))
+            
             ttk.Button(move_frame, text="Move...", command=self.show_move_dialog).pack(side=tk.LEFT)
-            if isinstance(item, models.groupType):
-                self.create_detail_entry(self.detail_frame, "Group ID", item, "id")
-                self.create_text_editor(self.detail_frame, "Group Title", item, "title")
-                self.create_text_editor(self.detail_frame, "Description", item, "description", height=5)
-                self.create_item_platform_manager(self.detail_frame, item)
-            else:
-                notebook = ttk.Notebook(self.detail_frame)
-                notebook.pack(fill=tk.BOTH, expand=True, pady=5)
-                tab_general = ttk.Frame(notebook, padding=10)
-                tab_checks = ttk.Frame(notebook, padding=10)
-                tab_remediation = ttk.Frame(notebook, padding=10)
-                notebook.add(tab_general, text="General")
-                notebook.add(tab_checks, text="Checks")
-                notebook.add(tab_remediation, text="Remediation")
-                self.create_detail_entry(tab_general, "Rule ID", item, "id")
-                self.create_text_editor(tab_general, "Title", item, "title")
-                frame = ttk.Frame(tab_general)
-                frame.pack(fill=tk.X, pady=5)
-                label = ttk.Label(frame, text="Severity", width=15)
-                label.pack(side=tk.LEFT, anchor='n')
-                severity_options = ['unknown', 'low', 'medium', 'high', 'info']
-                severity_var = tk.StringVar(self.root, value=(item.get_severity() or 'unknown'))
-                severity_combo = ttk.Combobox(frame, textvariable=severity_var, values=severity_options, state="readonly")
-                severity_combo.pack(fill=tk.X, expand=True)
-                severity_combo.bind("<<ComboboxSelected>>", lambda e: item.set_severity(severity_var.get()))
-                self.create_detail_entry(tab_general, "Weight", item, "weight")
-                self.create_text_editor(tab_general, "Description", item, "description", height=5)
-                if item.version is None: item.version = models.versionType(valueOf_='')
-                self.create_detail_entry(tab_general, "Version", item.version, "valueOf_")
-                if not item.check: item.check = [models.checkType(system='http://oval.mitre.org/XMLSchema/oval-definitions-5')]
-                check = item.check[0]
-                self.create_detail_entry(tab_checks, "System", check, "system")
-                if not check.check_content_ref: check.check_content_ref = [models.checkContentRefType()]
-                self.create_detail_entry(tab_checks, "Check Content Ref (href)", check.check_content_ref[0], "href")
-                if not item.fixtext: item.set_fixtext([models.fixTextType(valueOf_='')])
-                self.create_text_editor(tab_remediation, "Fix Text", item.fixtext[0], "valueOf_", height=6)
-                if not item.fix: item.set_fix([models.fixType()])
-                fix_obj = item.fix[0]
-                fixtext_obj = item.fixtext[0]
-                fix_id_var = tk.StringVar(value=fix_obj.get_id())
-                fix_ref_var = tk.StringVar(value=fixtext_obj.get_fixref())
-                def update_fix_fields(*args):
-                    new_id = fix_id_var.get()
-                    fix_obj.set_id(new_id)
-                    fixtext_obj.set_fixref(new_id)
-                    fix_ref_var.set(new_id)
-                fix_id_var.trace_add("write", update_fix_fields)
-                id_frame = ttk.Frame(tab_remediation)
-                id_frame.pack(fill=tk.X, pady=5)
-                ttk.Label(id_frame, text="Fix ID", width=15).pack(side=tk.LEFT)
-                ttk.Entry(id_frame, textvariable=fix_id_var).pack(fill=tk.X, expand=True)
-                ref_frame = ttk.Frame(tab_remediation)
-                ref_frame.pack(fill=tk.X, pady=5)
-                ttk.Label(ref_frame, text="Fix Reference", width=15).pack(side=tk.LEFT)
-                ttk.Entry(ref_frame, textvariable=fix_ref_var, state="readonly").pack(fill=tk.X, expand=True)
-                self.create_item_platform_manager(self.detail_frame, item)
+            
+            notebook = ttk.Notebook(self.detail_frame)
+            notebook.pack(fill=tk.BOTH, expand=True, pady=5)
+            
+            tab_general = ttk.Frame(notebook, padding=10)
+            tab_checks = ttk.Frame(notebook, padding=10)
+            tab_remediation = ttk.Frame(notebook, padding=10)
+            
+            notebook.add(tab_general, text="General")
+            notebook.add(tab_checks, text="Checks")
+            notebook.add(tab_remediation, text="Remediation")
+            
+            self.create_detail_entry(tab_general, "Rule ID", item, "id")
+            self.create_text_editor(tab_general, "Title", item, "title")
+            
+            frame = ttk.Frame(tab_general)
+            frame.pack(fill=tk.X, pady=5)
+            
+            label = ttk.Label(frame, text="Severity", width=15)
+            label.pack(side=tk.LEFT, anchor='n')
+            
+            severity_options = ['unknown', 'low', 'medium', 'high', 'info']
+            severity_var = tk.StringVar(self.root, value=(item.get_severity() or 'unknown'))
+            severity_combo = ttk.Combobox(frame, textvariable=severity_var, values=severity_options, state="readonly")
+            severity_combo.pack(fill=tk.X, expand=True)
+            severity_combo.bind("<<ComboboxSelected>>", lambda e: item.set_severity(severity_var.get()))
+            
+            self.create_detail_entry(tab_general, "Weight", item, "weight")
+            self.create_text_editor(tab_general, "Description", item, "description", height=5)
+            
+            if item.version is None: item.version = models.versionType(valueOf_='')
+            
+            self.create_detail_entry(tab_general, "Version", item.version, "valueOf_")
+            
+            if not item.check: item.check = [models.checkType(system='http://oval.mitre.org/XMLSchema/oval-definitions-5')]
+            
+            check = item.check[0]
+            
+            self.create_detail_entry(tab_checks, "System", check, "system")
+            
+            if not check.check_content_ref: check.check_content_ref = [models.checkContentRefType()]
+            
+            self.create_detail_entry(tab_checks, "Check Content Ref (href)", check.check_content_ref[0], "href")
+            
+            if not item.fixtext: item.set_fixtext([models.fixTextType(valueOf_='')])
+            
+            self.create_text_editor(tab_remediation, "Fix Text", item.fixtext[0], "valueOf_", height=6)
+            
+            if not item.fix: item.set_fix([models.fixType()])
+            fix_obj = item.fix[0]
+            fixtext_obj = item.fixtext[0]
+            fix_id_var = tk.StringVar(value=fix_obj.get_id())
+            fix_ref_var = tk.StringVar(value=fixtext_obj.get_fixref())
+            def update_fix_fields(*args):
+                new_id = fix_id_var.get()
+                fix_obj.set_id(new_id)
+                fixtext_obj.set_fixref(new_id)
+                fix_ref_var.set(new_id)
+            fix_id_var.trace_add("write", update_fix_fields)
+            id_frame = ttk.Frame(tab_remediation)
+            id_frame.pack(fill=tk.X, pady=5)
+            ttk.Label(id_frame, text="Fix ID", width=15).pack(side=tk.LEFT)
+            ttk.Entry(id_frame, textvariable=fix_id_var).pack(fill=tk.X, expand=True)
+            ref_frame = ttk.Frame(tab_remediation)
+            ref_frame.pack(fill=tk.X, pady=5)
+            ttk.Label(ref_frame, text="Fix Reference", width=15).pack(side=tk.LEFT)
+            ttk.Entry(ref_frame, textvariable=fix_ref_var, state="readonly").pack(fill=tk.X, expand=True)
+            self.create_item_platform_manager(self.detail_frame, item)
               
         else:
             # If nothing else matches, show a simple message
@@ -1539,6 +1568,117 @@ class XccdfEditorApp:
         self.display_details(self.datastream_collection) # Refresh the details view
         self._mark_as_dirty()
         messagebox.showinfo("Success", "All prefixes have been updated.")
+
+    def _create_group_shuttle_editor(self, parent_frame, group_obj):
+        """Creates a shuttle editor to move groups/rules in and out of the given group."""
+        # Main container for the shuttle editor
+        pw = ttk.PanedWindow(parent_frame, orient=tk.HORIZONTAL)
+        pw.pack(fill=tk.BOTH, expand=True, pady=10)
+
+        # --- Left Side: Available Items ---
+        available_frame = ttk.LabelFrame(pw, text="Available Benchmark Items", padding=5)
+        pw.add(available_frame, weight=2)
+        available_tree = ttk.Treeview(available_frame)
+        available_tree.pack(fill=tk.BOTH, expand=True)
+
+        # --- Middle: Move Buttons ---
+        button_frame = ttk.Frame(pw, padding=5)
+        pw.add(button_frame, weight=0)
+        
+        # --- Right Side: Current Group's Children ---
+        selected_frame = ttk.LabelFrame(pw, text=f"Items in '{group_obj.get_id()}'", padding=5)
+        pw.add(selected_frame, weight=2)
+        selected_tree = ttk.Treeview(selected_frame)
+        selected_tree.pack(fill=tk.BOTH, expand=True)
+        
+        # --- LOGIC ---
+        benchmark_obj = self.get_benchmark()
+
+        def get_all_benchmark_items(start_node):
+            """Recursively gets all groups and rules."""
+            items = []
+            if hasattr(start_node, 'Group') and start_node.Group:
+                for g in start_node.Group:
+                    items.append(g)
+                    items.extend(get_all_benchmark_items(g))
+            if hasattr(start_node, 'Rule') and start_node.Rule:
+                items.extend(start_node.Rule)
+            return items
+
+        def populate_trees():
+            available_tree.delete(*available_tree.get_children())
+            selected_tree.delete(*selected_tree.get_children())
+            
+            all_items = get_all_benchmark_items(benchmark_obj)
+            current_children = (group_obj.Group or []) + (group_obj.Rule or [])
+            
+            # Populate Available Tree (all items not in the current group)
+            for item in all_items:
+                if item not in current_children and item is not group_obj:
+                    title = item.title[0].get_valueOf_() if item.title else ""
+                    item_type = "Group" if isinstance(item, models.groupType) else "Rule"
+                    available_tree.insert("", "end", text=f"{item_type}: {item.get_id()}", values=[item.get_id()])
+
+            # Populate Selected Tree (immediate children of the current group)
+            for item in current_children:
+                title = item.title[0].get_valueOf_() if item.title else ""
+                item_type = "Group" if isinstance(item, models.groupType) else "Rule"
+                selected_tree.insert("", "end", text=f"{item_type}: {item.get_id()}", values=[item.get_id()])
+
+        def move_item_in():
+            selected_id = available_tree.focus()
+            if not selected_id: return
+            item_id_to_move = available_tree.item(selected_id)['values'][0]
+            
+            item_to_move = next((i for i in get_all_benchmark_items(benchmark_obj) if i.get_id() == item_id_to_move), None)
+            if not item_to_move: return
+            
+            old_parent = self.find_parent(benchmark_obj, item_to_move)
+            if old_parent:
+                if isinstance(item_to_move, models.groupType): old_parent.Group.remove(item_to_move)
+                else: old_parent.Rule.remove(item_to_move)
+            
+            if isinstance(item_to_move, models.groupType):
+                if group_obj.Group is None: group_obj.Group = []
+                group_obj.Group.append(item_to_move)
+            else:
+                if group_obj.Rule is None: group_obj.Rule = []
+                group_obj.Rule.append(item_to_move)
+
+            self.populate_treeview() # Full refresh is needed
+            populate_trees()
+            self._mark_as_dirty()
+
+        def move_item_out():
+            selected_id = selected_tree.focus()
+            if not selected_id: return
+            item_id_to_move = selected_tree.item(selected_id)['values'][0]
+            
+            item_to_move = next((i for i in get_all_benchmark_items(group_obj) if i.get_id() == item_id_to_move), None)
+            if not item_to_move: return
+            
+            # Remove from current group
+            if isinstance(item_to_move, models.groupType): group_obj.Group.remove(item_to_move)
+            else: group_obj.Rule.remove(item_to_move)
+
+            # Add to top-level benchmark
+            if isinstance(item_to_move, models.groupType):
+                if benchmark_obj.Group is None: benchmark_obj.Group = []
+                benchmark_obj.Group.append(item_to_move)
+            else: # It's a rule, needs a parent group
+                 # For simplicity, we add it to the first top-level group
+                if benchmark_obj.Group:
+                    benchmark_obj.Group[0].Rule.append(item_to_move)
+
+            self.populate_treeview()
+            populate_trees()
+            self._mark_as_dirty()
+
+        # Place the buttons vertically in their dedicated frame
+        ttk.Button(button_frame, text="Move In >>", command=move_item_in).pack(pady=5)
+        ttk.Button(button_frame, text="<< Move Out", command=move_item_out).pack(pady=20)
+        
+        populate_trees()
         
 ## Need to Make Smarter 
     def create_context_menu(self):
@@ -2115,75 +2255,85 @@ class XccdfEditorApp:
     def show_move_dialog(self):
         selected_id = self.tree.focus()
         if not selected_id: return
+        
         item_to_move = self.maps['item'].get(selected_id)
         if not isinstance(item_to_move, (models.groupType, models.ruleType)): return
 
         dialog = tk.Toplevel(self.root)
-        dialog.title("Move Item")
-        dialog.geometry("400x300")
+        dialog.title(f"Move '{item_to_move.get_id()}'")
+        dialog.geometry("400x500")
         dialog.transient(self.root)
         
         ttk.Label(dialog, text=f"Select a new parent for '{item_to_move.get_id()}'").pack(pady=10)
         
-        listbox_frame = ttk.Frame(dialog)
-        listbox_frame.pack(fill=tk.BOTH, expand=True, padx=10)
-        listbox = tk.Listbox(listbox_frame, selectmode=tk.SINGLE)
-        listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        scrollbar = ttk.Scrollbar(listbox_frame, orient="vertical", command=listbox.yview)
-        scrollbar.pack(side=tk.RIGHT, fill="y")
-        listbox.config(yscrollcommand=scrollbar.set)
+        # --- Treeview to display possible parents ---
+        tree_frame = ttk.Frame(dialog)
+        tree_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         
+        parent_tree = ttk.Treeview(tree_frame)
+        parent_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar = ttk.Scrollbar(tree_frame, orient="vertical", command=parent_tree.yview)
+        scrollbar.pack(side=tk.RIGHT, fill="y")
+        parent_tree.config(yscrollcommand=scrollbar.set)
+        
+        # --- LOGIC to build the tree of valid parents ---
+        
+        # 1. Find the item being moved and all of its children
         def get_descendants(item):
             descendants = {item}
             if isinstance(item, models.groupType) and item.Group:
                 for child_group in item.Group:
                     descendants.update(get_descendants(child_group))
             return descendants
-
         items_to_exclude = get_descendants(item_to_move)
-        
-        possible_parents = []
-        def collect_parents_recursive(parent_candidate):
-            if parent_candidate not in items_to_exclude:
-                possible_parents.append(parent_candidate)
-            
-            if hasattr(parent_candidate, 'Group') and parent_candidate.Group:
-                for subgroup in parent_candidate.Group:
-                    collect_parents_recursive(subgroup)
-        
-        collect_parents_recursive(self.get_benchmark())
 
-        for parent in possible_parents:
-            if isinstance(parent, models.Benchmark):
-                title = parent.title[0].get_valueOf_() if parent.title else ""
-                listbox.insert(tk.END, f"Benchmark: {title}")
-            else:
-                title = parent.title[0].get_valueOf_() if parent.title else ""
-                listbox.insert(tk.END, f"  Group: {parent.get_id()} ({title})")
+        # 2. Recursively build the tree, skipping any excluded items
+        parent_map = {}
+        def populate_parent_tree_recursive(parent_node_id, current_item):
+            # Don't allow an item to be moved into itself or its children
+            if current_item in items_to_exclude:
+                return
+
+            # Add the current item to the tree
+            item_id = current_item.get_id()
+            title = current_item.title[0].get_valueOf_() if current_item.title else ""
+            node_id = parent_tree.insert(parent_node_id, "end", text=f"{item_id}: {title}", open=True)
+            parent_map[node_id] = current_item
+            
+            # Recurse into children if it's a group
+            if isinstance(current_item, models.groupType) and current_item.Group:
+                for subgroup in current_item.Group:
+                    populate_parent_tree_recursive(node_id, subgroup)
+
+        # Start the tree build from the main benchmark
+        benchmark_obj = self.get_benchmark()
+        if benchmark_obj:
+            populate_parent_tree_recursive("", benchmark_obj)
         
         def on_ok():
-            selected_indices = listbox.curselection()
-            if not selected_indices:
-                dialog.destroy()
+            selected_parent_id = parent_tree.focus()
+            if not selected_parent_id:
+                messagebox.showwarning("No Selection", "Please select a new parent location.", parent=dialog)
                 return
             
-            new_parent_obj = possible_parents[selected_indices[0]]
-            old_parent_obj = self.find_parent(self.datastream_collection, item_to_move)
+            new_parent_obj = parent_map.get(selected_parent_id)
+            old_parent_obj = self.find_parent(benchmark_obj, item_to_move)
 
             if new_parent_obj is old_parent_obj:
                 dialog.destroy()
                 return
 
             if isinstance(item_to_move, models.ruleType) and isinstance(new_parent_obj, models.Benchmark):
-                messagebox.showerror("Invalid Move", "Rules cannot be moved directly under a Benchmark.")
-                dialog.destroy()
+                messagebox.showerror("Invalid Move", "Rules cannot be moved directly under a Benchmark. They must be inside a Group.")
                 return
 
+            # Remove from old parent
             if isinstance(item_to_move, models.groupType):
-                old_parent_obj.Group.remove(item_to_move)
+                if old_parent_obj and old_parent_obj.Group: old_parent_obj.Group.remove(item_to_move)
             else:
-                old_parent_obj.Rule.remove(item_to_move)
+                if old_parent_obj and old_parent_obj.Rule: old_parent_obj.Rule.remove(item_to_move)
             
+            # Add to new parent
             if isinstance(item_to_move, models.groupType):
                 if new_parent_obj.Group is None: new_parent_obj.Group = []
                 new_parent_obj.Group.append(item_to_move)
@@ -2197,17 +2347,18 @@ class XccdfEditorApp:
 
         button_frame = ttk.Frame(dialog)
         button_frame.pack(pady=10)
-        ttk.Button(button_frame, text="OK", command=on_ok).pack(side=tk.LEFT, padx=10)
+        ttk.Button(button_frame, text="Move", command=on_ok).pack(side=tk.LEFT, padx=10)
         ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.LEFT)
-
-    def create_text_editor(self, parent_frame, label_text, data_obj, attr_name, height=1):
-        ttk.Label(parent_frame, text=label_text, width=15).pack(anchor='w', pady=(5, 0))
         
-        text_class = models.htmlTextWithSubType
-        if attr_name in ['title', 'rationale', 'fixtext']:
-            text_class = models.textWithSubType if attr_name == 'title' else models.htmlTextWithSubType
-        text_widget = tk.Text(parent_frame, height=height, wrap="word")
-        text_widget.pack(fill=tk.X, expand=True)
+    def create_text_editor(self, parent_frame, label_text, data_obj, attr_name, height=1):
+        frame = ttk.Frame(parent_frame)
+        frame.pack(fill=tk.X, pady=5)
+
+        label = ttk.Label(frame, text=label_text, width=15)
+        label.pack(side=tk.LEFT, anchor='n')
+
+        text_widget = tk.Text(frame, height=height, wrap="word")
+        text_widget.pack(side=tk.LEFT, fill=tk.X, expand=True)
         
         text_obj_list = getattr(data_obj, attr_name, [])
         if text_obj_list:
@@ -2218,20 +2369,26 @@ class XccdfEditorApp:
             elif isinstance(text_obj, str):
                 initial_text = text_obj
             text_widget.insert("1.0", initial_text)
-        
+
         def update_text_content(event):
             current_list = getattr(data_obj, attr_name, [])
+            text_class = models.textWithSubType if attr_name == 'title' else models.htmlTextWithSubType
+            
             if not current_list:
                 new_text_obj = text_class()
                 setattr(data_obj, attr_name, [new_text_obj])
                 current_list = [new_text_obj]
-                
+            
+            if not hasattr(current_list[0], 'set_valueOf_'):
+                 current_list[0] = text_class()
+
             current_list[0].set_valueOf_(text_widget.get("1.0", "end-1c"))
+            
             self._mark_as_dirty()
             
             if attr_name == 'title':
                 self.populate_treeview()
-        
+
         text_widget.bind("<KeyRelease>", update_text_content)
 
     def create_profile_selection_editor(self, profile_obj):
