@@ -16701,7 +16701,8 @@ class MetadataType(GeneratedsSuper):
             eol_ = ''
         if self.title is not None:
             namespaceprefix_ = self.title_nsprefix_ + ':' if (UseCapturedNS_ and self.title_nsprefix_) else ''
-            self.title.export(outfile, level, namespaceprefix_, namespacedef_='', name_='title', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%stitle>%s</%stitle>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.title), input_name='title')), namespaceprefix_ , eol_))
         for affected_ in self.affected:
             namespaceprefix_ = self.affected_nsprefix_ + ':' if (UseCapturedNS_ and self.affected_nsprefix_) else ''
             affected_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='affected', pretty_print=pretty_print)
@@ -16710,7 +16711,8 @@ class MetadataType(GeneratedsSuper):
             reference_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='reference', pretty_print=pretty_print)
         if self.description is not None:
             namespaceprefix_ = self.description_nsprefix_ + ':' if (UseCapturedNS_ and self.description_nsprefix_) else ''
-            self.description.export(outfile, level, namespaceprefix_, namespacedef_='', name_='description', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sdescription>%s</%sdescription>%s' % (namespaceprefix_ , self.gds_encode(self.gds_format_string(quote_xml(self.description), input_name='description')), namespaceprefix_ , eol_))
         if not fromsubclass_:
             for obj_ in self.anytypeobjs_:
                 showIndent(outfile, level, pretty_print)
