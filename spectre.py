@@ -4081,6 +4081,142 @@ class XccdfEditorApp:
                         self._build_function_components(func, components_data, func_type)
 #        print(f"entity: {entity_to_edit}")  
 
+    def build_entity_from_node(self, node, entity_type_str):
+        """Builds an OVAL entity object from an lxml etree node."""
+        # Get the class name from the tag (e.g., 'textfilecontent54_test')
+        class_name = node.tag.split('}')[-1]
+        
+        # Find the correct Python class for that name
+        base_class = getattr(oval, f"{entity_type_str.capitalize()}Type")
+        entity_map = self._get_available_entity_types(base_class)
+        
+        selected_class = None
+        for family in entity_map.values():
+            for friendly_name, class_obj in family.items():
+                if class_obj.__name__ == class_name:
+                    selected_class = class_obj
+                    break
+            if selected_class: break
+        
+        if not selected_class:
+            return None
+
+        # Create an empty instance and populate it
+        new_entity = selected_class()
+        new_entity.original_tagname_ = class_name
+        
+        # Set attributes from the XML node
+        if 'id' in node.attrib: new_entity.set_id(node.attrib['id'])
+        if 'version' in node.attrib: new_entity.set_version(node.attrib['version'])
+        if 'comment' in node.attrib: new_entity.set_comment(node.attrib['comment'])
+        if 'check' in node.attrib: new_entity.set_check(node.attrib['check'])
+        if 'check_existence' in node.attrib: new_entity.set_check_existence(node.attrib['check_existence'])
+        
+        # This can be expanded to build child elements recursively
+        
+        return new_entity
+        
+    def _get_correct_wrapper_class(self, parent_entity_class, wrapper_name):
+        """
+        Finds the correct wrapper class (e.g., EntityObjectStringType) from the
+        same module as the parent entity.
+        """
+        module = inspect.getmodule(parent_entity_class)
+        return getattr(module, wrapper_name, None)
+        
+    def _create_wrapped_entity(self, parent_entity, prop_data, wrapper_class):
+        """Helper to build a new wrapper object (e.g., EntityObjectStringType)."""
+        if not prop_data or not prop_data.get('value'):
+            return None
+            
+        kwargs = {'valueOf_': prop_data.get('value')}
+        if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
+        if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
+        if prop_data.get('mask'): kwargs['mask'] = prop_data.get('mask')
+        if prop_data.get('var_ref'): kwargs['var_ref'] = prop_data.get('var_ref')
+        
+        wrapped_entity = wrapper_class(**kwargs)
+        wrapped_entity.ns_prefix_ = parent_entity.ns_prefix_
+        return wrapper_class(**kwargs)
+
+    def _update_wrapped_entity(self, parent_entity, prop_data, getter_func, setter_func, wrapper_class):
+        """Helper to update an existing wrapper object."""
+        if not prop_data: return
+
+        if prop_data.get('value'):
+            existing_entity = getter_func()
+            kwargs = {'valueOf_': prop_data.get('value')}
+            if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
+            if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
+            if prop_data.get('mask'): kwargs['mask'] = prop_data.get('mask')
+            if prop_data.get('var_ref'): kwargs['var_ref'] = prop_data.get('var_ref')
+
+            if not existing_entity:
+                new_entity = wrapper_class(**kwargs)
+                new_entity.ns_prefix_ = parent_entity.ns_prefix_
+                setter_func(new_entity)
+            else:
+                for key, value in kwargs.items():
+                    setter_name = f"set_{key}"
+                    if hasattr(existing_entity, setter_name):
+                         getattr(existing_entity, setter_name)(value)
+        else:
+            setter_func(None)
+
+    def _set_wrapped_property(self, parent_entity, data, prop_name, wrapper_class):
+        """
+        A helper to create, prefix, and set a wrapped property on a parent entity.
+        """
+        if prop_name in data:
+            entity = self._create_wrapped_entity(parent_entity, data[prop_name], wrapper_class)
+            if entity:
+                setter_method = getattr(parent_entity, f"set_{prop_name}")
+                setter_method(entity)
+                entity.ns_prefix_ = parent_entity.ns_prefix_
+
+    def _build_function_components(self, parent_function, components_data, func_type):
+        """A helper to build the components inside any function."""
+        if not components_data:
+#            print(f"No")
+            return
+        for comp_data in components_data:
+            comp_type = comp_data.get('type')
+#            print(f"comp_type: {comp_type}")
+            if comp_type == 'literal_component':
+                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
+                    parent_function.set_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
+                else:
+                    parent_function.add_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
+            elif comp_type == 'object_component':
+                oc_kwargs = {'object_ref': comp_data.get('object_ref'), 'item_field': comp_data.get('item_field')}
+                if comp_data.get('record_field'): oc_kwargs['record_field'] = comp_data.get('record_field')
+                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
+                    parent_function.set_object_component(models.ObjectComponentType(**oc_kwargs))
+                else:
+                    parent_function.add_object_component(models.ObjectComponentType(**oc_kwargs))
+            elif comp_type == 'variable_component':
+                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
+                    parent_function.set_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
+                else:
+                    parent_function.add_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
+
+            # --- START RECURSIVE LOGIC ---
+            elif comp_type == 'function_group':
+                func_group = models.FunctionGroup()
+                func_type = comp_data.get('function_type')
+                
+                func = None
+                if func_type == 'arithmetic':
+                    # A more advanced version would get the op and components
+                    func = models.ArithmeticFunctionType()
+                    func_group.set_arithmetic(func)
+                # ... (add elif for other function types) ...
+                
+                # We would need a way to get the nested components' data
+                # For now, we create an empty function group
+                if func:
+                    parent_function.add_function_group(func_group)
+
 
 ##--  [  OVAL Tests ]---
     def populate_oval_tests_tree(self, oval_defs_obj):
@@ -5691,145 +5827,7 @@ class XccdfEditorApp:
         for widget in self.detail_frame.winfo_children():
             widget.destroy()
         ttk.Label(self.detail_frame, text="Welcome!", font=("Helvetica", 16)).pack()
-        ttk.Label(self.detail_frame, text="Use Create -> New Datastream to get started.", justify=tk.LEFT).pack()         
-
-
-    def build_entity_from_node(self, node, entity_type_str):
-        """Builds an OVAL entity object from an lxml etree node."""
-        # Get the class name from the tag (e.g., 'textfilecontent54_test')
-        class_name = node.tag.split('}')[-1]
-        
-        # Find the correct Python class for that name
-        base_class = getattr(oval, f"{entity_type_str.capitalize()}Type")
-        entity_map = self._get_available_entity_types(base_class)
-        
-        selected_class = None
-        for family in entity_map.values():
-            for friendly_name, class_obj in family.items():
-                if class_obj.__name__ == class_name:
-                    selected_class = class_obj
-                    break
-            if selected_class: break
-        
-        if not selected_class:
-            return None
-
-        # Create an empty instance and populate it
-        new_entity = selected_class()
-        new_entity.original_tagname_ = class_name
-        
-        # Set attributes from the XML node
-        if 'id' in node.attrib: new_entity.set_id(node.attrib['id'])
-        if 'version' in node.attrib: new_entity.set_version(node.attrib['version'])
-        if 'comment' in node.attrib: new_entity.set_comment(node.attrib['comment'])
-        if 'check' in node.attrib: new_entity.set_check(node.attrib['check'])
-        if 'check_existence' in node.attrib: new_entity.set_check_existence(node.attrib['check_existence'])
-        
-        # This can be expanded to build child elements recursively
-        
-        return new_entity
-        
-    def _get_correct_wrapper_class(self, parent_entity_class, wrapper_name):
-        """
-        Finds the correct wrapper class (e.g., EntityObjectStringType) from the
-        same module as the parent entity.
-        """
-        module = inspect.getmodule(parent_entity_class)
-        return getattr(module, wrapper_name, None)
-        
-    def _create_wrapped_entity(self, parent_entity, prop_data, wrapper_class):
-        """Helper to build a new wrapper object (e.g., EntityObjectStringType)."""
-        if not prop_data or not prop_data.get('value'):
-            return None
-            
-        kwargs = {'valueOf_': prop_data.get('value')}
-        if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
-        if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
-        if prop_data.get('mask'): kwargs['mask'] = prop_data.get('mask')
-        if prop_data.get('var_ref'): kwargs['var_ref'] = prop_data.get('var_ref')
-        
-        wrapped_entity = wrapper_class(**kwargs)
-        wrapped_entity.ns_prefix_ = parent_entity.ns_prefix_
-        return wrapper_class(**kwargs)
-
-    def _update_wrapped_entity(self, parent_entity, prop_data, getter_func, setter_func, wrapper_class):
-        """Helper to update an existing wrapper object."""
-        if not prop_data: return
-
-        if prop_data.get('value'):
-            existing_entity = getter_func()
-            kwargs = {'valueOf_': prop_data.get('value')}
-            if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
-            if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
-            if prop_data.get('mask'): kwargs['mask'] = prop_data.get('mask')
-            if prop_data.get('var_ref'): kwargs['var_ref'] = prop_data.get('var_ref')
-
-            if not existing_entity:
-                new_entity = wrapper_class(**kwargs)
-                new_entity.ns_prefix_ = parent_entity.ns_prefix_
-                setter_func(new_entity)
-            else:
-                for key, value in kwargs.items():
-                    setter_name = f"set_{key}"
-                    if hasattr(existing_entity, setter_name):
-                         getattr(existing_entity, setter_name)(value)
-        else:
-            setter_func(None)
-
-    def _set_wrapped_property(self, parent_entity, data, prop_name, wrapper_class):
-        """
-        A helper to create, prefix, and set a wrapped property on a parent entity.
-        """
-        if prop_name in data:
-            entity = self._create_wrapped_entity(parent_entity, data[prop_name], wrapper_class)
-            if entity:
-                setter_method = getattr(parent_entity, f"set_{prop_name}")
-                setter_method(entity)
-                entity.ns_prefix_ = parent_entity.ns_prefix_
-
-    def _build_function_components(self, parent_function, components_data, func_type):
-        """A helper to build the components inside any function."""
-        if not components_data:
-#            print(f"No")
-            return
-        for comp_data in components_data:
-            comp_type = comp_data.get('type')
-#            print(f"comp_type: {comp_type}")
-            if comp_type == 'literal_component':
-                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
-                    parent_function.set_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
-                else:
-                    parent_function.add_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
-            elif comp_type == 'object_component':
-                oc_kwargs = {'object_ref': comp_data.get('object_ref'), 'item_field': comp_data.get('item_field')}
-                if comp_data.get('record_field'): oc_kwargs['record_field'] = comp_data.get('record_field')
-                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
-                    parent_function.set_object_component(models.ObjectComponentType(**oc_kwargs))
-                else:
-                    parent_function.add_object_component(models.ObjectComponentType(**oc_kwargs))
-            elif comp_type == 'variable_component':
-                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
-                    parent_function.set_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
-                else:
-                    parent_function.add_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
-
-            # --- START RECURSIVE LOGIC ---
-            elif comp_type == 'function_group':
-                func_group = models.FunctionGroup()
-                func_type = comp_data.get('function_type')
-                
-                func = None
-                if func_type == 'arithmetic':
-                    # A more advanced version would get the op and components
-                    func = models.ArithmeticFunctionType()
-                    func_group.set_arithmetic(func)
-                # ... (add elif for other function types) ...
-                
-                # We would need a way to get the nested components' data
-                # For now, we create an empty function group
-                if func:
-                    parent_function.add_function_group(func_group)
-                    
+        ttk.Label(self.detail_frame, text="Use Create -> New Datastream to get started.", justify=tk.LEFT).pack()                             
   
 
 ####IMPORTS
