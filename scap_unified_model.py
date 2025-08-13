@@ -20417,6 +20417,141 @@ class VariableType(GeneratedsSuper):
             obj_.original_tagname_ = 'notes'
 # end class VariableType
 
+class external_variable(VariableType):
+    """external_variable -- The external_variable element extends the VariableType and defines a variable with some external source.
+    The actual value(s) for the variable is not provided within the OVAL file, but rather it is retrieved during the evaluation of the OVAL Definition from an external source.
+    An unbounded set of possible-value and possible_restriction child elements can be specified that together specify the list of all possible values that an external source is allowed to supply for the external variable.
+    In other words, the value assigned by an external source must match one of the possible_value or possible_restriction elements specified.
+    Each possible_value element contains a single value that could be assigned to the given external_variable while each possible_restriction element outlines a range of possible values. Note that it is not necessary to declare a variable's possible values, but the option is available if desired. If no possible child elements are specified, then the valid values are only bound to the specified datatype of the external variable. Please refer to the description of the PossibleValueType and PossibleRestrictionType complex types for more information.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = VariableType
+    def __init__(self, id=None, version=None, datatype=None, comment=None, deprecated=False, Signature=None, notes=None, possible_value=None, possible_restriction=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "oval-def"
+        super(globals().get("external_variable"), self).__init__(id, version, datatype, comment, deprecated, Signature, notes,  **kwargs_)
+        if possible_value is None:
+            self.possible_value = []
+        else:
+            self.possible_value = possible_value
+        self.possible_value_nsprefix_ = "oval-def"
+        if possible_restriction is None:
+            self.possible_restriction = []
+        else:
+            self.possible_restriction = possible_restriction
+        self.possible_restriction_nsprefix_ = "oval-def"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, external_variable)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if external_variable.subclass:
+            return external_variable.subclass(*args_, **kwargs_)
+        else:
+            return external_variable(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_possible_value(self):
+        return self.possible_value
+    def set_possible_value(self, possible_value):
+        self.possible_value = possible_value
+    def add_possible_value(self, value):
+        self.possible_value.append(value)
+    def insert_possible_value_at(self, index, value):
+        self.possible_value.insert(index, value)
+    def replace_possible_value_at(self, index, value):
+        self.possible_value[index] = value
+    def get_possible_restriction(self):
+        return self.possible_restriction
+    def set_possible_restriction(self, possible_restriction):
+        self.possible_restriction = possible_restriction
+    def add_possible_restriction(self, value):
+        self.possible_restriction.append(value)
+    def insert_possible_restriction_at(self, index, value):
+        self.possible_restriction.insert(index, value)
+    def replace_possible_restriction_at(self, index, value):
+        self.possible_restriction[index] = value
+    def has__content(self):
+        if (
+            self.possible_value or
+            self.possible_restriction or
+            super(external_variable, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5"', name_='external_variable', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('external_variable')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'external_variable':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='external_variable')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='external_variable', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='external_variable'):
+        super(external_variable, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='external_variable')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5"', name_='external_variable', fromsubclass_=False, pretty_print=True):
+        super(external_variable, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for possible_value_ in self.possible_value:
+            namespaceprefix_ = self.possible_value_nsprefix_ + ':' if (UseCapturedNS_ and self.possible_value_nsprefix_) else ''
+            possible_value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='possible_value', pretty_print=pretty_print)
+        for possible_restriction_ in self.possible_restriction:
+            namespaceprefix_ = self.possible_restriction_nsprefix_ + ':' if (UseCapturedNS_ and self.possible_restriction_nsprefix_) else ''
+            possible_restriction_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='possible_restriction', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(external_variable, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'possible_value':
+            obj_ = PossibleValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.possible_value.append(obj_)
+            obj_.original_tagname_ = 'possible_value'
+        elif nodeName_ == 'possible_restriction':
+            obj_ = PossibleRestrictionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.possible_restriction.append(obj_)
+            obj_.original_tagname_ = 'possible_restriction'
+        super(external_variable, self)._buildChildren(child_, node, nodeName_, True)
+# end class external_variable
 
 class PossibleValueType(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
@@ -20749,6 +20884,113 @@ class RestrictionType(GeneratedsSuper):
         pass
 # end class RestrictionType
 
+class constant_variable(VariableType):
+    """constant_variable -- The constant_variable element extends the VariableType and defines a variable with a constant value(s). Each constant_variable defines either a single value or a collection of values to be used throughout the evaluation of the OVAL Definition File in which it has been defined. Constant variables cannot be over-ridden by an external source. The actual value of a constant variable is defined by the required value child element. A collection of values can be specified by including multiple instances of the value element. Please refer to the description of the ValueType complex type for more information.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = VariableType
+    def __init__(self, id=None, version=None, datatype=None, comment=None, deprecated=False, Signature=None, notes=None, value=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "oval-def"
+        super(globals().get("constant_variable"), self).__init__(id, version, datatype, comment, deprecated, Signature, notes,  **kwargs_)
+        if value is None:
+            self.value = []
+        else:
+            self.value = value
+        self.value_nsprefix_ = "oval-def"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, constant_variable)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if constant_variable.subclass:
+            return constant_variable.subclass(*args_, **kwargs_)
+        else:
+            return constant_variable(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_value(self):
+        return self.value
+    def set_value(self, value):
+        self.value = value
+    def add_value(self, value):
+        self.value.append(value)
+    def insert_value_at(self, index, value):
+        self.value.insert(index, value)
+    def replace_value_at(self, index, value):
+        self.value[index] = value
+    def has__content(self):
+        if (
+            self.value or
+            super(constant_variable, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5"', name_='constant_variable', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('constant_variable')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'constant_variable':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='constant_variable')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='constant_variable', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='constant_variable'):
+        super(constant_variable, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='constant_variable')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5"', name_='constant_variable', fromsubclass_=False, pretty_print=True):
+        super(constant_variable, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for value_ in self.value:
+            namespaceprefix_ = self.value_nsprefix_ + ':' if (UseCapturedNS_ and self.value_nsprefix_) else ''
+            value_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='value', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(constant_variable, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'value':
+            obj_ = ValueType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.value.append(obj_)
+            obj_.original_tagname_ = 'value'
+        super(constant_variable, self)._buildChildren(child_, node, nodeName_, True)
+# end class constant_variable
 
 class ValueType(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
@@ -20827,6 +21069,314 @@ class ValueType(GeneratedsSuper):
         pass
 # end class ValueType
 
+class local_variable(VariableType):
+    """local_variable -- The local_variable element extends the VariableType and defines a variable with some local source. The actual value(s) for the variable is not provided in the OVAL Definition document but rather it is retrieved during the evaluation of the OVAL Definition. Each local variable is defined by either a single component or a complex function, meaning that a value can be as simple as a literal string or as complex as multiple registry keys concatenated together. Note that if an individual component is used and it returns a collection of values, then there will be multiple values associated with the local_variable. For example, if an object_component is used and it references a file object that identifies a set of 5 files, then the local variable would evaluate to a collection of those 5 values. Please refer to the description of the ComponentGroup for more information.
+    
+    """
+    __hash__ = GeneratedsSuper.__hash__
+    subclass = None
+    superclass = VariableType
+    def __init__(self, id=None, version=None, datatype=None, comment=None, deprecated=False, Signature=None, notes=None, object_component=None, variable_component=None, literal_component=None, arithmetic=None, begin=None, concat=None, end=None, escape_regex=None, split=None, substring=None, time_difference=None, regex_capture=None, unique=None, count=None, glob_to_regex=None, gds_collector_=None, **kwargs_):
+        self.gds_collector_ = gds_collector_
+        self.gds_elementtree_node_ = None
+        self.original_tagname_ = None
+        self.parent_object_ = kwargs_.get('parent_object_')
+        self.ns_prefix_ = "oval-def"
+        super(globals().get("local_variable"), self).__init__(id, version, datatype, comment, deprecated, Signature, notes,  **kwargs_)
+        self.object_component = object_component
+        self.object_component_nsprefix_ = "oval-def"
+        self.variable_component = variable_component
+        self.variable_component_nsprefix_ = "oval-def"
+        self.literal_component = literal_component
+        self.literal_component_nsprefix_ = "oval-def"
+        self.arithmetic = arithmetic
+        self.arithmetic_nsprefix_ = "oval-def"
+        self.begin = begin
+        self.begin_nsprefix_ = "oval-def"
+        self.concat = concat
+        self.concat_nsprefix_ = "oval-def"
+        self.end = end
+        self.end_nsprefix_ = "oval-def"
+        self.escape_regex = escape_regex
+        self.escape_regex_nsprefix_ = "oval-def"
+        self.split = split
+        self.split_nsprefix_ = "oval-def"
+        self.substring = substring
+        self.substring_nsprefix_ = "oval-def"
+        self.time_difference = time_difference
+        self.time_difference_nsprefix_ = "oval-def"
+        self.regex_capture = regex_capture
+        self.regex_capture_nsprefix_ = "oval-def"
+        self.unique = unique
+        self.unique_nsprefix_ = "oval-def"
+        self.count = count
+        self.count_nsprefix_ = "oval-def"
+        self.glob_to_regex = glob_to_regex
+        self.glob_to_regex_nsprefix_ = "oval-def"
+    def factory(*args_, **kwargs_):
+        if CurrentSubclassModule_ is not None:
+            subclass = getSubclassFromModule_(
+                CurrentSubclassModule_, local_variable)
+            if subclass is not None:
+                return subclass(*args_, **kwargs_)
+        if local_variable.subclass:
+            return local_variable.subclass(*args_, **kwargs_)
+        else:
+            return local_variable(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_ns_prefix_(self):
+        return self.ns_prefix_
+    def set_ns_prefix_(self, ns_prefix):
+        self.ns_prefix_ = ns_prefix
+    def get_object_component(self):
+        return self.object_component
+    def set_object_component(self, object_component):
+        self.object_component = object_component
+    def get_variable_component(self):
+        return self.variable_component
+    def set_variable_component(self, variable_component):
+        self.variable_component = variable_component
+    def get_literal_component(self):
+        return self.literal_component
+    def set_literal_component(self, literal_component):
+        self.literal_component = literal_component
+    def get_arithmetic(self):
+        return self.arithmetic
+    def set_arithmetic(self, arithmetic):
+        self.arithmetic = arithmetic
+    def get_begin(self):
+        return self.begin
+    def set_begin(self, begin):
+        self.begin = begin
+    def get_concat(self):
+        return self.concat
+    def set_concat(self, concat):
+        self.concat = concat
+    def get_end(self):
+        return self.end
+    def set_end(self, end):
+        self.end = end
+    def get_escape_regex(self):
+        return self.escape_regex
+    def set_escape_regex(self, escape_regex):
+        self.escape_regex = escape_regex
+    def get_split(self):
+        return self.split
+    def set_split(self, split):
+        self.split = split
+    def get_substring(self):
+        return self.substring
+    def set_substring(self, substring):
+        self.substring = substring
+    def get_time_difference(self):
+        return self.time_difference
+    def set_time_difference(self, time_difference):
+        self.time_difference = time_difference
+    def get_regex_capture(self):
+        return self.regex_capture
+    def set_regex_capture(self, regex_capture):
+        self.regex_capture = regex_capture
+    def get_unique(self):
+        return self.unique
+    def set_unique(self, unique):
+        self.unique = unique
+    def get_count(self):
+        return self.count
+    def set_count(self, count):
+        self.count = count
+    def get_glob_to_regex(self):
+        return self.glob_to_regex
+    def set_glob_to_regex(self, glob_to_regex):
+        self.glob_to_regex = glob_to_regex
+    def has__content(self):
+        if (
+            self.object_component is not None or
+            self.variable_component is not None or
+            self.literal_component is not None or
+            self.arithmetic is not None or
+            self.begin is not None or
+            self.concat is not None or
+            self.end is not None or
+            self.escape_regex is not None or
+            self.split is not None or
+            self.substring is not None or
+            self.time_difference is not None or
+            self.regex_capture is not None or
+            self.unique is not None or
+            self.count is not None or
+            self.glob_to_regex is not None or
+            super(local_variable, self).has__content()
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5"', name_='local_variable', pretty_print=True):
+        imported_ns_def_ = GenerateDSNamespaceDefs_.get('local_variable')
+        if imported_ns_def_ is not None:
+            namespacedef_ = imported_ns_def_
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None and name_ == 'local_variable':
+            name_ = self.original_tagname_
+        if UseCapturedNS_ and self.ns_prefix_:
+            namespaceprefix_ = self.ns_prefix_ + ':'
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespaceprefix_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='local_variable')
+        if self.has__content():
+            outfile.write('>%s' % (eol_, ))
+            self._exportChildren(outfile, level + 1, namespaceprefix_, namespacedef_, name_='local_variable', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespaceprefix_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='', name_='local_variable'):
+        super(local_variable, self)._exportAttributes(outfile, level, already_processed, namespaceprefix_, name_='local_variable')
+    def _exportChildren(self, outfile, level, namespaceprefix_='', namespacedef_='xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5"', name_='local_variable', fromsubclass_=False, pretty_print=True):
+        super(local_variable, self)._exportChildren(outfile, level, namespaceprefix_, namespacedef_, name_, True, pretty_print=pretty_print)
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.object_component is not None:
+            namespaceprefix_ = self.object_component_nsprefix_ + ':' if (UseCapturedNS_ and self.object_component_nsprefix_) else ''
+            self.object_component.export(outfile, level, namespaceprefix_, namespacedef_='', name_='object_component', pretty_print=pretty_print)
+        if self.variable_component is not None:
+            namespaceprefix_ = self.variable_component_nsprefix_ + ':' if (UseCapturedNS_ and self.variable_component_nsprefix_) else ''
+            self.variable_component.export(outfile, level, namespaceprefix_, namespacedef_='', name_='variable_component', pretty_print=pretty_print)
+        if self.literal_component is not None:
+            namespaceprefix_ = self.literal_component_nsprefix_ + ':' if (UseCapturedNS_ and self.literal_component_nsprefix_) else ''
+            self.literal_component.export(outfile, level, namespaceprefix_, namespacedef_='', name_='literal_component', pretty_print=pretty_print)
+        if self.arithmetic is not None:
+            namespaceprefix_ = self.arithmetic_nsprefix_ + ':' if (UseCapturedNS_ and self.arithmetic_nsprefix_) else ''
+            self.arithmetic.export(outfile, level, namespaceprefix_, namespacedef_='', name_='arithmetic', pretty_print=pretty_print)
+        if self.begin is not None:
+            namespaceprefix_ = self.begin_nsprefix_ + ':' if (UseCapturedNS_ and self.begin_nsprefix_) else ''
+            self.begin.export(outfile, level, namespaceprefix_, namespacedef_='', name_='begin', pretty_print=pretty_print)
+        if self.concat is not None:
+            namespaceprefix_ = self.concat_nsprefix_ + ':' if (UseCapturedNS_ and self.concat_nsprefix_) else ''
+            self.concat.export(outfile, level, namespaceprefix_, namespacedef_='', name_='concat', pretty_print=pretty_print)
+        if self.end is not None:
+            namespaceprefix_ = self.end_nsprefix_ + ':' if (UseCapturedNS_ and self.end_nsprefix_) else ''
+            self.end.export(outfile, level, namespaceprefix_, namespacedef_='', name_='end', pretty_print=pretty_print)
+        if self.escape_regex is not None:
+            namespaceprefix_ = self.escape_regex_nsprefix_ + ':' if (UseCapturedNS_ and self.escape_regex_nsprefix_) else ''
+            self.escape_regex.export(outfile, level, namespaceprefix_, namespacedef_='', name_='escape_regex', pretty_print=pretty_print)
+        if self.split is not None:
+            namespaceprefix_ = self.split_nsprefix_ + ':' if (UseCapturedNS_ and self.split_nsprefix_) else ''
+            self.split.export(outfile, level, namespaceprefix_, namespacedef_='', name_='split', pretty_print=pretty_print)
+        if self.substring is not None:
+            namespaceprefix_ = self.substring_nsprefix_ + ':' if (UseCapturedNS_ and self.substring_nsprefix_) else ''
+            self.substring.export(outfile, level, namespaceprefix_, namespacedef_='', name_='substring', pretty_print=pretty_print)
+        if self.time_difference is not None:
+            namespaceprefix_ = self.time_difference_nsprefix_ + ':' if (UseCapturedNS_ and self.time_difference_nsprefix_) else ''
+            self.time_difference.export(outfile, level, namespaceprefix_, namespacedef_='', name_='time_difference', pretty_print=pretty_print)
+        if self.regex_capture is not None:
+            namespaceprefix_ = self.regex_capture_nsprefix_ + ':' if (UseCapturedNS_ and self.regex_capture_nsprefix_) else ''
+            self.regex_capture.export(outfile, level, namespaceprefix_, namespacedef_='', name_='regex_capture', pretty_print=pretty_print)
+        if self.unique is not None:
+            namespaceprefix_ = self.unique_nsprefix_ + ':' if (UseCapturedNS_ and self.unique_nsprefix_) else ''
+            self.unique.export(outfile, level, namespaceprefix_, namespacedef_='', name_='unique', pretty_print=pretty_print)
+        if self.count is not None:
+            namespaceprefix_ = self.count_nsprefix_ + ':' if (UseCapturedNS_ and self.count_nsprefix_) else ''
+            self.count.export(outfile, level, namespaceprefix_, namespacedef_='', name_='count', pretty_print=pretty_print)
+        if self.glob_to_regex is not None:
+            namespaceprefix_ = self.glob_to_regex_nsprefix_ + ':' if (UseCapturedNS_ and self.glob_to_regex_nsprefix_) else ''
+            self.glob_to_regex.export(outfile, level, namespaceprefix_, namespacedef_='', name_='glob_to_regex', pretty_print=pretty_print)
+    def build(self, node, gds_collector_=None):
+        self.gds_collector_ = gds_collector_
+        if SaveElementTreeNode:
+            self.gds_elementtree_node_ = node
+        already_processed = set()
+        self.ns_prefix_ = node.prefix
+        self._buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+            self._buildChildren(child, node, nodeName_, gds_collector_=gds_collector_)
+        return self
+    def _buildAttributes(self, node, attrs, already_processed):
+        super(local_variable, self)._buildAttributes(node, attrs, already_processed)
+    def _buildChildren(self, child_, node, nodeName_, fromsubclass_=False, gds_collector_=None):
+        if nodeName_ == 'object_component':
+            obj_ = ObjectComponentType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.object_component = obj_
+            obj_.original_tagname_ = 'object_component'
+        elif nodeName_ == 'variable_component':
+            obj_ = VariableComponentType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.variable_component = obj_
+            obj_.original_tagname_ = 'variable_component'
+        elif nodeName_ == 'literal_component':
+            obj_ = LiteralComponentType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.literal_component = obj_
+            obj_.original_tagname_ = 'literal_component'
+        elif nodeName_ == 'arithmetic':
+            obj_ = ArithmeticFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.arithmetic = obj_
+            obj_.original_tagname_ = 'arithmetic'
+        elif nodeName_ == 'begin':
+            obj_ = BeginFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.begin = obj_
+            obj_.original_tagname_ = 'begin'
+        elif nodeName_ == 'concat':
+            obj_ = ConcatFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.concat = obj_
+            obj_.original_tagname_ = 'concat'
+        elif nodeName_ == 'end':
+            obj_ = EndFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.end = obj_
+            obj_.original_tagname_ = 'end'
+        elif nodeName_ == 'escape_regex':
+            obj_ = EscapeRegexFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.escape_regex = obj_
+            obj_.original_tagname_ = 'escape_regex'
+        elif nodeName_ == 'split':
+            obj_ = SplitFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.split = obj_
+            obj_.original_tagname_ = 'split'
+        elif nodeName_ == 'substring':
+            obj_ = SubstringFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.substring = obj_
+            obj_.original_tagname_ = 'substring'
+        elif nodeName_ == 'time_difference':
+            obj_ = TimeDifferenceFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.time_difference = obj_
+            obj_.original_tagname_ = 'time_difference'
+        elif nodeName_ == 'regex_capture':
+            obj_ = RegexCaptureFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.regex_capture = obj_
+            obj_.original_tagname_ = 'regex_capture'
+        elif nodeName_ == 'unique':
+            obj_ = UniqueFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.unique = obj_
+            obj_.original_tagname_ = 'unique'
+        elif nodeName_ == 'count':
+            obj_ = CountFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.count = obj_
+            obj_.original_tagname_ = 'count'
+        elif nodeName_ == 'glob_to_regex':
+            obj_ = GlobToRegexFunctionType.factory(parent_object_=self)
+            obj_.build(child_, gds_collector_=gds_collector_)
+            self.glob_to_regex = obj_
+            obj_.original_tagname_ = 'glob_to_regex'
+        super(local_variable, self)._buildChildren(child_, node, nodeName_, True)
+# end class local_variable
 
 class LiteralComponentType(GeneratedsSuper):
     __hash__ = GeneratedsSuper.__hash__
