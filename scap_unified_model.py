@@ -18004,7 +18004,8 @@ class TestType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "oval-def"
+        if self.ns_prefix_ is None:
+            self.ns_prefix_ = None
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
         self.version = _cast(int, version)
@@ -18899,7 +18900,8 @@ class ObjectType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "oval-def"
+        if self.ns_prefix_ is None:
+            self.ns_prefix_ = None
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
         self.version = _cast(int, version)
@@ -19820,7 +19822,8 @@ class StateType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = "oval-def"
+        if self.ns_prefix_ is None:
+            self.ns_prefix_ = None
         self.id = _cast(None, id)
         self.id_nsprefix_ = None
         self.version = _cast(int, version)
