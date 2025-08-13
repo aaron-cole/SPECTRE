@@ -64103,7 +64103,7 @@ class file_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "unix-def"
         super(globals().get("file_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.filepath = filepath
         self.validate_EntityStateStringType(self.filepath)
@@ -70123,7 +70123,7 @@ class password_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "unix-def"
         super(globals().get("password_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.username = username
         self.validate_EntityStateStringType(self.username)
@@ -76910,7 +76910,7 @@ class shadow_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "unix-def"
         super(globals().get("shadow_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.username = username
         self.validate_EntityStateStringType(self.username)
@@ -83959,7 +83959,7 @@ class dpkginfo_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "linux-def"
         super(globals().get("dpkginfo_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.name = name
         self.validate_EntityStateStringType(self.name)
@@ -88456,7 +88456,7 @@ class rpminfo_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "linux-def"
         super(globals().get("rpminfo_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.name = name
         self.validate_EntityStateStringType(self.name)
@@ -91152,7 +91152,7 @@ class rpmverifyfile_object(ObjectType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "linux-def"
         super(globals().get("rpmverifyfile_object"), self).__init__(id, version, comment, deprecated, Signature, notes,  **kwargs_)
         self.set_ = set_
         self.set__nsprefix_ = "oval-def"
@@ -91439,7 +91439,7 @@ class rpmverifyfile_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "linux-def"
         super(globals().get("rpmverifyfile_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.name = name
         self.validate_EntityStateStringType(self.name)
@@ -92900,7 +92900,7 @@ class rpmverifypackage_object(ObjectType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "linux-def"
         super(globals().get("rpmverifypackage_object"), self).__init__(id, version, comment, deprecated, Signature, notes,  **kwargs_)
         self.set_ = set_
         self.set__nsprefix_ = "oval-def"
@@ -93136,7 +93136,7 @@ class rpmverifypackage_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "linux-def"
         super(globals().get("rpmverifypackage_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.name = name
         self.validate_EntityStateStringType(self.name)
@@ -96770,7 +96770,7 @@ class slackwarepkginfo_state(StateType):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "linux-def"
         super(globals().get("slackwarepkginfo_state"), self).__init__(id, version, operator, comment, deprecated, Signature, notes,  **kwargs_)
         self.name = name
         self.validate_EntityStateStringType(self.name)
