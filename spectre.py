@@ -3001,6 +3001,8 @@ class XccdfEditorApp:
         ttk.Button(button_frame, text="Add Definition...", command=lambda: self.add_oval_definition(oval_defs_obj)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Edit Definition...", command=lambda: self.edit_oval_definition(oval_defs_obj)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Remove Selected", command=lambda: self.remove_oval_definition(oval_defs_obj)).pack(side=tk.LEFT, padx=2)
+        ttk.Separator(button_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=10, fill='y')
+        ttk.Button(button_frame, text="Standardize All OVAL IDs", command=lambda: self._fix_all_oval_ids(oval_defs_obj)).pack(side=tk.LEFT, padx=2)
         paned_window.add(defs_list_frame)
 
         criteria_editor_frame = ttk.LabelFrame(paned_window, text="Criteria Editor", padding=5)
@@ -3062,6 +3064,89 @@ class XccdfEditorApp:
         ttk.Button(button_frame, text=f"Add {entity_type_capitalized}...", command=lambda: self.add_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
+
+    def _fix_all_oval_ids(self, oval_defs_obj):
+        """
+        Standardizes all OVAL definition, test, object, and state IDs to a
+        sequential format and updates all internal references.
+        """
+        if not self.prefix:
+            messagebox.showwarning("No Prefix", "A datastream prefix has not been set.")
+            return
+
+        if not oval_defs_obj: return
+
+        if not messagebox.askyesno("Confirm ID Standardization",
+                                   "This will overwrite ALL existing OVAL definition, test, object, and state IDs "
+                                   "in this component with a new sequential format (e.g., oval:prefix:def:1, oval:prefix:tst:1, etc.) "
+                                   "and update all references.\n\nThis action cannot be undone.\n\nAre you sure?"):
+            return
+
+        id_remap = {}
+        
+        # --- 1. Remap all entity types and build the map ---
+        abbreviation_map = {
+            'definition': 'def',
+            'test': 'tst',
+            'object': 'obj',
+            'state': 'ste'
+        }
+        for entity_type, abbr in abbreviation_map.items():
+            container = getattr(oval_defs_obj, f"get_{entity_type}s")()
+            if container:
+                items = getattr(container, f"get_{entity_type}")()
+                if items:
+                    items.sort(key=lambda x: x.get_id()) # Sort for consistent ordering
+                    for item in items:
+                        old_id = item.get_id()
+                        id_number = old_id.split(':')[-1]
+                        new_id = f"oval:{self.prefix}:{abbr}:{id_number}"
+                        if old_id != new_id:
+                            id_remap[old_id] = new_id
+                            item.set_id(new_id)
+
+        if not id_remap:
+            messagebox.showinfo("No Changes", "All OVAL IDs are already standardized.")
+            return
+            
+        # --- 2. Update all references using the completed map ---
+        
+        # Update references in Definitions
+        if oval_defs_obj.get_definitions():
+            for definition in oval_defs_obj.get_definitions().get_definition():
+                def _update_refs_in_criteria(criteria):
+                    if not criteria: return
+                    if criteria.get_criterion():
+                        for criterion in criteria.get_criterion():
+                            if criterion.get_test_ref() in id_remap:
+                                criterion.set_test_ref(id_remap[criterion.get_test_ref()])
+                    if criteria.get_extend_definition():
+                         for ext_def in criteria.get_extend_definition():
+                            if ext_def.get_definition_ref() in id_remap:
+                                ext_def.set_definition_ref(id_remap[ext_def.get_definition_ref()])
+                    if criteria.get_criteria():
+                        for sub_criteria in criteria.get_criteria():
+                            _update_refs_in_criteria(sub_criteria)
+                _update_refs_in_criteria(definition.get_criteria())
+
+        # Update references in Tests
+        if oval_defs_obj.get_tests():
+            for test in oval_defs_obj.get_tests().get_test():
+                if test.get_object() and test.get_object().get_object_ref() in id_remap:
+                    test.get_object().set_object_ref(id_remap[test.get_object().get_object_ref()])
+                if test.get_state():
+                    for state_ref in test.get_state():
+                        if state_ref.get_state_ref() in id_remap:
+                            state_ref.set_state_ref(id_remap[state_ref.get_state_ref()])
+        
+        # Refresh all relevant UI trees        
+        self.populate_oval_definitions_tree(oval_defs_obj)
+        self.populate_oval_tests_tree(oval_defs_obj)
+        self.populate_oval_objects_tree(oval_defs_obj)
+        self.populate_oval_states_tree(oval_defs_obj)
+        
+        self._mark_as_dirty()
+        messagebox.showinfo("Success", f"Standardized {len(id_remap)} OVAL ID(s) and updated internal references.")        
         
       
 ##--  [  OVAL Definitions ]---
