@@ -16592,9 +16592,9 @@ class MetadataType(GeneratedsSuper):
         self.gds_elementtree_node_ = None
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
-        self.ns_prefix_ = None
+        self.ns_prefix_ = "oval-def"
         self.title = title
-        self.title_nsprefix_ = None
+        self.title_nsprefix_ = "oval-def"
         if affected is None:
             self.affected = []
         else:
@@ -16606,7 +16606,7 @@ class MetadataType(GeneratedsSuper):
             self.reference = reference
         self.reference_nsprefix_ = "oval-def"
         self.description = description
-        self.description_nsprefix_ = None
+        self.description_nsprefix_ = "oval-def"
         if anytypeobjs_ is None:
             self.anytypeobjs_ = []
         else:
