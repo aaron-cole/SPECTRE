@@ -176,7 +176,12 @@ class XccdfEditorApp:
         self.import_menu.add_separator()
         self.import_menu.add_command(label="OVAL Check Component...", command=lambda: self._import_oval_file("OVAL Check", "checks"), state=tk.DISABLED)
         self.import_menu.add_command(label="CPE OVAL Component...", command=lambda: self._import_oval_file("CPE OVAL", "dictionaries"), state=tk.DISABLED)
-
+        
+        # --- New Submenu for OVAL Components ---
+        self.import_menu.add_separator()
+        oval_import_menu = tk.Menu(self.import_menu, tearoff=0)
+        self.import_menu.add_cascade(label="OVAL", menu=oval_import_menu)
+        oval_import_menu.add_command(label="Definitions from File...", command=self.import_oval_definitions)        
 
         # --- Main layout ---
         paned_window = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
@@ -492,6 +497,7 @@ class XccdfEditorApp:
             collection.add_component(component)
         
         return collection
+
 
 ##--  [ Imports and such ]---
     def _add_imported_cpe_list(self, parsed_cpe_list):
@@ -880,7 +886,201 @@ class XccdfEditorApp:
                     added_count += 1
         
         return added_count
-                   
+
+    def import_oval_definitions(self):
+        """
+        Imports OVAL definitions by creating new, clean objects from the
+        source file's data.
+        """
+        if not self.datastream_collection:
+            messagebox.showwarning("No Datastream", "Please create or open a datastream first.")
+            return
+
+        # User selects the source file
+        file_path = filedialog.askopenfilename(
+            title="Import OVAL Definitions From File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not file_path:
+            return
+
+        try:
+            from lxml import etree
+            tree = etree.parse(file_path)
+            ns = {'oval-def': 'http://oval.mitre.org/XMLSchema/oval-definitions-5'}
+            definition_nodes = tree.findall('.//oval-def:definition', namespaces=ns)
+
+            if not definition_nodes:
+                messagebox.showinfo("No Definitions Found", "The selected file does not contain any OVAL definitions.")
+                return
+
+            source_definitions_data = []
+            for d_node in definition_nodes:
+                def_raw = models.parseString(etree.tostring(d_node), silence=True)
+                if not def_raw: continue
+                
+                title, desc = "", ""
+                meta = def_raw.get_metadata()
+                if meta:
+                    title_obj = meta.get_title()
+                    desc_obj = meta.get_description()
+                    if hasattr(title_obj, 'get_valueOf_'): title = title_obj.get_valueOf_()
+                    elif isinstance(title_obj, str): title = title_obj
+                    if hasattr(desc_obj, 'get_valueOf_'): desc = desc_obj.get_valueOf_()
+                    elif isinstance(desc_obj, str): desc = desc_obj
+
+                criteria = def_raw.get_criteria()
+                
+                source_definitions_data.append({
+                    'id': def_raw.get_id(),
+                    'version': def_raw.get_version(),
+                    'class': def_raw.get_class(),
+                    'title': title,
+                    'description': desc,
+                    'criteria': criteria
+                })
+
+            selected_defs_data = self._select_definitions_to_import_dialog(source_definitions_data)
+            if not selected_defs_data:
+                return
+
+            # User selects the target OVAL component in the current datastream.
+            target_component = self._select_target_oval_component_dialog()
+            if not target_component:
+                return
+            target_oval_defs = target_component.oval_definitions
+
+            # Merge the selected definitions.
+            if target_oval_defs.get_definitions() is None:
+                target_oval_defs.set_definitions(models.DefinitionsType())
+                
+            existing_def_ids = {d.get_id() for d in target_oval_defs.get_definitions().get_definition()}
+            added_count = 0
+
+            for def_data in selected_defs_data:
+                if def_data['id'] not in existing_def_ids:
+                    self._create_oval_definition_from_data(target_oval_defs, def_data)
+                    added_count += 1
+            
+            if added_count > 0:
+                self._mark_as_dirty()
+                messagebox.showinfo("Import Complete", f"Successfully imported {added_count} new OVAL definition(s).")
+                self.display_details(target_component)
+            else:
+                messagebox.showinfo("No Changes", "All selected definitions already exist in the target component.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import OVAL definitions:\n{e}")
+            
+    def _select_definitions_to_import_dialog(self, definitions_data):
+        """Shows a scrollable dialog with a checklist of OVAL definitions to import."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select Definitions to Import")
+        dialog.minsize(width=450, height=400)
+
+        # --- Main container frame ---
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        ttk.Label(main_frame, text="Select the definitions you want to import:").pack(anchor="w", pady=5)
+        
+        # --- Button Frame for Select/Deselect All ---
+        button_frame_top = ttk.Frame(main_frame)
+        button_frame_top.pack(fill=tk.X, pady=(0, 5))
+
+        # --- Scrollable Area for checkboxes ---
+        canvas = tk.Canvas(main_frame, borderwidth=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        checkbox_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=checkbox_frame, anchor="nw")
+
+        def on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        checkbox_frame.bind("<Configure>", on_configure)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        check_vars = {}
+        for def_data in definitions_data:
+            def_id = def_data.get('id', '')
+            title = def_data.get('title', 'No Title')
+            
+            var = tk.BooleanVar(value=True)
+            chk = ttk.Checkbutton(checkbox_frame, text=f"{def_id} ({title})", variable=var)
+            chk.pack(anchor="w", padx=10, pady=2)
+            # We store the original dictionary with its variable
+            check_vars[def_id] = {'var': var, 'data': def_data}
+
+        # --- Add Select/Deselect All buttons ---
+        def select_all():
+            for item in check_vars.values():
+                item['var'].set(True)
+        
+        def deselect_all():
+            for item in check_vars.values():
+                item['var'].set(False)
+
+        ttk.Button(button_frame_top, text="Select All", command=select_all).pack(side=tk.LEFT)
+        ttk.Button(button_frame_top, text="Deselect All", command=deselect_all).pack(side=tk.LEFT, padx=5)
+
+        selected_data = None
+        def on_ok():
+            nonlocal selected_data
+            selected_data = [item['data'] for item in check_vars.values() if item['var'].get()]
+            dialog.destroy()
+
+        # --- OK/Cancel buttons at the bottom ---
+        button_frame_bottom = ttk.Frame(dialog, padding=(10, 5))
+        button_frame_bottom.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame_bottom, text="Import Selected", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame_bottom, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_data
+
+    def _select_target_oval_component_dialog(self):
+        """Shows a dialog for the user to select a target OVAL component."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select Target Component")
+
+        # Use our existing helper to find all OVAL components
+        oval_components = self.get_oval_components()
+        if not oval_components:
+            messagebox.showerror("Error", "No OVAL components exist in the current datastream to import into.", parent=self.root)
+            return None
+
+        main_frame = ttk.Frame(dialog, padding=10)
+        main_frame.pack(fill=tk.BOTH, expand=True)
+        
+        ttk.Label(main_frame, text="Select the OVAL component to import into:").pack(pady=5)
+        
+        comp_var = tk.StringVar()
+        comp_combo = ttk.Combobox(main_frame, textvariable=comp_var, values=sorted(oval_components.keys()), state="readonly")
+        comp_combo.pack(fill=tk.X, pady=5)
+        if oval_components:
+            comp_var.set(sorted(oval_components.keys())[0])
+
+        selected_component = None
+        def on_ok():
+            nonlocal selected_component
+            selected_component = oval_components.get(comp_var.get())
+            dialog.destroy()
+
+        button_frame = ttk.Frame(dialog, padding=(10, 5))
+        button_frame.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame, text="OK", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_component
+
+        
            
 ##--  [ Core Component Creators ]---
     def new_cpe_dictionary(self):
@@ -2919,7 +3119,11 @@ class XccdfEditorApp:
         ttk.Label(main_frame, text="Title:").grid(row=3, column=0, sticky="w", pady=2)
         title_text = ""
         if meta and meta.get_title():
-            title_text = meta.get_title().get_valueOf_()
+            title_obj = meta.get_title()
+            if hasattr(title_obj, 'get_valueOf_'):
+                title_text = title_obj.get_valueOf_()
+            elif isinstance(title_obj, str):
+                title_text = title_obj
         title_var = tk.StringVar(value=title_text)
         ttk.Entry(main_frame, textvariable=title_var).grid(row=3, column=1, sticky="ew", pady=2)
         
@@ -2927,7 +3131,11 @@ class XccdfEditorApp:
         desc_text = tk.Text(main_frame, height=4, width=40)
         desc_text.grid(row=4, column=1, sticky="ew", pady=2)
         if meta and meta.get_description():
-            desc_text.insert("1.0", meta.get_description())
+            desc_obj = meta.get_description()
+            if hasattr(desc_obj, 'get_valueOf_'):
+                desc_text.insert("1.0", desc_obj.get_valueOf_())
+            elif isinstance(desc_obj, str):
+                desc_text.insert("1.0", desc_obj)
 
         main_frame.columnconfigure(1, weight=1)
 
@@ -2947,28 +3155,43 @@ class XccdfEditorApp:
         self._center_dialog(dialog)
         dialog.wait_window()
         return results if 'id' in results else None
+
+    def _create_oval_definition_from_data(self, oval_defs_obj, data):
+        """
+        Takes a dictionary of data and creates a new, clean OVAL definition object.
+        This is the core logic used by both the UI and the importer.
+        """
+        if not data:
+            return
+
+        if not oval_defs_obj.get_definitions():
+            oval_defs_obj.set_definitions(models.DefinitionsType())
+        
+        # This is the stable creation logic from your add_oval_definition method
+        new_metadata = models.MetadataType(
+            title=data['title'],
+            description=data['description']
+        )
+        
+        criteria_obj = data.get('criteria', models.CriteriaType())
+        
+        new_def = models.DefinitionType(
+            id=data['id'],
+            version=data['version'],
+            class_member=data['class'],
+            metadata=new_metadata,
+            criteria=criteria_obj
+        )
+        
+        oval_defs_obj.get_definitions().add_definition(new_def)
         
     def add_oval_definition(self, oval_defs_obj):
-        """Handles adding a new OVAL definition."""
+        """Handles the UI workflow for adding a new OVAL definition."""
         data = self._show_oval_definition_dialog()
         if data:
-            if not oval_defs_obj.get_definitions():
-                oval_defs_obj.set_definitions(models.DefinitionsType())
-            
-            new_def = models.DefinitionType(
-                id=data['id'],
-                version=data['version'],
-                class_=data['class'],
-                metadata=models.MetadataType(
-                    title=data['title'],
-                    description=data['description']
-                ),
-                criteria=models.CriteriaType()
-            )
-            
-            oval_defs_obj.get_definitions().add_definition(new_def)
+            self._create_oval_definition_from_data(oval_defs_obj, data)
             self.populate_oval_definitions_tree(oval_defs_obj)
-            self._mark_as_dirty() # Mark the change
+            self._mark_as_dirty()
             
     def edit_oval_definition(self, oval_defs_obj):
         """Handles editing an existing OVAL definition."""
@@ -2986,7 +3209,7 @@ class XccdfEditorApp:
         if data:
             def_to_edit.set_id(data['id'])
             def_to_edit.set_version(data['version'])
-            def_to_edit.set_class_member(data['class'])
+            def_to_edit.set_class(data['class'])
             
             meta = def_to_edit.get_metadata()
             if not meta:
