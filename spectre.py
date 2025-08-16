@@ -181,7 +181,9 @@ class XccdfEditorApp:
         self.import_menu.add_separator()
         oval_import_menu = tk.Menu(self.import_menu, tearoff=0)
         self.import_menu.add_cascade(label="OVAL", menu=oval_import_menu)
-        oval_import_menu.add_command(label="Definitions from File...", command=self.import_oval_definitions)        
+        oval_import_menu.add_command(label="Definitions from File...", command=self.import_oval_definitions) 
+        oval_import_menu.add_command(label="Tests from File...", command=self.import_oval_tests)   
+        oval_import_menu.add_command(label="Objects from File...", command=self.import_oval_objects)
 
         # --- Main layout ---
         paned_window = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
@@ -1080,8 +1082,322 @@ class XccdfEditorApp:
         dialog.wait_window()
         return selected_component
 
+    def import_oval_tests(self):
+        """
+        Imports OVAL tests by creating new, clean objects from the
+        source file's data.
+        """
+        file_path = filedialog.askopenfilename(
+            title="Import OVAL Tests From File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not file_path:
+            return
+
+        try:
+            from lxml import etree
+            tree = etree.parse(file_path)
+            test_nodes = tree.xpath("//*[substring(local-name(), string-length(local-name()) - string-length('_test') + 1) = '_test']")
+
+            if not test_nodes:
+                messagebox.showinfo("No Tests Found", "The selected file does not contain any OVAL tests.")
+                return
+
+            # --- START FINAL FIX ---
+            # 1. Parse into temporary, potentially "broken" objects
+            source_tests_raw = [models.parseString(etree.tostring(t_node), silence=True) for t_node in test_nodes]
+
+            # 2. Create a clean list of data dictionaries from the raw objects
+            source_tests_data = []
+            for test_raw in source_tests_raw:
+                if not test_raw: continue
+                source_tests_data.append({
+                    'id': test_raw.get_id(),
+                    'version': test_raw.get_version(),
+                    'comment': test_raw.get_comment(),
+                    'check': test_raw.get_check(),
+                    'check_existence': test_raw.get_check_existence(),
+                    'object_ref': test_raw.get_object().get_object_ref() if test_raw.get_object() else None,
+                    'state_ref': test_raw.get_state()[0].get_state_ref() if test_raw.get_state() else None,
+                    'class': type(test_raw) # Store the actual class to be created
+                })
+            # --- END FINAL FIX ---
+
+            # 3. Let the user select which data dictionaries to import
+            selected_tests_data = self._select_tests_to_import_dialog(source_tests_data)
+            if not selected_tests_data:
+                return
+
+            target_component = self._select_target_oval_component_dialog()
+            if not target_component:
+                return
+            target_oval_defs = target_component.oval_definitions
         
-           
+            # 4. Merge the selected data
+            if target_oval_defs.get_tests() is None:
+                target_oval_defs.set_tests(models.TestsType())
+            
+            existing_test_ids = {t.get_id() for t in target_oval_defs.get_tests().get_test()}
+            added_count = 0
+
+            for test_data in selected_tests_data:
+                if test_data['id'] not in existing_test_ids:
+                    # 5. Use your trusted factory to create a brand new, clean object
+                    new_test = self._create_oval_entity(test_data['class'], test_data, 'test')
+                    if new_test:
+                        target_oval_defs.get_tests().add_test(new_test)
+                        added_count += 1
+            
+            if added_count > 0:
+                self._mark_as_dirty()
+                messagebox.showinfo("Import Complete", f"Successfully imported {added_count} new OVAL test(s).")
+                self.display_details(target_component)
+            else:
+                messagebox.showinfo("No Changes", "All selected tests already exist in the target component.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import OVAL tests:\n{e}")
+            
+    def _select_tests_to_import_dialog(self, tests_data):
+        """Shows a scrollable dialog with a checklist of OVAL tests to import."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select Tests to Import")
+        dialog.minsize(width=450, height=400)
+
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        ttk.Label(main_frame, text="Select the tests you want to import:").pack(anchor="w", pady=5)
+        
+        button_frame_top = ttk.Frame(main_frame)
+        button_frame_top.pack(fill=tk.X, pady=(0, 5))
+
+        canvas = tk.Canvas(main_frame, borderwidth=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        checkbox_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=checkbox_frame, anchor="nw")
+
+        def on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        checkbox_frame.bind("<Configure>", on_configure)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        check_vars = {}
+        # This loop now correctly handles a list of dictionaries
+        for test_data in tests_data:
+            test_id = test_data.get('id', '')
+            comment = test_data.get('comment', 'No comment')
+            
+            var = tk.BooleanVar(value=True)
+            chk = ttk.Checkbutton(checkbox_frame, text=f"{test_id} ({comment})", variable=var)
+            chk.pack(anchor="w", padx=10, pady=2)
+            check_vars[test_id] = {'var': var, 'data': test_data}
+
+        def select_all():
+            for item in check_vars.values():
+                item['var'].set(True)            
+
+        def deselect_all():
+            for item in check_vars.values():
+                item['var'].set(False)
+
+        ttk.Button(button_frame_top, text="Select All", command=select_all).pack(side=tk.LEFT)
+        ttk.Button(button_frame_top, text="Deselect All", command=deselect_all).pack(side=tk.LEFT, padx=5)
+
+        selected_data = None
+        def on_ok():
+            nonlocal selected_data
+            # Return a list of the full data dictionaries for the selected items
+            selected_data = [item['data'] for item in check_vars.values() if item['var'].get()]
+            dialog.destroy()
+
+        button_frame_bottom = ttk.Frame(dialog, padding=(10, 5))
+        button_frame_bottom.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame_bottom, text="Import Selected", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame_bottom, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_data
+
+    def import_oval_objects(self):
+        """
+        Orchestrates the import of OVAL objects by manually extracting data from
+        the source XML and creating new, clean objects.
+        """
+        file_path = filedialog.askopenfilename(
+            title="Import OVAL Objects From File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not file_path:
+            return
+
+        try:
+            from lxml import etree
+            tree = etree.parse(file_path)
+            object_nodes = tree.xpath("//*[substring(local-name(), string-length(local-name()) - string-length('_object') + 1) = '_object']")
+
+            if not object_nodes:
+                messagebox.showinfo("No Objects Found", "The selected file does not contain any OVAL objects.")
+                return
+
+            # --- START FINAL FIX ---
+            # 1. Create a clean list of data dictionaries directly from the lxml nodes.
+            source_objects_data = []
+            for node in object_nodes:
+                class_name = node.tag.split('}')[-1]
+                obj_class = getattr(models, class_name, None)
+                if not obj_class: continue
+
+                # Manually extract all data, including from child elements
+                obj_data = {
+                    'id': node.attrib.get('id'),
+                    'version': node.attrib.get('version'),
+                    'comment': node.attrib.get('comment'),
+                    'class': obj_class,
+                    'properties': {}
+                }
+                for child in node:
+                    child_tag = child.tag.split('}')[-1]
+                    child_data = {'value': child.text}
+                    for attr_name, attr_value in child.attrib.items():
+                        child_data[attr_name] = attr_value
+                    obj_data['properties'][child_tag] = child_data
+                
+                source_objects_data.append(obj_data)
+            # --- END FINAL FIX ---
+
+            # 2. Let the user select which objects to import.
+            selected_objects_data = self._select_objects_to_import_dialog(source_objects_data)
+            if not selected_objects_data:
+                return
+
+            target_component = self._select_target_oval_component_dialog()
+            if not target_component:
+                return
+            target_oval_defs = target_component.oval_definitions
+            
+            # 3. Merge the selected objects.
+            if target_oval_defs.get_objects() is None:
+                target_oval_defs.set_objects(models.ObjectsType())
+            
+            existing_object_ids = {o.get_id() for o in target_oval_defs.get_objects().get_object()}
+            added_count = 0
+
+            for obj_data in selected_objects_data:
+                if obj_data['id'] not in existing_object_ids:
+                    # Use your trusted factory to create a new, clean object.
+                    new_object = self._create_oval_entity_from_import(obj_data['class'], obj_data)
+                    if new_object:
+                        target_oval_defs.get_objects().add_object(new_object)
+                        added_count += 1
+            
+            if added_count > 0:
+                self._mark_as_dirty()
+                messagebox.showinfo("Import Complete", f"Successfully imported {added_count} new OVAL object(s).")
+                self.display_details(target_component)
+            else:
+                messagebox.showinfo("No Changes", "All selected objects already exist in the target component.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import OVAL objects:\n{e}")
+            
+    def _select_objects_to_import_dialog(self, objects_data):
+        """Shows a scrollable dialog with a checklist of OVAL objects to import."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select Objects to Import")
+        dialog.minsize(width=450, height=400)
+
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        ttk.Label(main_frame, text="Select the objects you want to import:").pack(anchor="w", pady=5)
+        
+        button_frame_top = ttk.Frame(main_frame)
+        button_frame_top.pack(fill=tk.X, pady=(0, 5))
+
+        canvas = tk.Canvas(main_frame, borderwidth=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        checkbox_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=checkbox_frame, anchor="nw")
+
+        def on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        checkbox_frame.bind("<Configure>", on_configure)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        check_vars = {}
+        for obj_data in objects_data:
+            obj_id = obj_data.get('id', '')
+            comment = obj_data.get('comment', 'No comment')
+            
+            var = tk.BooleanVar(value=True)
+            chk = ttk.Checkbutton(checkbox_frame, text=f"{obj_id} ({comment})", variable=var)
+            chk.pack(anchor="w", padx=10, pady=2)
+            check_vars[obj_id] = {'var': var, 'data': obj_data}
+
+        def select_all():
+            for item in check_vars.values(): item['var'].set(True)
+        
+        def deselect_all():
+            for item in check_vars.values(): item['var'].set(False)
+
+        ttk.Button(button_frame_top, text="Select All", command=select_all).pack(side=tk.LEFT)
+        ttk.Button(button_frame_top, text="Deselect All", command=deselect_all).pack(side=tk.LEFT, padx=5)
+
+        selected_data = None
+        def on_ok():
+            nonlocal selected_data
+            selected_data = [item['data'] for item in check_vars.values() if item['var'].get()]
+            dialog.destroy()
+
+        button_frame_bottom = ttk.Frame(dialog, padding=(10, 5))
+        button_frame_bottom.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame_bottom, text="Import Selected", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame_bottom, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_data        
+
+    def _create_oval_entity_from_import(self, selected_class, data):
+        """Creates a new OVAL entity from a dictionary of imported data."""
+        if not data: return None
+        new_entity = selected_class()
+        new_entity.original_tagname_ = selected_class.__name__
+        
+        # Set common attributes
+        if 'id' in data: new_entity.set_id(data['id'])
+        if 'version' in data: new_entity.set_version(data['version'])
+        if 'comment' in data: new_entity.set_comment(data['comment'])
+
+        # Set specific properties from the nested 'properties' dictionary
+        for prop_name, prop_data in data.get('properties', {}).items():
+            setter_name = f"set_{prop_name}"
+            if hasattr(new_entity, setter_name):
+                # This logic can be expanded, but for now, we create a simple wrapper
+                wrapper_class_name = f"EntityObject{prop_name.capitalize()}Type"
+                wrapper_class = getattr(models, wrapper_class_name, models.EntityObjectStringType)
+                
+                kwargs = {'valueOf_': prop_data.get('value')}
+                if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
+                if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
+                
+                wrapped_entity = wrapper_class(**kwargs)
+                wrapped_entity.ns_prefix_ = new_entity.ns_prefix_
+                getattr(new_entity, setter_name)(wrapped_entity)
+
+        return new_entity
+
+        
 ##--  [ Core Component Creators ]---
     def new_cpe_dictionary(self):
         if not self.datastream_collection:
@@ -3064,6 +3380,11 @@ class XccdfEditorApp:
         ttk.Button(button_frame, text=f"Add {entity_type_capitalized}...", command=lambda: self.add_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Edit Selected...", command=lambda: self.edit_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="Remove Selected", command=lambda: self.remove_oval_entity(oval_defs_obj, entity_type)).pack(side=tk.LEFT, padx=2)
+        
+        if entity_type in ['test', 'object', 'state', 'variable']:
+            ttk.Separator(button_frame, orient=tk.VERTICAL).pack(side=tk.LEFT, padx=10, fill='y')
+            ttk.Button(button_frame, text="Standardize All OVAL IDs", 
+                       command=lambda: self._fix_all_oval_ids(oval_defs_obj)).pack(side=tk.LEFT, padx=2)
 
     def _fix_all_oval_ids(self, oval_defs_obj):
         """
