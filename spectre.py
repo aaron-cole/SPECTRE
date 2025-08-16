@@ -184,6 +184,7 @@ class XccdfEditorApp:
         oval_import_menu.add_command(label="Definitions from File...", command=self.import_oval_definitions) 
         oval_import_menu.add_command(label="Tests from File...", command=self.import_oval_tests)   
         oval_import_menu.add_command(label="Objects from File...", command=self.import_oval_objects)
+        oval_import_menu.add_command(label="States from File...", command=self.import_oval_states)
 
         # --- Main layout ---
         paned_window = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
@@ -1103,7 +1104,6 @@ class XccdfEditorApp:
                 messagebox.showinfo("No Tests Found", "The selected file does not contain any OVAL tests.")
                 return
 
-            # --- START FINAL FIX ---
             # 1. Parse into temporary, potentially "broken" objects
             source_tests_raw = [models.parseString(etree.tostring(t_node), silence=True) for t_node in test_nodes]
 
@@ -1121,7 +1121,6 @@ class XccdfEditorApp:
                     'state_ref': test_raw.get_state()[0].get_state_ref() if test_raw.get_state() else None,
                     'class': type(test_raw) # Store the actual class to be created
                 })
-            # --- END FINAL FIX ---
 
             # 3. Let the user select which data dictionaries to import
             selected_tests_data = self._select_tests_to_import_dialog(source_tests_data)
@@ -1142,7 +1141,7 @@ class XccdfEditorApp:
 
             for test_data in selected_tests_data:
                 if test_data['id'] not in existing_test_ids:
-                    # 5. Use your trusted factory to create a brand new, clean object
+                    # 5. Use trusted factory to create a brand new, clean object
                     new_test = self._create_oval_entity(test_data['class'], test_data, 'test')
                     if new_test:
                         target_oval_defs.get_tests().add_test(new_test)
@@ -1245,7 +1244,6 @@ class XccdfEditorApp:
                 messagebox.showinfo("No Objects Found", "The selected file does not contain any OVAL objects.")
                 return
 
-            # --- START FINAL FIX ---
             # 1. Create a clean list of data dictionaries directly from the lxml nodes.
             source_objects_data = []
             for node in object_nodes:
@@ -1269,7 +1267,6 @@ class XccdfEditorApp:
                     obj_data['properties'][child_tag] = child_data
                 
                 source_objects_data.append(obj_data)
-            # --- END FINAL FIX ---
 
             # 2. Let the user select which objects to import.
             selected_objects_data = self._select_objects_to_import_dialog(source_objects_data)
@@ -1290,8 +1287,8 @@ class XccdfEditorApp:
 
             for obj_data in selected_objects_data:
                 if obj_data['id'] not in existing_object_ids:
-                    # Use your trusted factory to create a new, clean object.
-                    new_object = self._create_oval_entity_from_import(obj_data['class'], obj_data)
+                    # Use factory to create a new, clean object.
+                    new_object = self._create_oval_entity(obj_data['class'], obj_data, 'object')
                     if new_object:
                         target_oval_defs.get_objects().add_object(new_object)
                         added_count += 1
@@ -1368,35 +1365,146 @@ class XccdfEditorApp:
         dialog.wait_window()
         return selected_data        
 
-    def _create_oval_entity_from_import(self, selected_class, data):
-        """Creates a new OVAL entity from a dictionary of imported data."""
-        if not data: return None
-        new_entity = selected_class()
-        new_entity.original_tagname_ = selected_class.__name__
+    def import_oval_states(self):
+        """
+        Orchestrates the import of OVAL states by creating new, clean objects
+        from the source file's data.
+        """
+        file_path = filedialog.askopenfilename(
+            title="Import OVAL States From File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not file_path:
+            return
+
+        try:
+            from lxml import etree
+            tree = etree.parse(file_path)
+            # This XPath reliably finds any element whose name ends with '_state'
+            state_nodes = tree.xpath("//*[substring(local-name(), string-length(local-name()) - string-length('_state') + 1) = '_state']")
+
+            if not state_nodes:
+                messagebox.showinfo("No States Found", "The selected file does not contain any OVAL states.")
+                return
+
+            # Create a clean list of data dictionaries directly from the lxml nodes.
+            source_states_data = []
+            for node in state_nodes:
+                class_name = node.tag.split('}')[-1]
+                state_class = getattr(models, class_name, None)
+                if state_class:
+                    state_data = {
+                        'id': node.attrib.get('id'),
+                        'version': node.attrib.get('version'),
+                        'comment': node.attrib.get('comment'),
+                        'class': state_class,
+                        'properties': {}
+                    }
+                    for child in node:
+                        child_tag = child.tag.split('}')[-1]
+                        child_data = {'value': child.text}
+                        for attr_name, attr_value in child.attrib.items():
+                            child_data[attr_name] = attr_value
+                        state_data['properties'][child_tag] = child_data
+                    
+                    source_states_data.append(state_data)
+
+            selected_states_data = self._select_states_to_import_dialog(source_states_data)
+            if not selected_states_data:
+                return
+
+            target_component = self._select_target_oval_component_dialog()
+            if not target_component:
+                return
+            target_oval_defs = target_component.oval_definitions
+
+            if target_oval_defs.get_states() is None:
+                target_oval_defs.set_states(models.StatesType())
+            
+            existing_state_ids = {s.get_id() for s in target_oval_defs.get_states().get_state()}
+            added_count = 0
+
+            for state_data in selected_states_data:
+                if state_data['id'] not in existing_state_ids:
+                    # Use your trusted factory to create a new, clean object.
+                    new_state = self._create_oval_entity(state_data['class'], state_data, 'state')
+                    if new_state:
+                        target_oval_defs.get_states().add_state(new_state)
+                        added_count += 1
+            
+            if added_count > 0:
+                self._mark_as_dirty()
+                messagebox.showinfo("Import Complete", f"Successfully imported {added_count} new OVAL state(s).")
+                self.display_details(target_component)
+            else:
+                messagebox.showinfo("No Changes", "All selected states already exist in the target component.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import OVAL states:\n{e}")
+
+    def _select_states_to_import_dialog(self, states_data):
+        """Shows a scrollable dialog with a checklist of OVAL states to import."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select States to Import")
+        dialog.minsize(width=450, height=400)
+
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
         
-        # Set common attributes
-        if 'id' in data: new_entity.set_id(data['id'])
-        if 'version' in data: new_entity.set_version(data['version'])
-        if 'comment' in data: new_entity.set_comment(data['comment'])
+        ttk.Label(main_frame, text="Select the states you want to import:").pack(anchor="w", pady=5)
+        
+        button_frame_top = ttk.Frame(main_frame)
+        button_frame_top.pack(fill=tk.X, pady=(0, 5))
 
-        # Set specific properties from the nested 'properties' dictionary
-        for prop_name, prop_data in data.get('properties', {}).items():
-            setter_name = f"set_{prop_name}"
-            if hasattr(new_entity, setter_name):
-                # This logic can be expanded, but for now, we create a simple wrapper
-                wrapper_class_name = f"EntityObject{prop_name.capitalize()}Type"
-                wrapper_class = getattr(models, wrapper_class_name, models.EntityObjectStringType)
-                
-                kwargs = {'valueOf_': prop_data.get('value')}
-                if prop_data.get('datatype'): kwargs['datatype'] = prop_data.get('datatype')
-                if prop_data.get('operation'): kwargs['operation'] = prop_data.get('operation')
-                
-                wrapped_entity = wrapper_class(**kwargs)
-                wrapped_entity.ns_prefix_ = new_entity.ns_prefix_
-                getattr(new_entity, setter_name)(wrapped_entity)
+        canvas = tk.Canvas(main_frame, borderwidth=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        checkbox_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=checkbox_frame, anchor="nw")
 
-        return new_entity
+        def on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        checkbox_frame.bind("<Configure>", on_configure)
 
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        check_vars = {}
+        for state_data in states_data:
+            state_id = state_data.get('id', '')
+            comment = state_data.get('comment', 'No comment')
+            
+            var = tk.BooleanVar(value=True)
+            chk = ttk.Checkbutton(checkbox_frame, text=f"{state_id} ({comment})", variable=var)
+            chk.pack(anchor="w", padx=10, pady=2)
+            check_vars[state_id] = {'var': var, 'data': state_data}
+
+        def select_all():
+            for item in check_vars.values(): item['var'].set(True)
+        
+        def deselect_all():
+            for item in check_vars.values(): item['var'].set(False)
+
+        ttk.Button(button_frame_top, text="Select All", command=select_all).pack(side=tk.LEFT)
+        ttk.Button(button_frame_top, text="Deselect All", command=deselect_all).pack(side=tk.LEFT, padx=5)
+
+        selected_data = None
+        def on_ok():
+            nonlocal selected_data
+            selected_data = [item['data'] for item in check_vars.values() if item['var'].get()]
+            dialog.destroy()
+
+        button_frame_bottom = ttk.Frame(dialog, padding=(10, 5))
+        button_frame_bottom.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame_bottom, text="Import Selected", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame_bottom, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_data
+        
+        
         
 ##--  [ Core Component Creators ]---
     def new_cpe_dictionary(self):
@@ -4103,301 +4211,35 @@ class XccdfEditorApp:
         return selected_class # This now correctly returns the class object
 
     def _create_oval_entity(self, selected_class, data, entity_type_str):
-        """Creates a new OVAL entity from dialog data."""
+        """
+        A single, smart factory function that creates a new OVAL entity from
+        either UI data or imported XML data by first normalizing the data structure.
+        """
         if not data:
             return None
-        print(f"data: {data}")
-        print(f"selected_class: {selected_class}")
-        # --- Create an empty instance first
+
+        # 1. Create a new, clean data dictionary to work with.
+        clean_data = {}
+
+        # 2. Check if this is imported data with a nested 'properties' dict.
+        if 'properties' in data:
+            # Flatten the dictionary by merging the top-level and nested properties.
+            clean_data.update(data) # Copy id, version, comment, etc.
+            clean_data.update(data['properties']) # Add filepath, pattern, etc.
+            del clean_data['properties'] # Remove the now-redundant key
+        else:
+            # This is clean data from the UI, so just use it directly.
+            clean_data = data
+
+        # 3. Create an empty instance.
         new_entity = selected_class()
         new_entity.original_tagname_ = selected_class.__name__
-        print(new_entity.get_ns_prefix_())
         
-        # --- Set COMMON attributes for all OVAL entities ---
-        if 'id' in data: new_entity.set_id(data['id'])
-        if 'version' in data: new_entity.set_version(data['version'])
-        if 'comment' in data: new_entity.set_comment(data['comment'])
+        # 4. Delegate all the complex work to our single, robust population helper.
+        self._populate_oval_entity_properties(new_entity, clean_data, entity_type_str)
 
-        if entity_type_str == 'test':
-            if 'check' in data: new_entity.set_check(data['check'])
-            if 'check_existence' in data: new_entity.set_check_existence(data['check_existence'])
-            if data.get('object_ref'):
-                obj_ref = models.ObjectRefType(object_ref=data['object_ref'])
-                obj_ref.ns_prefix_ = new_entity.ns_prefix_
-                new_entity.set_object(obj_ref)
-            if data.get('state_ref'):
-                state_ref = models.StateRefType(state_ref=data['state_ref'])
-                state_ref.ns_prefix_ = new_entity.ns_prefix_
-                new_entity.set_state([state_ref])      
-
-        elif entity_type_str == 'object':
-            if data.get('behaviors'):
-                b_data = data['behaviors']
-                b_kwargs = {k: v for k, v in b_data.items()}
-                if isinstance(new_entity, models.textfilecontent54_object):
-                    if b_kwargs: # Only create the object if at least one property was set
-                        behaviors = models.Textfilecontent54Behaviors(**b_kwargs)
-                        behaviors.ns_prefix_ = new_entity.ns_prefix_
-                        new_entity.set_behaviors(behaviors)
-                elif isinstance(new_entity, models.rpminfo_object):
-                    if b_kwargs: # Only create the object if at least one property was set
-                        behaviors = models.RpmInfoBehaviors(**b_kwargs)
-                        behaviors.ns_prefix_ = new_entity.ns_prefix_
-                        new_entity.set_behaviors(behaviors)
-                elif isinstance(new_entity, models.rpmverifypackage_object):
-                    if b_kwargs: # Only create the object if at least one property was set
-                        behaviors = models.RpmVerifyPackageBehaviors(**b_kwargs)
-                        behaviors.ns_prefix_ = new_entity.ns_prefix_
-                        new_entity.set_behaviors(behaviors)
-                elif isinstance(new_entity, models.rpmverifyfile_object):
-                    if b_kwargs: # Only create the object if at least one property was set
-                        behaviors = models.RpmVerifyFileBehaviors(**b_kwargs)
-                        behaviors.ns_prefix_ = new_entity.ns_prefix_
-                        new_entity.set_behaviors(behaviors)
-                elif isinstance(new_entity, models.rpmverify_object):
-                    if b_kwargs: # Only create the object if at least one property was set
-                        behaviors = models.RpmVerifyBehaviors(**b_kwargs)
-                        behaviors.ns_prefix_ = new_entity.ns_prefix_
-                        new_entity.set_behaviors(behaviors)
-                else:
-                    if b_kwargs: # Only create the object if at least one property was set
-                        behaviors = models.FileBehaviors(**b_kwargs)
-                        behaviors.ns_prefix_ = new_entity.ns_prefix_
-                        new_entity.set_behaviors(behaviors)
-
-            # --- FOR FILTERS ---
-            if 'filter' in data:
-                f_data = data['filter']
-                if f_data.get('state_id'): # Only add a filter if a state was selected
-                    new_filter = models.filter(valueOf_=f_data['state_id'], action=f_data['action'])
-                    new_entity.add_filter(new_filter)
- 
-            for prop_name, prop_data in data.items():
-                if prop_name in ['id', 'version', 'comment', 'behaviors', 'filter']:
-                    continue # Skip common props and complex types handled elsewhere
-
-                setter_name = f"set_{prop_name}"
-                if hasattr(new_entity, setter_name):
-                    # --- Determine which wrapper class to use based on the property name
-                    if prop_name in ["version_"]:
-                        if (isinstance(new_entity, models.sql57_object) or isinstance(new_entity, models.sql_object)):
-                            wrapper_class = models.EntityObjectStringType
-                        elif (isinstance(new_entity, models.rpmverifyfile_object) or isinstance(new_entity, models.rpmverifypackage_object)):
-                            wrapper_class = models.EntityObjectAnySimpleType
-                    elif prop_name in ['instance', 'pid', 'local_port']:
-                        wrapper_class = models.EntityObjectIntType
-                    elif prop_name in ['path', 'filename', 'filepath', 'name', 'connection_string', 'sql', 'xpath', 'pattern', 'domain_name', \
-                       'attribute_name', 'key', 'source', 'protocol', 'service_name', 'username', 'command_line', 'runlevel', 'interface_name', \
-                       'mount_point', 'arch', 'unit', 'property']:
-                         wrapper_class = models.EntityObjectStringType
-                    elif prop_name in ['epoch', 'release']:
-                        wrapper_class = models.EntityObjectAnySimpleType
-                    elif prop_name in ['local_address', 'destination']:
-                        wrapper_class = models.EntityObjectIPAddressType
-                    elif prop_name in ['var_ref']:
-                        wrapper_class = models.EntityObjectVariableRefType
-                    #Defined Problem Children
-                    elif prop_name in ['hash_type', 'engine']:
-                        wrapper_class = models.EntityObjectStringType
-                    #Left Overs
-                    else:
-                        wrapper_class = models.EntityObjectStringType
-                    
-                    # --- Use the existing helper to create and set the property
-                    self._set_wrapped_property(new_entity, data, prop_name, wrapper_class)
-
-        elif entity_type_str == 'state':
-            if 'operator' in data: new_entity.set_operator(data['operator'])
-
-            for prop_name, prop_data in data.items():
-                if prop_name in ['id', 'version', 'comment', 'operator']:
-                    continue # Skip common props handled elsewhere
-
-                setter_name = f"set_{prop_name}"
-
-                # --- Check if the entity actually has this property
-                if hasattr(new_entity, setter_name):
-                    # --- This logic correctly determines which wrapper to use based on the property name
-                    # --- This can be expanded as you add more types
-                    
-                    if prop_name in ['version_']:
-                        if (isinstance(new_entity, models.slackwarepkginfo_state) or isinstance(new_entity, models.sql57_state)):
-                            wrapper_class = models.EntityStateStringType
-                        elif isinstance(new_entity, models.rpmverifypackage_state) or isinstance(new_entity, models.rpmverifyfile_state) or\
-                           isinstance(new_entity, models.rpminfo_state) or isinstance(new_entity, models.dpkginfo_state):
-                            wrapper_class = models.EntityObjectAnySimpleType                
-                    elif prop_name in ['type']:
-                        if (isinstance(new_entity, models.selinuxsecuritycontext_state) or isinstance(new_entity, models.file_state)):
-                            wrapper_class = models.EntityStateStringType
-                        elif isinstance(new_entity, models.interface_state):
-                            wrapper_class = models.EntityStateInterfaceType
-                        elif isinstance(new_entity, models.gconf_state):
-                            wrapper_class = models.EntityStateGconfTypeType
-                        elif isinstance(new_entity, models.xinetd_state):
-                            wrapper_class = models.EntityStateXinetdTypeStatusType
-                    elif prop_name in ['flags']:
-                        if isinstance(new_entity, models.xinetd_state):
-                            wrapper_class = models.EntityStateStringType
-                        elif isinstance(new_entity, models.routingtable_state):
-                            wrapper_class = models.EntityStateRoutingTableFlagsType
-                    elif prop_name in ['arch', 'architecture', 'attribute_name', 'canonical_path', 'command_line', 'connection_string', 'dependency', \
-                       'device', 'domain_name', 'exec_as_user', 'exec_time', 'extended_name', 'filename', 'filepath', 'flag', 'fs_type', 'gcos', \
-                       'hardware_addr', 'hash', 'high_category', 'high_sensitivity', 'home_dir', 'hw_address', 'interface_name', 'key', 'login_shell', \
-                       'low_category', 'low_sensitivity', 'machine_class', 'mod_user', 'mount_options', 'mount_point', 'name', 'no_access', 'node_name', \
-                       'os_name', 'os_release', 'os_version', 'password', 'path', 'pattern', 'processor_type', 'program_name', 'property', 'protocol', \
-                       'rawhigh_category', 'rawhigh_sensitivity', 'rawlow_category', 'rawlow_sensitivity', 'revision', 'role', 'runlevel', 'scheduling_class', \
-                       'selinux_domain_label', 'server', 'server_arguments', 'server_program', 'service_name', 'signature_keyid', 'socket_type', 'source', \
-                       'sql', 'start_time', 'tty', 'unit', 'user', 'username', 'uuid', 'xpath']:
-                        wrapper_class = models.EntityStateStringType
-                    elif prop_name in ['a_time', 'chg_allow', 'chg_lst', 'chg_req', 'c_time', 'exp_date', 'exp_inact', 'exp_warn', 'group_id', 'instance', \
-                       'last_login', 'loginuid', 'mod_time', 'm_time', 'pid', 'port', 'ppid', 'priority', 'ruid', 'session_id', 'size', 'space_left', \
-                       'space_used', 'total_space', 'ttl', 'user_id']:
-                        wrapper_class = models.EntityStateIntType
-                    elif prop_name in ['configuration_file', 'current_status', 'dependency_check_passed', 'digest_check_passed', 'disabled', 'documentation_file', \
-                       'exec_shield', 'gexec', 'ghost_file', 'gread', 'gwrite', 'has_extended_acl', 'is_default', 'is_writable', 'kill', 'license_file', 'oexec', \
-                       'oread', 'owrite', 'pending_status', 'readme_file', 'sgid', 'signature_check_passed', 'start', 'sticky', 'suid', 'uexec', 'uread', \
-                       'uwrite', 'verification_script_successful', 'wait']:
-                        wrapper_class = models.EntityStateBoolType
-                    elif prop_name in ['capabilities_differ', 'device_differs', 'group_differs', 'link_mismatch', 'md5_differs', 'mode_differs', \
-                       'mtime_differs', 'ownership_differs', 'size_differs']:
-                        wrapper_class = models.EntityStateRpmVerifyResultType
-                    elif prop_name in ['epoch', 'result', 'subexpression', 'text', 'value', 'value_of']:
-                        wrapper_class = models.EntityStateAnySimpleType
-                    elif prop_name in ['broadcast_addr', 'inet_addr', 'ip_address', 'netmask', 'only_from']:
-                        wrapper_class = models.EntityStateIPAddressStringType
-                    elif prop_name in ['destination', 'gateway']:
-                        wrapper_class = models.EntityStateIPAddressType
-                    elif prop_name in ['posix_capability', 'protocol']:
-                        wrapper_class = models.EntityStateCapabilityType
-                    elif prop_name in ['encrypt_method']:
-                        wrapper_class = models.EntityStateEncryptMethodType
-                    elif prop_name in ['endpoint_type']:
-                        wrapper_class = models.EntityStateEndpointType
-                    elif prop_name in ['engine']:
-                        wrapper_class = models.EntityStateEngineType
-                    elif prop_name in ['evr']:
-                        wrapper_class = models.EntityStateEVRStringType
-                    elif prop_name in ['family']:
-                        wrapper_class = models.EntityStateFamilyType
-                    elif prop_name in ['hash_type']:
-                        wrapper_class = models.EntityStateHashTypeType
-                    elif prop_name in ['release']:
-                        wrapper_class = models.EntityStateProtocolType
-                    elif prop_name in ['var_ref']:
-                        wrapper_class = models.EntityStateRecordType
-                    elif prop_name in ['wait_status']:
-                        wrapper_class = models.EntityStateWaitStatusType
-                    elif prop_name in ['windows_view']:
-                        wrapper_class = models.EntityStateWindowsViewType
-                    #Left Overs
-                    else:
-                        wrapper_class = models.EntityObjectStringType
-                    
-                    # --- Use the existing helper to create and set the property
-                    self._set_wrapped_property(new_entity, data, prop_name, wrapper_class)
-
-        elif entity_type_str == 'variable':
-            new_entity.set_datatype(data['datatype'])
-            
-            if isinstance(new_entity, models.constant_variable) and 'value' in data:
-                for val in data['value']:
-                    new_entity.add_value(models.ValueType(valueOf_=val))
-
-            elif isinstance(new_entity, models.external_variable):
-                if 'possible_value' in data:
-                    for pv_data in data['possible_value']:
-                        pv = models.PossibleValueType(
-                            valueOf_=pv_data.get('value'),
-                            hint=pv_data.get('hint')
-                        )
-                        new_entity.add_possible_value(pv)
-                
-                if 'possible_restriction' in data:
-                    for pr_data in data['possible_restriction']:
-                        # Create the main <possible_restriction> container
-                        pr = models.PossibleRestrictionType(
-                            hint=pr_data.get('hint'),
-                            operator=pr_data.get('operator')
-                        )
-                        # Loop through its child restrictions and add them
-                        for r_data in pr_data.get('restrictions', []):
-                            restriction_child = models.RestrictionType(
-                                valueOf_=r_data.get('value'),
-                                operation=r_data.get('operation')
-                            )
-                            pr.add_restriction(restriction_child)
-                        new_entity.add_possible_restriction(pr)
-
-            elif isinstance(new_entity, models.local_variable):
-                comp_type = data.get('component_type')
-                if comp_type == 'literal':
-                    new_entity.set_literal_component(models.LiteralComponentType(valueOf_=data.get('literal_value')))
-                elif comp_type == 'variable':
-                    new_entity.set_variable_component(models.VariableComponentType(var_ref=data.get('var_ref')))
-                elif comp_type == 'object':
-                   # Build arguments, only including record_field if it has a value
-                    comp_kwargs = {
-                        'object_ref': data.get('object_ref'),
-                        'item_field': data.get('item_field')
-                    }
-                    if data.get('record_field'):
-                        comp_kwargs['record_field'] = data.get('record_field')
-                    
-                    new_entity.set_object_component(models.ObjectComponentType(**comp_kwargs))
-                elif comp_type == 'function':
-                    func_type = data.get('function_type')
-                    components_data = data.get('components_data', [])
-                    
-                    func = None
-                    if func_type == 'arithmetic':
-                        func = models.ArithmeticFunctionType(arithmetic_operation=data.get('arithmetic_op'))
-                        new_entity.set_arithmetic(func)
-                    elif func_type == 'concat':
-                        func = models.ConcatFunctionType()
-                        new_entity.set_concat(func)
-                    elif func_type == 'escape_regex':
-                        func = models.EscapeRegexFunctionType()
-                        new_entity.set_escape_regex(func)
-                    elif func_type == 'unique':
-                        func = models.UniqueFunctionType()
-                        new_entity.set_unique(func)
-                    elif func_type == 'count':
-                        func = models.CountFunctionType()
-                        new_entity.set_count(func)
-                    elif func_type == 'time_difference':
-                        func = models.TimeDifferenceFunctionType(
-                            format_1=data.get('format_1'),
-                            format_2=data.get('format_2')
-                        )
-                        new_entity.set_time_difference(func)
-                    elif func_type in ['begin', 'end']:
-                        func = models.BeginFunctionType(character=data.get('character')) if func_type == 'begin' else models.EndFunctionType(character=data.get('character'))
-                        if func_type == 'begin': new_entity.set_begin(func)
-                        else: new_entity.set_end(func)                   
-                    elif func_type == 'split':
-                        func = models.SplitFunctionType(delimiter=data.get('delimiter'))
-                        new_entity.set_split(func)
-                    elif func_type == 'regex_capture':
-                        func = models.RegexCaptureFunctionType(pattern=data.get('pattern'))
-                        comp_data = data.get('single_component_data')
-                        new_entity.set_regex_capture(func)
-                    elif func_type == 'glob_to_regex':
-                        func = models.GlobToRegexFunctionType(glob_noescape=data.get('glob_noescape'))
-                        new_entity.set_glob_to_regex(func)
-                    elif func_type == 'substring':
-                        func = models.SubstringFunctionType(
-                            substring_start=data.get('substring_start'),
-                            substring_length=data.get('substring_length')
-                        )
-                        new_entity.set_substring(func)
-                        
-                    if func:
-#                        print(f"comp_data: {components_data}")
-                        self._build_function_components(func, components_data, func_type)                    
-                    
-        print(f"entity: {new_entity}")
         return new_entity
-
+        
     def _update_oval_entity(self, entity_to_edit, data, entity_type_str):
         """Updates an existing OVAL entity from dialog data."""
         if not data: return
@@ -4710,6 +4552,294 @@ class XccdfEditorApp:
                         self._build_function_components(func, components_data, func_type)
 #        print(f"entity: {entity_to_edit}")  
 
+    def _populate_oval_entity_properties(self, entity, data, entity_type_str):
+        """
+        A single, smart helper that populates a given OVAL entity with all of its
+        specific properties from a data dictionary.
+        """
+        # --- Set COMMON attributes for all OVAL entities ---
+        if 'id' in data: entity.set_id(data['id'])
+        if 'version' in data: entity.set_version(data['version'])
+        if 'comment' in data: entity.set_comment(data['comment'])
+
+        if entity_type_str == 'test':
+            if 'check' in data: entity.set_check(data['check'])
+            if 'check_existence' in data: entity.set_check_existence(data['check_existence'])
+            if data.get('object_ref'):
+                obj_ref = models.ObjectRefType(object_ref=data['object_ref'])
+                obj_ref.ns_prefix_ = entity.ns_prefix_
+                entity.set_object(obj_ref)
+            if data.get('state_ref'):
+                state_ref = models.StateRefType(state_ref=data['state_ref'])
+                state_ref.ns_prefix_ = entity.ns_prefix_
+                entity.set_state([state_ref])      
+
+        elif entity_type_str == 'object':
+            if data.get('behaviors'):
+                b_data = data['behaviors']
+                b_kwargs = {k: v for k, v in b_data.items()}
+                if isinstance(entity, models.textfilecontent54_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.Textfilecontent54Behaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = entity.ns_prefix_
+                        entity.set_behaviors(behaviors)
+                elif isinstance(entity, models.rpminfo_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmInfoBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = entity.ns_prefix_
+                        entity.set_behaviors(behaviors)
+                elif isinstance(entity, models.rpmverifypackage_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmVerifyPackageBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = entity.ns_prefix_
+                        entity.set_behaviors(behaviors)
+                elif isinstance(entity, models.rpmverifyfile_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmVerifyFileBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = entity.ns_prefix_
+                        entity.set_behaviors(behaviors)
+                elif isinstance(entity, models.rpmverify_object):
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.RpmVerifyBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = entity.ns_prefix_
+                        entity.set_behaviors(behaviors)
+                else:
+                    if b_kwargs: # Only create the object if at least one property was set
+                        behaviors = models.FileBehaviors(**b_kwargs)
+                        behaviors.ns_prefix_ = entity.ns_prefix_
+                        entity.set_behaviors(behaviors)
+
+            # --- FOR FILTERS ---
+            if 'filter' in data:
+                f_data = data['filter']
+                if f_data.get('state_id'): # Only add a filter if a state was selected
+                    new_filter = models.filter(valueOf_=f_data['state_id'], action=f_data['action'])
+                    entity.add_filter(new_filter)
+ 
+            for prop_name, prop_data in data.items():
+                if prop_name in ['id', 'version', 'comment', 'behaviors', 'filter']:
+                    continue # Skip common props and complex types handled elsewhere
+
+                setter_name = f"set_{prop_name}"
+                if hasattr(entity, setter_name):
+                    # --- Determine which wrapper class to use based on the property name
+                    if prop_name in ["version_"]:
+                        if (isinstance(entity, models.sql57_object) or isinstance(entity, models.sql_object)):
+                            wrapper_class = models.EntityObjectStringType
+                        elif (isinstance(entity, models.rpmverifyfile_object) or isinstance(entity, models.rpmverifypackage_object)):
+                            wrapper_class = models.EntityObjectAnySimpleType
+                    elif prop_name in ['instance', 'pid', 'local_port']:
+                        wrapper_class = models.EntityObjectIntType
+                    elif prop_name in ['path', 'filename', 'filepath', 'name', 'connection_string', 'sql', 'xpath', 'pattern', 'domain_name', \
+                       'attribute_name', 'key', 'source', 'protocol', 'service_name', 'username', 'command_line', 'runlevel', 'interface_name', \
+                       'mount_point', 'arch', 'unit', 'property']:
+                         wrapper_class = models.EntityObjectStringType
+                    elif prop_name in ['epoch', 'release']:
+                        wrapper_class = models.EntityObjectAnySimpleType
+                    elif prop_name in ['local_address', 'destination']:
+                        wrapper_class = models.EntityObjectIPAddressType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = models.EntityObjectVariableRefType
+                    #Defined Problem Children
+                    elif prop_name in ['hash_type', 'engine']:
+                        wrapper_class = models.EntityObjectStringType
+                    #Left Overs
+                    else:
+                        wrapper_class = models.EntityObjectStringType
+                    
+                    # --- Use the existing helper to create and set the property
+                    self._set_wrapped_property(entity, data, prop_name, wrapper_class)
+
+        elif entity_type_str == 'state':
+            if 'operator' in data: entity.set_operator(data['operator'])
+
+            for prop_name, prop_data in data.items():
+                if prop_name in ['id', 'version', 'comment', 'operator']:
+                    continue # Skip common props handled elsewhere
+
+                setter_name = f"set_{prop_name}"
+
+                # --- Check if the entity actually has this property
+                if hasattr(entity, setter_name):
+                    # --- This logic correctly determines which wrapper to use based on the property name
+                    # --- This can be expanded as you add more types
+                    
+                    if prop_name in ['version_']:
+                        if (isinstance(entity, models.slackwarepkginfo_state) or isinstance(entity, models.sql57_state)):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(entity, models.rpmverifypackage_state) or isinstance(entity, models.rpmverifyfile_state) or\
+                           isinstance(entity, models.rpminfo_state) or isinstance(entity, models.dpkginfo_state):
+                            wrapper_class = models.EntityObjectAnySimpleType                
+                    elif prop_name in ['type']:
+                        if (isinstance(entity, models.selinuxsecuritycontext_state) or isinstance(entity, models.file_state)):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(entity, models.interface_state):
+                            wrapper_class = models.EntityStateInterfaceType
+                        elif isinstance(entity, models.gconf_state):
+                            wrapper_class = models.EntityStateGconfTypeType
+                        elif isinstance(entity, models.xinetd_state):
+                            wrapper_class = models.EntityStateXinetdTypeStatusType
+                    elif prop_name in ['flags']:
+                        if isinstance(entity, models.xinetd_state):
+                            wrapper_class = models.EntityStateStringType
+                        elif isinstance(entity, models.routingtable_state):
+                            wrapper_class = models.EntityStateRoutingTableFlagsType
+                    elif prop_name in ['arch', 'architecture', 'attribute_name', 'canonical_path', 'command_line', 'connection_string', 'dependency', \
+                       'device', 'domain_name', 'exec_as_user', 'exec_time', 'extended_name', 'filename', 'filepath', 'flag', 'fs_type', 'gcos', \
+                       'hardware_addr', 'hash', 'high_category', 'high_sensitivity', 'home_dir', 'hw_address', 'interface_name', 'key', 'login_shell', \
+                       'low_category', 'low_sensitivity', 'machine_class', 'mod_user', 'mount_options', 'mount_point', 'name', 'no_access', 'node_name', \
+                       'os_name', 'os_release', 'os_version', 'password', 'path', 'pattern', 'processor_type', 'program_name', 'property', 'protocol', \
+                       'rawhigh_category', 'rawhigh_sensitivity', 'rawlow_category', 'rawlow_sensitivity', 'revision', 'role', 'runlevel', 'scheduling_class', \
+                       'selinux_domain_label', 'server', 'server_arguments', 'server_program', 'service_name', 'signature_keyid', 'socket_type', 'source', \
+                       'sql', 'start_time', 'tty', 'unit', 'user', 'username', 'uuid', 'xpath']:
+                        wrapper_class = models.EntityStateStringType
+                    elif prop_name in ['a_time', 'chg_allow', 'chg_lst', 'chg_req', 'c_time', 'exp_date', 'exp_inact', 'exp_warn', 'group_id', 'instance', \
+                       'last_login', 'loginuid', 'mod_time', 'm_time', 'pid', 'port', 'ppid', 'priority', 'ruid', 'session_id', 'size', 'space_left', \
+                       'space_used', 'total_space', 'ttl', 'user_id']:
+                        wrapper_class = models.EntityStateIntType
+                    elif prop_name in ['configuration_file', 'current_status', 'dependency_check_passed', 'digest_check_passed', 'disabled', 'documentation_file', \
+                       'exec_shield', 'gexec', 'ghost_file', 'gread', 'gwrite', 'has_extended_acl', 'is_default', 'is_writable', 'kill', 'license_file', 'oexec', \
+                       'oread', 'owrite', 'pending_status', 'readme_file', 'sgid', 'signature_check_passed', 'start', 'sticky', 'suid', 'uexec', 'uread', \
+                       'uwrite', 'verification_script_successful', 'wait']:
+                        wrapper_class = models.EntityStateBoolType
+                    elif prop_name in ['capabilities_differ', 'device_differs', 'group_differs', 'link_mismatch', 'md5_differs', 'mode_differs', \
+                       'mtime_differs', 'ownership_differs', 'size_differs']:
+                        wrapper_class = models.EntityStateRpmVerifyResultType
+                    elif prop_name in ['epoch', 'result', 'subexpression', 'text', 'value', 'value_of']:
+                        wrapper_class = models.EntityStateAnySimpleType
+                    elif prop_name in ['broadcast_addr', 'inet_addr', 'ip_address', 'netmask', 'only_from']:
+                        wrapper_class = models.EntityStateIPAddressStringType
+                    elif prop_name in ['destination', 'gateway']:
+                        wrapper_class = models.EntityStateIPAddressType
+                    elif prop_name in ['posix_capability', 'protocol']:
+                        wrapper_class = models.EntityStateCapabilityType
+                    elif prop_name in ['encrypt_method']:
+                        wrapper_class = models.EntityStateEncryptMethodType
+                    elif prop_name in ['endpoint_type']:
+                        wrapper_class = models.EntityStateEndpointType
+                    elif prop_name in ['engine']:
+                        wrapper_class = models.EntityStateEngineType
+                    elif prop_name in ['evr']:
+                        wrapper_class = models.EntityStateEVRStringType
+                    elif prop_name in ['family']:
+                        wrapper_class = models.EntityStateFamilyType
+                    elif prop_name in ['hash_type']:
+                        wrapper_class = models.EntityStateHashTypeType
+                    elif prop_name in ['release']:
+                        wrapper_class = models.EntityStateProtocolType
+                    elif prop_name in ['var_ref']:
+                        wrapper_class = models.EntityStateRecordType
+                    elif prop_name in ['wait_status']:
+                        wrapper_class = models.EntityStateWaitStatusType
+                    elif prop_name in ['windows_view']:
+                        wrapper_class = models.EntityStateWindowsViewType
+                    #Left Overs
+                    else:
+                        wrapper_class = models.EntityObjectStringType
+                    
+                    # --- Use the existing helper to create and set the property
+                    self._set_wrapped_property(entity, data, prop_name, wrapper_class)
+
+        elif entity_type_str == 'variable':
+            entity.set_datatype(data['datatype'])
+            
+            if isinstance(entity, models.constant_variable) and 'value' in data:
+                for val in data['value']:
+                    entity.add_value(models.ValueType(valueOf_=val))
+
+            elif isinstance(entity, models.external_variable):
+                if 'possible_value' in data:
+                    for pv_data in data['possible_value']:
+                        pv = models.PossibleValueType(
+                            valueOf_=pv_data.get('value'),
+                            hint=pv_data.get('hint')
+                        )
+                        entity.add_possible_value(pv)
+                
+                if 'possible_restriction' in data:
+                    for pr_data in data['possible_restriction']:
+                        # Create the main <possible_restriction> container
+                        pr = models.PossibleRestrictionType(
+                            hint=pr_data.get('hint'),
+                            operator=pr_data.get('operator')
+                        )
+                        # Loop through its child restrictions and add them
+                        for r_data in pr_data.get('restrictions', []):
+                            restriction_child = models.RestrictionType(
+                                valueOf_=r_data.get('value'),
+                                operation=r_data.get('operation')
+                            )
+                            pr.add_restriction(restriction_child)
+                        entity.add_possible_restriction(pr)
+
+            elif isinstance(entity, models.local_variable):
+                comp_type = data.get('component_type')
+                if comp_type == 'literal':
+                    entity.set_literal_component(models.LiteralComponentType(valueOf_=data.get('literal_value')))
+                elif comp_type == 'variable':
+                    entity.set_variable_component(models.VariableComponentType(var_ref=data.get('var_ref')))
+                elif comp_type == 'object':
+                   # Build arguments, only including record_field if it has a value
+                    comp_kwargs = {
+                        'object_ref': data.get('object_ref'),
+                        'item_field': data.get('item_field')
+                    }
+                    if data.get('record_field'):
+                        comp_kwargs['record_field'] = data.get('record_field')
+                    
+                    entity.set_object_component(models.ObjectComponentType(**comp_kwargs))
+                elif comp_type == 'function':
+                    func_type = data.get('function_type')
+                    components_data = data.get('components_data', [])
+                    
+                    func = None
+                    if func_type == 'arithmetic':
+                        func = models.ArithmeticFunctionType(arithmetic_operation=data.get('arithmetic_op'))
+                        entity.set_arithmetic(func)
+                    elif func_type == 'concat':
+                        func = models.ConcatFunctionType()
+                        entity.set_concat(func)
+                    elif func_type == 'escape_regex':
+                        func = models.EscapeRegexFunctionType()
+                        entity.set_escape_regex(func)
+                    elif func_type == 'unique':
+                        func = models.UniqueFunctionType()
+                        entity.set_unique(func)
+                    elif func_type == 'count':
+                        func = models.CountFunctionType()
+                        entity.set_count(func)
+                    elif func_type == 'time_difference':
+                        func = models.TimeDifferenceFunctionType(
+                            format_1=data.get('format_1'),
+                            format_2=data.get('format_2')
+                        )
+                        entity.set_time_difference(func)
+                    elif func_type in ['begin', 'end']:
+                        func = models.BeginFunctionType(character=data.get('character')) if func_type == 'begin' else models.EndFunctionType(character=data.get('character'))
+                        if func_type == 'begin': entity.set_begin(func)
+                        else: entity.set_end(func)                   
+                    elif func_type == 'split':
+                        func = models.SplitFunctionType(delimiter=data.get('delimiter'))
+                        entity.set_split(func)
+                    elif func_type == 'regex_capture':
+                        func = models.RegexCaptureFunctionType(pattern=data.get('pattern'))
+                        comp_data = data.get('single_component_data')
+                        entity.set_regex_capture(func)
+                    elif func_type == 'glob_to_regex':
+                        func = models.GlobToRegexFunctionType(glob_noescape=data.get('glob_noescape'))
+                        entity.set_glob_to_regex(func)
+                    elif func_type == 'substring':
+                        func = models.SubstringFunctionType(
+                            substring_start=data.get('substring_start'),
+                            substring_length=data.get('substring_length')
+                        )
+                        entity.set_substring(func)
+                        
+                    if func:
+#                        print(f"comp_data: {components_data}")
+                        self._build_function_components(func, components_data, func_type)                    
+
+        
     def build_entity_from_node(self, node, entity_type_str):
         """Builds an OVAL entity object from an lxml etree node."""
         # Get the class name from the tag (e.g., 'textfilecontent54_test')
