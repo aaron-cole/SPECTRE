@@ -22505,6 +22505,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.original_tagname_ = None
         self.parent_object_ = kwargs_.get('parent_object_')
         self.ns_prefix_ = "oval-def"
+        self.ordered_components = []
         if object_component is None:
             self.object_component = []
         else:
@@ -22595,12 +22596,17 @@ class ConcatFunctionType(GeneratedsSuper):
         return self.ns_prefix_
     def set_ns_prefix_(self, ns_prefix):
         self.ns_prefix_ = ns_prefix
+    def gds_add_component(self, component_obj, value):
+        self.ordered_components.append((component_obj, value))
+    def gds_insert_component_at(self, index, component_obj, value):
+        self.ordered_components.insert(index, (component_obj, value))
     def get_object_component(self):
         return self.object_component
     def set_object_component(self, object_component):
         self.object_component = object_component
     def add_object_component(self, value):
         self.object_component.append(value)
+        self.ordered_components.append(("object_component", value))
     def insert_object_component_at(self, index, value):
         self.object_component.insert(index, value)
     def replace_object_component_at(self, index, value):
@@ -22611,6 +22617,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.variable_component = variable_component
     def add_variable_component(self, value):
         self.variable_component.append(value)
+        self.ordered_components.append(("variable_component", value))
     def insert_variable_component_at(self, index, value):
         self.variable_component.insert(index, value)
     def replace_variable_component_at(self, index, value):
@@ -22621,6 +22628,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.literal_component = literal_component
     def add_literal_component(self, value):
         self.literal_component.append(value)
+        self.ordered_components.append(("literal_component", value))
     def insert_literal_component_at(self, index, value):
         self.literal_component.insert(index, value)
     def replace_literal_component_at(self, index, value):
@@ -22631,6 +22639,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.arithmetic = arithmetic
     def add_arithmetic(self, value):
         self.arithmetic.append(value)
+        self.ordered_components.append(("arithmetic", value))
     def insert_arithmetic_at(self, index, value):
         self.arithmetic.insert(index, value)
     def replace_arithmetic_at(self, index, value):
@@ -22641,6 +22650,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.begin = begin
     def add_begin(self, value):
         self.begin.append(value)
+        self.ordered_components.append(("begin", value))
     def insert_begin_at(self, index, value):
         self.begin.insert(index, value)
     def replace_begin_at(self, index, value):
@@ -22651,6 +22661,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.concat = concat
     def add_concat(self, value):
         self.concat.append(value)
+        self.ordered_components.append(("concat", value))
     def insert_concat_at(self, index, value):
         self.concat.insert(index, value)
     def replace_concat_at(self, index, value):
@@ -22661,6 +22672,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.end = end
     def add_end(self, value):
         self.end.append(value)
+        self.ordered_components.append(("end", value))
     def insert_end_at(self, index, value):
         self.end.insert(index, value)
     def replace_end_at(self, index, value):
@@ -22671,6 +22683,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.escape_regex = escape_regex
     def add_escape_regex(self, value):
         self.escape_regex.append(value)
+        self.ordered_components.append(("escape_regex", value))
     def insert_escape_regex_at(self, index, value):
         self.escape_regex.insert(index, value)
     def replace_escape_regex_at(self, index, value):
@@ -22681,6 +22694,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.split = split
     def add_split(self, value):
         self.split.append(value)
+        self.ordered_components.append(("split", value))
     def insert_split_at(self, index, value):
         self.split.insert(index, value)
     def replace_split_at(self, index, value):
@@ -22691,6 +22705,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.substring = substring
     def add_substring(self, value):
         self.substring.append(value)
+        self.ordered_components.append(("substring", value))
     def insert_substring_at(self, index, value):
         self.substring.insert(index, value)
     def replace_substring_at(self, index, value):
@@ -22701,6 +22716,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.time_difference = time_difference
     def add_time_difference(self, value):
         self.time_difference.append(value)
+        self.ordered_components.append(("time_difference", value))
     def insert_time_difference_at(self, index, value):
         self.time_difference.insert(index, value)
     def replace_time_difference_at(self, index, value):
@@ -22711,6 +22727,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.regex_capture = regex_capture
     def add_regex_capture(self, value):
         self.regex_capture.append(value)
+        self.ordered_components.append(("regex_capture", value))
     def insert_regex_capture_at(self, index, value):
         self.regex_capture.insert(index, value)
     def replace_regex_capture_at(self, index, value):
@@ -22721,6 +22738,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.unique = unique
     def add_unique(self, value):
         self.unique.append(value)
+        self.ordered_components.append(("unique", value))
     def insert_unique_at(self, index, value):
         self.unique.insert(index, value)
     def replace_unique_at(self, index, value):
@@ -22731,6 +22749,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.count = count
     def add_count(self, value):
         self.count.append(value)
+        self.ordered_components.append(("count", value))
     def insert_count_at(self, index, value):
         self.count.insert(index, value)
     def replace_count_at(self, index, value):
@@ -22741,6 +22760,7 @@ class ConcatFunctionType(GeneratedsSuper):
         self.glob_to_regex = glob_to_regex
     def add_glob_to_regex(self, value):
         self.glob_to_regex.append(value)
+        self.ordered_components.append(("glob_to_regex", value))
     def insert_glob_to_regex_at(self, index, value):
         self.glob_to_regex.insert(index, value)
     def replace_glob_to_regex_at(self, index, value):
@@ -22761,7 +22781,8 @@ class ConcatFunctionType(GeneratedsSuper):
             self.regex_capture or
             self.unique or
             self.count or
-            self.glob_to_regex
+            self.glob_to_regex or
+            self.ordered_components
         ):
             return True
         else:
@@ -22796,51 +22817,9 @@ class ConcatFunctionType(GeneratedsSuper):
             eol_ = '\n'
         else:
             eol_ = ''
-        for object_component_ in self.object_component:
-            namespaceprefix_ = self.object_component_nsprefix_ + ':' if (UseCapturedNS_ and self.object_component_nsprefix_) else ''
-            object_component_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='object_component', pretty_print=pretty_print)
-        for variable_component_ in self.variable_component:
-            namespaceprefix_ = self.variable_component_nsprefix_ + ':' if (UseCapturedNS_ and self.variable_component_nsprefix_) else ''
-            variable_component_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='variable_component', pretty_print=pretty_print)
-        for literal_component_ in self.literal_component:
-            namespaceprefix_ = self.literal_component_nsprefix_ + ':' if (UseCapturedNS_ and self.literal_component_nsprefix_) else ''
-            literal_component_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='literal_component', pretty_print=pretty_print)
-        for arithmetic_ in self.arithmetic:
-            namespaceprefix_ = self.arithmetic_nsprefix_ + ':' if (UseCapturedNS_ and self.arithmetic_nsprefix_) else ''
-            arithmetic_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='arithmetic', pretty_print=pretty_print)
-        for begin_ in self.begin:
-            namespaceprefix_ = self.begin_nsprefix_ + ':' if (UseCapturedNS_ and self.begin_nsprefix_) else ''
-            begin_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='begin', pretty_print=pretty_print)
-        for concat_ in self.concat:
-            namespaceprefix_ = self.concat_nsprefix_ + ':' if (UseCapturedNS_ and self.concat_nsprefix_) else ''
-            concat_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='concat', pretty_print=pretty_print)
-        for end_ in self.end:
-            namespaceprefix_ = self.end_nsprefix_ + ':' if (UseCapturedNS_ and self.end_nsprefix_) else ''
-            end_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='end', pretty_print=pretty_print)
-        for escape_regex_ in self.escape_regex:
-            namespaceprefix_ = self.escape_regex_nsprefix_ + ':' if (UseCapturedNS_ and self.escape_regex_nsprefix_) else ''
-            escape_regex_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='escape_regex', pretty_print=pretty_print)
-        for split_ in self.split:
-            namespaceprefix_ = self.split_nsprefix_ + ':' if (UseCapturedNS_ and self.split_nsprefix_) else ''
-            split_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='split', pretty_print=pretty_print)
-        for substring_ in self.substring:
-            namespaceprefix_ = self.substring_nsprefix_ + ':' if (UseCapturedNS_ and self.substring_nsprefix_) else ''
-            substring_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='substring', pretty_print=pretty_print)
-        for time_difference_ in self.time_difference:
-            namespaceprefix_ = self.time_difference_nsprefix_ + ':' if (UseCapturedNS_ and self.time_difference_nsprefix_) else ''
-            time_difference_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='time_difference', pretty_print=pretty_print)
-        for regex_capture_ in self.regex_capture:
-            namespaceprefix_ = self.regex_capture_nsprefix_ + ':' if (UseCapturedNS_ and self.regex_capture_nsprefix_) else ''
-            regex_capture_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='regex_capture', pretty_print=pretty_print)
-        for unique_ in self.unique:
-            namespaceprefix_ = self.unique_nsprefix_ + ':' if (UseCapturedNS_ and self.unique_nsprefix_) else ''
-            unique_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='unique', pretty_print=pretty_print)
-        for count_ in self.count:
-            namespaceprefix_ = self.count_nsprefix_ + ':' if (UseCapturedNS_ and self.count_nsprefix_) else ''
-            count_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='count', pretty_print=pretty_print)
-        for glob_to_regex_ in self.glob_to_regex:
-            namespaceprefix_ = self.glob_to_regex_nsprefix_ + ':' if (UseCapturedNS_ and self.glob_to_regex_nsprefix_) else ''
-            glob_to_regex_.export(outfile, level, namespaceprefix_, namespacedef_='', name_='glob_to_regex', pretty_print=pretty_print)
+        for tag_name, component_ in self.ordered_components:
+            child_nsprefix = self.ns_prefix_ + ':' if self.ns_prefix_ else ''
+            component_.export(outfile, level, namespaceprefix_=child_nsprefix, namespacedef_='', name_=tag_name, pretty_print=pretty_print)        
     def build(self, node, gds_collector_=None):
         self.gds_collector_ = gds_collector_
         if SaveElementTreeNode:
@@ -23410,7 +23389,7 @@ class EscapeRegexFunctionType(GeneratedsSuper):
         pass
     def _exportChildren(self, outfile, level, namespaceprefix_='oval-def:', namespacedef_='xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5"', name_='EscapeRegexFunctionType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
-            eol_ = '\n'
+            eol_ = '\n' 
         else:
             eol_ = ''
         if self.object_component is not None:
@@ -24511,7 +24490,7 @@ class TimeDifferenceFunctionType(GeneratedsSuper):
         else:
             outfile.write('/>%s' % (eol_, ))
     def _exportAttributes(self, outfile, level, already_processed, namespaceprefix_='oval-def:', name_='TimeDifferenceFunctionType'):
-        if self.format_1 != "year_month_day" and 'format_1' not in already_processed:
+        if self.format_1 != "year_month_day" and 'format_1' not in already_processed and self.format_1 is not None:
             already_processed.add('format_1')
             outfile.write(' format_1=%s' % (self.gds_encode(self.gds_format_string(quote_attrib(self.format_1), input_name='format_1')), ))
         if self.format_2 != "year_month_day" and 'format_2' not in already_processed:
