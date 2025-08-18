@@ -1,0 +1,7 @@
+# requirements file to build from source
+urllib3
+six
+requests
+PyYAML
+lxml
+certifi
