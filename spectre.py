@@ -185,6 +185,7 @@ class XccdfEditorApp:
         oval_import_menu.add_command(label="Tests from File...", command=self.import_oval_tests)   
         oval_import_menu.add_command(label="Objects from File...", command=self.import_oval_objects)
         oval_import_menu.add_command(label="States from File...", command=self.import_oval_states)
+        oval_import_menu.add_command(label="Variables from File...", command=self.import_oval_variables)
 
         # --- Main layout ---
         paned_window = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
@@ -1503,7 +1504,253 @@ class XccdfEditorApp:
         self._center_dialog(dialog)
         dialog.wait_window()
         return selected_data
+
+    def import_oval_variables(self):
+        """
+        Orchestrates the import of OVAL variables by creating new, clean objects
+        from the source file's data.
+        """
+        file_path = filedialog.askopenfilename(
+            title="Import OVAL Variables From File",
+            filetypes=(("XML files", "*.xml"), ("All files", "*.*"))
+        )
+        if not file_path:
+            return
+
+        try:
+            from lxml import etree
+            tree = etree.parse(file_path)
+            # This XPath reliably finds any element whose name ends with '_variable'
+            variable_nodes = tree.xpath("//*[substring(local-name(), string-length(local-name()) - string-length('_variable') + 1) = '_variable']")
+
+            if not variable_nodes:
+                messagebox.showinfo("No Variables Found", "The selected file does not contain any OVAL variables.")
+                return
+
+            # Create a clean list of data dictionaries directly from the lxml nodes.
+            source_variables_data = []
+            for node in variable_nodes:
+                class_name = node.tag.split('}')[-1]
+                var_class = getattr(models, class_name, None)
+                if var_class:
+                    # Manually extract all data into a clean dict
+                    var_data = {
+                    'id': node.attrib.get('id'),
+                    'version': node.attrib.get('version'),
+                    'comment': node.attrib.get('comment'),
+                    'datatype': node.attrib.get('datatype'),
+                    'class': var_class
+                }
+
+                if class_name == 'constant_variable':
+                    var_data['value'] = [v.text for v in node.findall('{*}value')]
+
+                elif class_name == 'external_variable':
+                    p_vals = []
+                    for pv_node in node.findall('{*}possible_value'):
+                        p_vals.append({
+                            'value': pv_node.text,
+                            'hint': pv_node.attrib.get('hint'),
+                            'datatype': pv_node.attrib.get('datatype')
+                        })
+                    var_data['possible_value'] = p_vals
+
+                    # Possible Restrictions
+                    p_rests = []
+                    for pr_node in node.findall('{*}possible_restriction'):
+                        restrictions = []
+                        for r_node in pr_node.findall('{*}restriction'):
+                            restrictions.append({
+                                'value': r_node.text,
+                                'operation': r_node.attrib.get('operation')
+                            })
+                        p_rests.append({
+                            'hint': pr_node.attrib.get('hint'),
+                            'operator': pr_node.attrib.get('operator'),
+                            'restrictions': restrictions
+                        })
+                    var_data['possible_restriction'] = p_rests
+
+                elif class_name == 'local_variable':
+                    literal_node = node.find('{*}literal_component')
+                    var_node = node.find('{*}variable_component')
+                    obj_node = node.find('{*}object_component')
+                    
+                    if literal_node is not None:
+                        var_data['component_type'] = 'literal'
+                        var_data['literal_value'] = literal_node.text
+                    elif var_node is not None:
+                        var_data['component_type'] = 'variable'
+                        var_data['var_ref'] = var_node.attrib.get('var_ref')
+                    elif obj_node is not None:
+                        var_data['component_type'] = 'object'
+                        var_data['object_ref'] = obj_node.attrib.get('object_ref')
+                        var_data['item_field'] = obj_node.attrib.get('item_field')
+                        var_data['record_field'] = obj_node.attrib.get('record_field')
+                    else:
+                        var_data['component_type'] = 'function'
+                        # The actual function is the first (and only) child of the group
+                        actual_func_node = next(iter(node), None)
+                        if actual_func_node is None:
+                            source_variables_data.append(var_data)
+                            continue
+                        function_data = self._parse_function_node_recursively(actual_func_node)
+                        if function_data:
+                            var_data.update(function_data)
+                        
+#                print(f"var_data:    {var_data}")
+                source_variables_data.append(var_data)
+
+            selected_variables_data = self._select_variables_to_import_dialog(source_variables_data)
+            if not selected_variables_data:
+                return
+
+            target_component = self._select_target_oval_component_dialog()
+            if not target_component:
+                return
+            target_oval_defs = target_component.oval_definitions
         
+            if target_oval_defs.get_variables() is None:
+                target_oval_defs.set_variables(models.VariablesType())
+            
+            existing_variable_ids = {v.get_id() for v in target_oval_defs.get_variables().get_variable()}
+            added_count = 0
+
+            for var_data in selected_variables_data:
+                if var_data['id'] not in existing_variable_ids:
+                    # Use our trusted factory to create a new, clean object.
+                    new_variable = self._create_oval_entity(var_data['class'], var_data, 'variable')
+                    if new_variable:
+                        target_oval_defs.get_variables().add_variable(new_variable)
+                        added_count += 1
+            
+            if added_count > 0:
+                self._mark_as_dirty()
+                messagebox.showinfo("Import Complete", f"Successfully imported {added_count} new OVAL variable(s).")
+                self.display_details(target_component)
+            else:
+                messagebox.showinfo("No Changes", "All selected variables already exist in the target component.")
+
+        except Exception as e:
+            messagebox.showerror("Import Error", f"Failed to import OVAL variables:\n{e}")
+
+    def _select_variables_to_import_dialog(self, variables_data):
+        """Shows a scrollable dialog with a checklist of OVAL variables to import."""
+        dialog = tk.Toplevel(self.root)
+        dialog.transient(self.root)
+        dialog.title("Select Variables to Import")
+        dialog.minsize(width=450, height=400)
+
+        main_frame = ttk.Frame(dialog)
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        
+        ttk.Label(main_frame, text="Select the variables you want to import:").pack(anchor="w", pady=5)
+        
+        button_frame_top = ttk.Frame(main_frame)
+        button_frame_top.pack(fill=tk.X, pady=(0, 5))
+
+        canvas = tk.Canvas(main_frame, borderwidth=0)
+        scrollbar = ttk.Scrollbar(main_frame, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        checkbox_frame = ttk.Frame(canvas)
+        canvas.create_window((0, 0), window=checkbox_frame, anchor="nw")
+
+        def on_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+        checkbox_frame.bind("<Configure>", on_configure)
+
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        check_vars = {}
+        for var_data in variables_data:
+            var_id = var_data.get('id', '')
+            comment = var_data.get('comment', 'No comment')
+            
+            var = tk.BooleanVar(value=True)
+            chk = ttk.Checkbutton(checkbox_frame, text=f"{var_id} ({comment})", variable=var)
+            chk.pack(anchor="w", padx=10, pady=2)
+            check_vars[var_id] = {'var': var, 'data': var_data}
+
+        def select_all():
+            for item in check_vars.values(): item['var'].set(True)
+        
+        def deselect_all():
+            for item in check_vars.values(): item['var'].set(False)
+
+        ttk.Button(button_frame_top, text="Select All", command=select_all).pack(side=tk.LEFT)
+        ttk.Button(button_frame_top, text="Deselect All", command=deselect_all).pack(side=tk.LEFT, padx=5)
+
+        selected_data = None
+        def on_ok():
+            nonlocal selected_data
+            selected_data = [item['data'] for item in check_vars.values() if item['var'].get()]
+            dialog.destroy()
+
+        button_frame_bottom = ttk.Frame(dialog, padding=(10, 5))
+        button_frame_bottom.pack(fill=tk.X, side=tk.BOTTOM)
+        ttk.Button(button_frame_bottom, text="Import Selected", command=on_ok).pack(side=tk.RIGHT)
+        ttk.Button(button_frame_bottom, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=5)
+        
+        self._center_dialog(dialog)
+        dialog.wait_window()
+        return selected_data
+
+    def _parse_function_node_recursively(self, function_node):
+        """
+        Takes an lxml node for a function (e.g., <concat>, <escape_regex>) and
+        recursively builds the complete data dictionary for it and all its children.
+        """
+        if function_node is None:
+            return None
+
+        # 1. Get the basic info for this function
+        func_type = function_node.tag.split('}')[-1]
+        func_data = {'type': 'function', 'function_type': func_type, 'components_data': []}
+
+        # 2. Get any specific attributes for this function
+        if func_type == 'arithmetic':
+            func_data['arithmetic_op'] = function_node.attrib.get('arithmetic_operation')
+        elif func_type in ['begin', 'end']:
+            func_data['character'] = function_node.attrib.get('character')
+        elif func_type == 'split':
+            func_data['delimiter'] = function_node.attrib.get('delimiter')
+        elif func_type == 'regex_capture':
+            func_data['pattern'] = function_node.attrib.get('pattern')
+        elif func_type == 'glob_to_regex':
+            func_data['glob_noescape'] = function_node.attrib.get('glob_noescape')
+        elif func_type == 'substring':
+            func_data['substring_start'] = function_node.attrib.get('substring_start')
+            func_data['substring_length'] = function_node.attrib.get('substring_length')
+        elif func_type == 'time_difference':
+            func_data['format_1'] = function_node.attrib.get('format_1')
+            func_data['format_2'] = function_node.attrib.get('format_2')
+        
+        # 3. Recursively process all children of this function
+        for child_node in function_node:
+            child_tag = child_node.tag.split('}')[-1]
+            
+            if child_tag == 'literal_component':
+                func_data['components_data'].append({'type': 'literal_component', 'value': child_node.text})
+            elif child_tag == 'object_component':
+                func_data['components_data'].append({
+                    'type': 'object_component',
+                    'object_ref': child_node.attrib.get('object_ref'),
+                    'item_field': child_node.attrib.get('item_field'),
+                    'record_field': child_node.attrib.get('record_field')
+                })
+            elif child_tag == 'variable_component':
+                func_data['components_data'].append({
+                    'type': 'variable_component',
+                    'var_ref': child_node.attrib.get('var_ref')
+                })
+            else: # It must be another, nested function
+                # This is the recursive call. The function calls itself.
+                nested_func_data = self._parse_function_node_recursively(child_node)
+                if nested_func_data:
+                    func_data['components_data'].append(nested_func_data)
+#        print(func_data)
+        return func_data        
         
         
 ##--  [ Core Component Creators ]---
@@ -2637,7 +2884,7 @@ class XccdfEditorApp:
         if create_catalog:
             catalog_uri = models.uri(name=ref_id, uri_member=component_id_href)
             comp_ref.set_catalog(models.catalog(uri=[catalog_uri]))
-            print(f"catalog_uri: {catalog_uri}")
+#            print(f"catalog_uri: {catalog_uri}")
         return comp_ref
 
     def get_cpe_oval_catalog_name(self):
@@ -3518,7 +3765,8 @@ class XccdfEditorApp:
             'definition': 'def',
             'test': 'tst',
             'object': 'obj',
-            'state': 'ste'
+            'state': 'ste',
+            'variable': 'var'
         }
         for entity_type, abbr in abbreviation_map.items():
             container = getattr(oval_defs_obj, f"get_{entity_type}s")()
@@ -3573,6 +3821,7 @@ class XccdfEditorApp:
         self.populate_oval_tests_tree(oval_defs_obj)
         self.populate_oval_objects_tree(oval_defs_obj)
         self.populate_oval_states_tree(oval_defs_obj)
+        self.populate_oval_variables_tree(oval_defs_obj)
         
         self._mark_as_dirty()
         messagebox.showinfo("Success", f"Standardized {len(id_remap)} OVAL ID(s) and updated internal references.")        
@@ -4024,7 +4273,7 @@ class XccdfEditorApp:
 
         if not data:
             return None
-
+#        print(f"add_oval_entity data before _create_oval_entity:    {data}")
         new_entity = self._create_oval_entity(selected_class, data, entity_type_str)
         if not new_entity: return None
         
@@ -4234,17 +4483,18 @@ class XccdfEditorApp:
         # 3. Create an empty instance.
         new_entity = selected_class()
         new_entity.original_tagname_ = selected_class.__name__
-        
+#        print(f"_create_oval_entity data before_populate:   {data}")
         # 4. Delegate all the complex work to our single, robust population helper.
         self._populate_oval_entity_properties(new_entity, clean_data, entity_type_str)
 
+#        print(f"new_entity:    {new_entity}")
         return new_entity
         
     def _update_oval_entity(self, entity_to_edit, data, entity_type_str):
         """Updates an existing OVAL entity from dialog data."""
         if not data: return
         
-        print(f"data: {data}")
+#        print(f"data: {data}")
         # --- Set COMMON attributes for all OVAL entities ---
         if 'id' in data: entity_to_edit.set_id(data['id'])
         if 'version' in data: entity_to_edit.set_version(data['version'])
@@ -4549,7 +4799,7 @@ class XccdfEditorApp:
                         entity_to_edit.set_substring(func)
                         
                     if func:
-                        self._build_function_components(func, components_data, func_type)
+                        self._build_function_components(func, components_data)
 #        print(f"entity: {entity_to_edit}")  
 
     def _populate_oval_entity_properties(self, entity, data, entity_type_str):
@@ -4742,6 +4992,7 @@ class XccdfEditorApp:
 
         elif entity_type_str == 'variable':
             entity.set_datatype(data['datatype'])
+#            print(f"_populate_oval_entity_properties data:   {data}")
             
             if isinstance(entity, models.constant_variable) and 'value' in data:
                 for val in data['value']:
@@ -4836,8 +5087,8 @@ class XccdfEditorApp:
                         entity.set_substring(func)
                         
                     if func:
-#                        print(f"comp_data: {components_data}")
-                        self._build_function_components(func, components_data, func_type)                    
+#                        print(f"_populate_oval_entity_properties comp_data before _build_function_components: {components_data}")
+                        self._build_function_components(func, components_data)                    
 
         
     def build_entity_from_node(self, node, entity_type_str):
@@ -4870,8 +5121,6 @@ class XccdfEditorApp:
         if 'comment' in node.attrib: new_entity.set_comment(node.attrib['comment'])
         if 'check' in node.attrib: new_entity.set_check(node.attrib['check'])
         if 'check_existence' in node.attrib: new_entity.set_check_existence(node.attrib['check_existence'])
-        
-        # This can be expanded to build child elements recursively
         
         return new_entity
         
@@ -4933,48 +5182,109 @@ class XccdfEditorApp:
                 setter_method(entity)
                 entity.ns_prefix_ = parent_entity.ns_prefix_
 
-    def _build_function_components(self, parent_function, components_data, func_type):
-        """A helper to build the components inside any function."""
+    def _build_function_components(self, parent_function, components_data):
+        """
+        A helper that populates a given function object with its child components,
+        preserving order where necessary.
+        """
         if not components_data:
-#            print(f"No")
             return
+        
         for comp_data in components_data:
             comp_type = comp_data.get('type')
+
+            # This is the "is multi-component" check you identified.
+            # It's that use add not set
+            is_multi_component_parent = isinstance(parent_function, (
+                models.ConcatFunctionType, models.ArithmeticFunctionType, 
+                models.UniqueFunctionType, models.CountFunctionType,
+                models.TimeDifferenceFunctionType
+            ))
+            
+            has_particular_order = isinstance(parent_function, (
+                models.ConcatFunctionType
+            ))
+            
 #            print(f"comp_type: {comp_type}")
+#            print(f"comp_data: {comp_data}")
+            component = None
             if comp_type == 'literal_component':
-                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
-                    parent_function.set_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
+                component = models.LiteralComponentType(valueOf_=comp_data.get('value'))
+                if has_particular_order:
+                    parent_function.gds_add_component(comp_type, component)
+                elif is_multi_component_parent:
+                    parent_function.add_literal_component(component)
                 else:
-                    parent_function.add_literal_component(models.LiteralComponentType(valueOf_=comp_data.get('value')))
+                    parent_function.set_literal_component(component)
+            
             elif comp_type == 'object_component':
                 oc_kwargs = {'object_ref': comp_data.get('object_ref'), 'item_field': comp_data.get('item_field')}
                 if comp_data.get('record_field'): oc_kwargs['record_field'] = comp_data.get('record_field')
-                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
-                    parent_function.set_object_component(models.ObjectComponentType(**oc_kwargs))
+                component = models.ObjectComponentType(**oc_kwargs)
+                if has_particular_order:
+                    parent_function.gds_add_component(comp_type, component)
+                elif is_multi_component_parent:
+                    parent_function.add_object_component(component)
                 else:
-                    parent_function.add_object_component(models.ObjectComponentType(**oc_kwargs))
+                    parent_function.set_object_component(component)
+            
             elif comp_type == 'variable_component':
-                if func_type in ["begin", "end", "split", "regex_capture", "glob_to_regex", "substring"]:
-                    parent_function.set_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
+                component = models.VariableComponentType(var_ref=comp_data.get('var_ref'))
+                if has_particular_order:
+                    parent_function.gds_add_component(comp_type, component)
+                elif is_multi_component_parent:
+                    parent_function.add_variable_component(component)
                 else:
-                    parent_function.add_variable_component(models.VariableComponentType(var_ref=comp_data.get('var_ref')))
-
+                    parent_function.set_variable_component(component)
+            
             # --- START RECURSIVE LOGIC ---
-            elif comp_type == 'function_group':
-                func_group = models.FunctionGroup()
-                func_type = comp_data.get('function_type')
+            elif comp_type == 'function':
+                nested_func_data = comp_data
+#                print(f"nested_func_data: {nested_func_data}")
+                func_type = nested_func_data.get('function_type')
+#                print(f"func_type: {func_type}")
                 
-                func = None
+                # This block creates the correct, specific nested function object.
+                nested_func = None
                 if func_type == 'arithmetic':
-                    # A more advanced version would get the op and components
-                    func = models.ArithmeticFunctionType()
-                    func_group.set_arithmetic(func)
-                # ... (add elif for other function types) ...
+                    nested_func = models.ArithmeticFunctionType(arithmetic_operation=nested_func_data.get('arithmetic_op'))
+                elif func_type == 'concat':
+                    nested_func = models.ConcatFunctionType()
+                elif func_type == 'escape_regex':
+                    nested_func = models.EscapeRegexFunctionType()
+                elif func_type == 'unique':
+                    nested_func = models.UniqueFunctionType()
+                elif func_type == 'count':
+                    nested_func = models.CountFunctionType()
+                elif func_type in ['begin', 'end']:
+                    nested_func = models.BeginFunctionType(character=nested_func_data.get('character')) if func_type == 'begin' else models.EndFunctionType(character=nested_func_data.get('character'))
+                elif func_type == 'split':
+                    nested_func = models.SplitFunctionType(delimiter=nested_func_data.get('delimiter'))
+                elif func_type == 'regex_capture':
+                    nested_func = models.RegexCaptureFunctionType(pattern=nested_func_data.get('pattern'))
+                elif func_type == 'glob_to_regex':
+                    nested_func = models.GlobToRegexFunctionType(glob_noescape=nested_func_data.get('glob_noescape'))
+                elif func_type == 'substring':
+                    nested_func = models.SubstringFunctionType(
+                        substring_start=nested_func_data.get('substring_start'),
+                        substring_length=nested_func_data.get('substring_length')
+                    )
+                elif func_type == 'time_difference':
+                    nested_func = models.TimeDifferenceFunctionType(
+                        format_1=nested_func_data.get('format_1'),
+                        format_2=nested_func_data.get('format_2')
+                    )
                 
-                # We would need a way to get the nested components' data
-                # For now, we create an empty function group
-                if func:
-                    parent_function.add_function_group(func_group)
+                if nested_func:
+                    # Recursively build its children
+                    self._build_function_components(nested_func, nested_func_data.get('components_data', []))
+                    component = nested_func # The component to add is the function itself
+#                    print(f"component: {component}")
+                    
+                    # Add the nested function back to the main parent
+                    setter_name = f"set_{func_type}" if not is_multi_component_parent else f"add_{func_type}"
+                    if hasattr(parent_function, setter_name):
+                        getattr(parent_function, setter_name)(component)
 
 
 ##--  [  OVAL Tests ]---
@@ -6009,7 +6319,7 @@ class XccdfEditorApp:
                     op_frame = ttk.Frame(dynamic_function_frame)
                     op_frame.pack(fill=tk.X, pady=5)
                     ttk.Label(op_frame, text="Arithmetic Op:").pack(side=tk.LEFT)
-                    ttk.Combobox(op_frame, textvariable=op_var, values=['add', 'multiply', 'subtract'], state='readonly').pack(side=tk.LEFT)
+                    ttk.Combobox(op_frame, textvariable=op_var, values=['add', 'multiply'], state='readonly').pack(side=tk.LEFT)
                     results['arithmetic_op_var'] = op_var
                 
                 # --- Build UI based on the selected function ---
@@ -6084,7 +6394,7 @@ class XccdfEditorApp:
                     frame, editor_data = create_list_editor(
                         dynamic_function_frame, "Components", components_data,
                         self._show_function_component_dialog,
-                        lambda d: f"{d['type']}: {d.get('value') or d.get('var_ref') or d.get('object_ref')}",
+                        lambda d: f"{d['type']}: {d.get('value') or d.get('var_ref') or d.get('object_ref') or d.get('data', {}).get('function_type')}",
                         'component_to_edit'
                     )
                     frame.pack(fill=tk.BOTH, expand=True, pady=5)
@@ -6417,13 +6727,13 @@ class XccdfEditorApp:
         ttk.Radiobutton(radio_frame, text="Literal", value="literal_component", variable=component_type_var).pack(side=tk.LEFT)
         ttk.Radiobutton(radio_frame, text="Object", value="object_component", variable=component_type_var).pack(side=tk.LEFT, padx=5)
         ttk.Radiobutton(radio_frame, text="Variable", value="variable_component", variable=component_type_var).pack(side=tk.LEFT, padx=5)
-        ttk.Radiobutton(radio_frame, text="Function", value="function_group", variable=component_type_var).pack(side=tk.LEFT)
-
+        ttk.Radiobutton(radio_frame, text="Function", value="function", variable=component_type_var).pack(side=tk.LEFT)
+        
         # --- Frames for each component's UI ---
         literal_frame = ttk.Frame(main_frame)
         object_frame = ttk.Frame(main_frame)
         variable_frame = ttk.Frame(main_frame)
-        function_frame = ttk.Frame(main_frame) # Placeholder for nested functions
+        function_frame = ttk.Frame(main_frame)
 
         def switch_view(*args):
             literal_frame.pack_forget(); object_frame.pack_forget(); variable_frame.pack_forget(); function_frame.pack_forget()
@@ -6431,7 +6741,7 @@ class XccdfEditorApp:
             if ctype == "literal_component": literal_frame.pack(fill=tk.BOTH, expand=True)
             elif ctype == "object_component": object_frame.pack(fill=tk.BOTH, expand=True)
             elif ctype == "variable_component": variable_frame.pack(fill=tk.BOTH, expand=True)
-            elif ctype == "function_group": function_frame.pack(fill=tk.BOTH, expand=True)
+            elif ctype == "function": function_frame.pack(fill=tk.BOTH, expand=True)
         
         component_type_var.trace_add("write", switch_view)
 
@@ -6447,11 +6757,20 @@ class XccdfEditorApp:
         
         ttk.Label(variable_frame, text="Variable Ref:").grid(row=0, column=0); ttk.Combobox(variable_frame, textvariable=var_ref_var, values=self.get_oval_variable_ids()).grid(row=0, column=1, sticky='ew')
 
-        func_type_var = tk.StringVar()
-        ttk.Label(function_frame, text="Function Type:").pack(anchor='w')
-        func_options = ["arithmetic", "concat", "end", "escape_regex", "split", "substring", "time_difference", "regex_capture", "unique", "count", "glob_to_regex"]
-        ttk.Combobox(function_frame, textvariable=func_type_var, values=func_options, state='readonly').pack(fill=tk.X)
-        ttk.Button(function_frame, text="Define...", command=lambda: messagebox.showinfo("Info", "Nested function components are defined in the main editor.")).pack(pady=5)
+        # This will hold the complex dictionary returned from the recursive dialog call
+        nested_function_data = None
+        display_var = tk.StringVar(value="No function defined.")
+        
+        def define_nested_function():
+            nonlocal nested_function_data
+            # This is the recursive call to your main variable editor
+            temp_data = self._show_generic_variable_details_dialog(models.local_variable)
+            if temp_data:
+                nested_function_data = temp_data
+                display_var.set(f"Defined: {temp_data.get('function_type')} function")
+
+        ttk.Label(function_frame, textvariable=display_var, foreground="blue").pack(anchor='w')
+        ttk.Button(function_frame, text="Define Nested Function...", command=define_nested_function).pack(anchor='w', pady=5)
 
         # Pre-fill if editing
         if component_to_edit:
@@ -6465,8 +6784,9 @@ class XccdfEditorApp:
                 rec_field_var.set(component_to_edit.get('record_field', ''))
             elif ctype == 'variable_component':
                 var_ref_var.set(component_to_edit.get('var_ref', ''))
-            elif ctype == 'function_group':
-                func_type_var.set(component_to_edit.get('function_type', ''))
+            elif ctype == 'function':
+                nested_function_data = component_to_edit.get('data', {})
+                display_var.set(f"Defined: {nested_function_data.get('function_type')} function")
         else:
             component_type_var.set("literal_component")
 
@@ -6477,9 +6797,10 @@ class XccdfEditorApp:
             elif results['type'] == 'object_component':
                 results['object_ref'] = obj_ref_var.get(); results['item_field'] = item_field_var.get(); results['record_field'] = rec_field_var.get()
             elif results['type'] == 'variable_component': results['var_ref'] = var_ref_var.get()
-            elif results['type'] == 'function_group':
-                # For now, we only need to know the type of function to create
-                results['function_type'] = func_type_var.get()
+            elif results['type'] == 'function':
+                if nested_function_data:
+                    results.update(nested_function_data)
+#                print(f"results:    {results}")
                 # A more advanced version would open another editor here
             dialog.destroy()
 
